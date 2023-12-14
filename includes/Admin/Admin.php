@@ -61,6 +61,10 @@ class Admin {
 				'slug'  => '#/tweets',
 			],
 			[
+				'title' => __( 'Keywords', 'terapixel-news-generator' ),
+				'slug'  => '#/keywords',
+			],
+			[
 				'title' => __( 'News Tags', 'terapixel-news-generator' ),
 				'slug'  => '#/tags',
 			],

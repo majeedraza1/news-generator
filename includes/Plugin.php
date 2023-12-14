@@ -17,6 +17,7 @@ use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use TeraPixelNewsGenerator\EventRegistryNewsApi\NewsApiCronEvent;
 use TeraPixelNewsGenerator\EventRegistryNewsApi\NewsSource;
 use TeraPixelNewsGenerator\Modules\ExternalLink\ExternalLinkManager;
+use TeraPixelNewsGenerator\Modules\Keyword\KeywordManager;
 use TeraPixelNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
 use TeraPixelNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
 use TeraPixelNewsGenerator\Modules\Site\REST\AdminSiteController;
@@ -256,6 +257,7 @@ class Plugin {
 	public function modules_includes() {
 		$this->container['module_tweet_to_article'] = TweetToArticleManager::init();
 		$this->container['module_external_link']    = ExternalLinkManager::init();
+		$this->container['module_keyword']          = KeywordManager::init();
 	}
 
 	/**

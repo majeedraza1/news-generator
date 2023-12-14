@@ -357,6 +357,36 @@
             </tr>
           </table>
         </ShaplaTab>
+        <ShaplaTab name="Keyword">
+          <table class="form-table">
+            <tr>
+              <th>Default instruction</th>
+              <td>
+                <ShaplaInput type="textarea" v-model="state.keyword_global_instruction"/>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <label for="">(Keyword to) News Sync Interval</label>
+              </th>
+              <td>
+                <input type="number" v-model="state.keyword_news_sync_interval" min="15" max="360"
+                       step="5"/>
+                <p class="description">News sync interval in minutes. Minimum value is
+                  15(minutes) and maximum value is 360(minutes).</p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <label for="">Keyword to sync per batch</label>
+              </th>
+              <td>
+                <input type="number" v-model="state.keyword_item_per_sync" min="1" step="1"/>
+                <p class="description">Number of keywords to sync per batch run.</p>
+              </td>
+            </tr>
+          </table>
+        </ShaplaTab>
       </ShaplaTabs>
     </div>
     <div class="fixed bottom-8 right-8">
@@ -432,6 +462,9 @@ const state = reactive<{
   news_duplicate_checking_enabled: boolean,
   openai_news_sync_method: 'full_news' | 'individual_field',
   instructions: Record<string, string>,
+  keyword_news_sync_interval: number,
+  keyword_item_per_sync: number,
+  keyword_global_instruction: string,
   news_sync_query_info: NewsSyncQueryInfoInterface[],
   categories: CategoryInterface[],
   category: CategoryInterface | {},
@@ -497,6 +530,9 @@ const state = reactive<{
   google_vision_secret_key: '',
   google_vision_test_url: '',
   important_news_for_instagram: '',
+  keyword_news_sync_interval: 30,
+  keyword_item_per_sync: 1,
+  keyword_global_instruction: '',
 })
 
 const openai_news_sync_methods = [
@@ -664,6 +700,9 @@ function getSettings() {
     state.google_vision_secret_key = settings.google_vision_secret_key;
     state.should_remove_image_with_text = settings.should_remove_image_with_text;
     state.sync_image_copy_setting_from_source = settings.sync_image_copy_setting_from_source;
+    state.keyword_news_sync_interval = settings.keyword_news_sync_interval;
+    state.keyword_item_per_sync = settings.keyword_item_per_sync;
+    state.keyword_global_instruction = settings.keyword_global_instruction;
     state.primary_categories = _categories;
   })
 }
@@ -694,6 +733,9 @@ function saveSettings() {
     should_remove_image_with_text: state.should_remove_image_with_text,
     sync_image_copy_setting_from_source: state.sync_image_copy_setting_from_source,
     use_linkedin_data_for_instagram: state.use_linkedin_data_for_instagram,
+    keyword_item_per_sync: state.keyword_item_per_sync,
+    keyword_news_sync_interval: state.keyword_news_sync_interval,
+    keyword_global_instruction: state.keyword_global_instruction,
   };
   crud.createItem(data).then(() => {
     getSettings();

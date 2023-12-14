@@ -339,6 +339,7 @@ class Setting {
 			'important_news_for_tweet'     => '',
 			'important_news_for_instagram' => '',
 			'remove_blacklist_phrase'      => '',
+			'custom_keyword'               => '',
 		);
 	}
 
@@ -372,6 +373,7 @@ class Setting {
 			'important_news_for_tweet'     => static::get_important_news_for_tweet_instruction(),
 			'important_news_for_instagram' => static::get_important_news_for_instagram_instruction(),
 			'remove_blacklist_phrase'      => static::get_remove_blacklist_phrase_instruction(),
+			'custom_keyword'               => static::get_custom_keyword_instruction(),
 		);
 	}
 
@@ -707,6 +709,19 @@ class Setting {
 		$instruction .= 'We don\'t need any descriptions. Thank you!';
 
 		return static::get_instruction_options( 'remove_blacklist_phrase', $instruction );
+	}
+
+	/**
+	 * Get instruction for custom keyword
+	 *
+	 * @return string
+	 */
+	public static function get_custom_keyword_instruction(): string {
+		$instruction  = 'Please generate blog post with SEO. ';
+		$instruction .= 'The keyword is "{{keyword}}" and we need to add the keyword in title, meta description and contents. ';
+		$instruction .= 'Please insert this keyword more than 5 times in the article with 2000 words.';
+
+		return static::get_instruction_options( 'custom_keyword', $instruction );
 	}
 
 	/**

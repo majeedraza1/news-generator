@@ -2,6 +2,7 @@
 
 namespace TeraPixelNewsGenerator\REST;
 
+use Stackonet\WP\Framework\Supports\Validate;
 use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
 use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateOldNews;
 use TeraPixelNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
@@ -10,19 +11,24 @@ use TeraPixelNewsGenerator\EventRegistryNewsApi\Category;
 use TeraPixelNewsGenerator\EventRegistryNewsApi\Client;
 use TeraPixelNewsGenerator\EventRegistryNewsApi\Setting;
 use TeraPixelNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use TeraPixelNewsGenerator\Modules\Keyword\Setting as KeywordSetting;
 use TeraPixelNewsGenerator\Modules\Site\SiteStore;
 use TeraPixelNewsGenerator\OpenAIApi\Models\BlackListWords;
 use TeraPixelNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
 use TeraPixelNewsGenerator\Providers\GoogleVisionClient;
-use Stackonet\WP\Framework\Supports\Validate;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * The AdminSettingController class is responsible for handling the admin settings related to the API controller.
+ */
 class AdminSettingController extends ApiController {
 	/**
+	 * The instance of the class
+	 *
 	 * @var self
 	 */
 	private static $instance;
@@ -36,13 +42,13 @@ class AdminSettingController extends ApiController {
 			'/settings',
 			array(
 				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_items' ),
+					'methods'  => WP_REST_Server::READABLE,
+					'callback' => array( $this, 'get_items' ),
 //					'permission_callback' => array( $this, 'create_item_permissions_check' ),
 				),
 				array(
-					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'create_item' ),
+					'methods'  => WP_REST_Server::CREATABLE,
+					'callback' => array( $this, 'create_item' ),
 //					'permission_callback' => array( $this, 'create_item_permissions_check' ),
 				),
 			)
@@ -153,6 +159,9 @@ class AdminSettingController extends ApiController {
 			'news_not_before_in_minutes'          => Setting::get_news_not_before_in_minutes(),
 			'sync_image_copy_setting_from_source' => Setting::sync_image_copy_setting_from_source(),
 			'google_vision_secret_key'            => GoogleVisionClient::get_google_vision_secret_key(),
+			'keyword_news_sync_interval'          => KeywordSetting::get_sync_interval(),
+			'keyword_item_per_sync'               => KeywordSetting::get_item_per_sync(),
+			'keyword_global_instruction'          => KeywordSetting::get_global_instruction(),
 		);
 
 		$news_sync_query_info = array();
@@ -204,26 +213,26 @@ class AdminSettingController extends ApiController {
 	/**
 	 * Get openAI article HTTP query info
 	 *
-	 * @param  array $setting
+	 * @param  array  $setting
 	 *
 	 * @return array
 	 */
 	public static function get_openai_article_http_query_info( array $setting ): array {
 		$client = new Client();
 		$client->add_headers( 'Content-Type', 'application/json' );
-		$sanitized_args       = $client->get_articles_sanitized_args( $setting, true );
-		list( $url, $args )   = $client->get_url_and_arguments(
+		$sanitized_args = $client->get_articles_sanitized_args( $setting, true );
+		list( $url, $args ) = $client->get_url_and_arguments(
 			'GET',
 			'/article/getArticles',
 			$sanitized_args
 		);
-		$args                 = array_merge( array( 'url' => $url ), $args );
+		$args = array_merge( array( 'url' => $url ), $args );
 		list( $url2, $args2 ) = $client->get_url_and_arguments(
 			'POST',
 			'/article/getArticles',
 			$sanitized_args
 		);
-		$args2                = array_merge( array( 'url' => $url2 ), $args2 );
+		$args2 = array_merge( array( 'url' => $url2 ), $args2 );
 
 		return array(
 			'get'  => $args,
@@ -372,6 +381,15 @@ class AdminSettingController extends ApiController {
 		$google_vision_secret_key             = $request->get_param( 'google_vision_secret_key' );
 		$settings['google_vision_secret_key'] = GoogleVisionClient::update_google_vision_secret_key( $google_vision_secret_key );
 
+		$keyword_news_sync_interval             = $request->get_param( 'keyword_news_sync_interval' );
+		$settings['keyword_news_sync_interval'] = KeywordSetting::update_sync_interval( $keyword_news_sync_interval );
+
+		$keyword_item_per_sync             = $request->get_param( 'keyword_item_per_sync' );
+		$settings['keyword_item_per_sync'] = KeywordSetting::update_item_per_sync( $keyword_item_per_sync );
+
+		$keyword_global_instruction             = $request->get_param( 'keyword_global_instruction' );
+		$settings['keyword_global_instruction'] = KeywordSetting::update_global_instruction( $keyword_global_instruction );
+
 		// @TODO make it background
 		SiteStore::send_general_data_to_sites();
 
@@ -381,7 +399,7 @@ class AdminSettingController extends ApiController {
 	/**
 	 * Sync news
 	 *
-	 * @param  WP_REST_Request $request  Full details of request.
+	 * @param  WP_REST_Request  $request  Full details of request.
 	 *
 	 * @return WP_REST_Response
 	 */

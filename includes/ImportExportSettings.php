@@ -40,7 +40,7 @@ class ImportExportSettings {
 	public function register_importer() {
 		register_importer(
 			'falahcoin-import-settings',
-			'Falahcoin import News settings',
+			'TeraPixel import News settings',
 			'Lets you import those things',
 			array( $this, 'do_import' )
 		);
@@ -82,7 +82,7 @@ class ImportExportSettings {
 	public function do_import_form() {
 		?>
         <div class="wrap">
-            <h2>Import Falahcoin Settings</h2>
+            <h2>Import TeraPixel Settings</h2>
             <div class="narrow">
                 <p>Choose a JSON (.json) file to upload, then click Upload file and import.</p>
                 <form enctype="multipart/form-data" id="import-upload-form" method="post" class="wp-upload-form"

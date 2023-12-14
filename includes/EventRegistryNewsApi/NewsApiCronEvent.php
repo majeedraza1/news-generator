@@ -2,6 +2,7 @@
 
 namespace TeraPixelNewsGenerator\EventRegistryNewsApi;
 
+use Stackonet\WP\Framework\Supports\Logger;
 use TeraPixelNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
 use TeraPixelNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
@@ -18,7 +19,6 @@ use TeraPixelNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
 use TeraPixelNewsGenerator\OpenAIApi\Models\InterestingNews;
 use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
 use TeraPixelNewsGenerator\Supports\Utils;
-use Stackonet\WP\Framework\Supports\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -105,7 +105,7 @@ class NewsApiCronEvent {
 	/**
 	 * Add custom cron schedules
 	 *
-	 * @param  array  $schedules  array of available schedules.
+	 * @param  array $schedules  array of available schedules.
 	 *
 	 * @return array
 	 */
@@ -114,17 +114,17 @@ class NewsApiCronEvent {
 
 		$schedules['news_sync_interval'] = array(
 			'interval' => $interval * MINUTE_IN_SECONDS,
-			'display'  => __( 'Falahcoin: News Sync Interval', 'terapixel-news-generator' ),
+			'display'  => __( 'TeraPixel: News Sync Interval', 'terapixel-news-generator' ),
 		);
 
 		$schedules['background_progress_checker'] = array(
 			'interval' => 2 * MINUTE_IN_SECONDS,
-			'display'  => __( 'Falahcoin: Every 2 minute', 'terapixel-news-generator' ),
+			'display'  => __( 'TeraPixel: Every 2 minute', 'terapixel-news-generator' ),
 		);
 
 		$schedules['falahcoin_five_minutes'] = array(
 			'interval' => 5 * MINUTE_IN_SECONDS,
-			'display'  => __( 'Falahcoin: Every 5 minute', 'terapixel-news-generator' ),
+			'display'  => __( 'TeraPixel: Every 5 minute', 'terapixel-news-generator' ),
 		);
 
 		return $schedules;
@@ -159,9 +159,9 @@ class NewsApiCronEvent {
 		$event = wp_get_scheduled_event( 'event_registry_news_api/sync' );
 		if ( false === $event ) {
 			?>
-            <div class="notice notice-error is-dismissible">
-                <p>Scheduled event (to sync news from newsapi.ai) is not running.</p>
-            </div>
+			<div class="notice notice-error is-dismissible">
+				<p>Scheduled event (to sync news from newsapi.ai) is not running.</p>
+			</div>
 			<?php
 			return;
 		}
@@ -172,25 +172,25 @@ class NewsApiCronEvent {
 		}
 		$event2 = wp_get_scheduled_event( 'falahcoin_bg_tasks_dispatcher' );
 		if ( false !== $event2 ) {
-			$dif     = human_time_diff( time(), $event2->timestamp );
+			$dif      = human_time_diff( time(), $event2->timestamp );
 			$message .= '<br>' . sprintf( 'Background process dispatcher cron event will run in %s.', $dif );
 		}
 		$max_exe_time = Utils::max_execution_time();
-		$message      .= '<br>' . sprintf( 'Current max execution time is %s seconds.', $max_exe_time );
-		$message      .= ' It takes more than 90 seconds to sync a news from OpenAI.';
+		$message     .= '<br>' . sprintf( 'Current max execution time is %s seconds.', $max_exe_time );
+		$message     .= ' It takes more than 90 seconds to sync a news from OpenAI.';
 		if ( $max_exe_time < 60 ) {
 			$message .= ' Current max execution time is not enough. It should be 60 or higher.';
 		}
 
 		$mem_limit = Utils::bytes_to_human_size( Utils::get_memory_limit() );
-		$message   .= sprintf( ' Current max memory limit is %s', $mem_limit );
+		$message  .= sprintf( ' Current max memory limit is %s', $mem_limit );
 
 		$message .= '<br>' . OpenAIApiClient::daily_status_message();
 		$message .= '<br>' . NewsCompletion::rate_limit_message();
 		?>
-        <div class="notice notice-warning is-dismissible">
-            <p><?php printf( $message ); ?></p>
-        </div>
+		<div class="notice notice-warning is-dismissible">
+			<p><?php printf( $message ); ?></p>
+		</div>
 		<?php
 		$sleep_end = (int) get_option( 'sync_openai_api_sleep_end' );
 
@@ -198,15 +198,15 @@ class NewsApiCronEvent {
 			$human_time = human_time_diff( time(), $sleep_end );
 			$message    = get_option( 'sync_openai_api_sleep_message' );
 			?>
-            <div class="notice notice-error is-dismissible">
-                <p>OpenAI Background task is in sleep mode. The task will start again
-                    after <strong><?php echo $human_time; ?></strong>. Check OpenAi logs to find the issue.</p>
+			<div class="notice notice-error is-dismissible">
+				<p>OpenAI Background task is in sleep mode. The task will start again
+					after <strong><?php echo $human_time; ?></strong>. Check OpenAi logs to find the issue.</p>
 				<?php
 				if ( ! empty( $message ) ) {
 					echo '<p><strong>OpenAI Message:</strong> ' . esc_html( $message ) . '</p>';
 				}
 				?>
-            </div>
+			</div>
 			<?php
 		}
 	}
@@ -361,7 +361,7 @@ class NewsApiCronEvent {
 	/**
 	 * Find important news
 	 *
-	 * @param  array  $ids
+	 * @param  array $ids
 	 * @param  bool  $force
 	 *
 	 * @return void

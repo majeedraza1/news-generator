@@ -11,6 +11,7 @@ import Tweets from './pages/Tweets.vue';
 import OpenAiLogs from './pages/OpenAiLogs.vue';
 import ExternalLinksList from './pages/ExternalLinksList.vue';
 import Logs from './pages/Logs.vue';
+import Keywords from './pages/Keywords.vue';
 
 const routes = [
   {path: '/', name: 'ReCreatedNews', component: ReCreatedNews},
@@ -25,6 +26,7 @@ const routes = [
   {path: '/settings', name: 'Settings', component: Settings},
   {path: '/openai-logs', name: 'OpenAiLogs', component: OpenAiLogs},
   {path: '/logs', name: 'Logs', component: Logs},
+  {path: '/keywords', name: 'Keywords', component: Keywords},
 ];
 
 const router = createRouter({
