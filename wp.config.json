@@ -1,0 +1,9 @@
+{
+  "proxyURL": "http://nusify.wordpress.test/wp-admin/admin.php?page=news-api",
+  "entryPoints": {
+    "admin": [
+      "./resources/scss/admin.scss",
+      "./resources/admin/news-api/main.ts"
+    ]
+  }
+}

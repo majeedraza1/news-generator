@@ -1,0 +1,13 @@
+# Folders
+node_modules
+vendor/*
+assets/*
+!assets/src
+!assets/static-images
+.idea
+wp-helpers
+wordpress
+
+# Files
+**.map
+composer.lock

@@ -1,0 +1,60 @@
+@use "@shapla/vue-components/src/index.scss" as shapla;
+@import "shapla-css/src/colors";
+@import "./tailwindcss";
+
+@include shapla.spinner;
+@include shapla.notification;
+@include shapla.modal;
+@include shapla.button;
+@include shapla.image-container;
+@include shapla.icon-container;
+@include shapla.toggles;
+@include shapla.data-table;
+@include shapla.data-table-pagination;
+@include shapla.data-table-status-list;
+@include shapla.text-field;
+@include shapla.select;
+@include shapla.dropdown;
+@include shapla.delete-icon;
+@include shapla.box-shadow;
+@include shapla.chip;
+@include shapla.columns;
+@include shapla.input-switch;
+@include shapla.radio;
+@include shapla.tabs;
+@include shapla.search-form;
+
+.all-border-box {
+  box-sizing: border-box;
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: border-box;
+  }
+}
+
+.shapla-featured-image {
+  &__placeholder {
+    align-items: center;
+    border: 1px dashed #b4b9be;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    width: 100%;
+  }
+
+  &__thumbnail {
+    display: inline-flex;
+    max-width: 150px;
+    position: relative;
+    border: 1px solid rgba(#000, 0.12);
+
+    .shapla-delete-icon {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      background-color: $error;
+    }
+  }
+}
