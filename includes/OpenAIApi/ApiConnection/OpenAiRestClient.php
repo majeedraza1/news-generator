@@ -2,10 +2,10 @@
 
 namespace TeraPixelNewsGenerator\OpenAIApi\ApiConnection;
 
+use Stackonet\WP\Framework\Supports\RestClient;
 use TeraPixelNewsGenerator\OpenAIApi\Models\ApiResponseLog;
 use TeraPixelNewsGenerator\OpenAIApi\Models\BlackListWords;
 use TeraPixelNewsGenerator\OpenAIApi\Setting;
-use Stackonet\WP\Framework\Supports\RestClient;
 use WP_Error;
 
 /**
@@ -185,8 +185,8 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Use completions api
 	 *
-	 * @param string $instruction Instruction.
-	 * @param array $extra_args Extra arguments.
+	 * @param  string  $instruction  Instruction.
+	 * @param  array  $extra_args  Extra arguments.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -280,8 +280,8 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Filter api response
 	 *
-	 * @param mixed $response Raw response.
-	 * @param bool $check_blacklist If it needs to check blacklist words/phrase.
+	 * @param  mixed  $response  Raw response.
+	 * @param  bool  $check_blacklist  If it needs to check blacklist words/phrase.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -309,8 +309,8 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Is it valid for maximum token
 	 *
-	 * @param int $total_words Total number of words.
-	 * @param int $percentage Acceptable percentage.
+	 * @param  int  $total_words  Total number of words.
+	 * @param  int  $percentage  Acceptable percentage.
 	 *
 	 * @return bool
 	 */
@@ -352,7 +352,7 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Increase daily token and token per minute count
 	 *
-	 * @param int $token_used Total token used.
+	 * @param  int  $token_used  Total token used.
 	 *
 	 * @return void
 	 */
@@ -369,7 +369,7 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Update average request time
 	 *
-	 * @param float $new_time_in_seconds New time in seconds.
+	 * @param  float  $new_time_in_seconds  New time in seconds.
 	 *
 	 * @return void
 	 */
@@ -383,5 +383,25 @@ class OpenAiRestClient extends RestClient {
 
 		$average_time = array_sum( $last_ten ) / count( $last_ten );
 		update_option( 'openai_average_request_time', $average_time, true );
+	}
+
+	/**
+	 * Internal helper function to sanitize a string from user input or from the db
+	 *
+	 * @param  string|mixed  $string  String to sanitize.
+	 * @param  bool  $keep_newlines  Optional. Whether to keep newlines. Default: false.
+	 *
+	 * @return string Sanitized string.
+	 */
+	public static function sanitize_openai_response( $string, bool $keep_newlines = false ): string {
+		if ( $keep_newlines ) {
+			$string = sanitize_textarea_field( $string );
+		} else {
+			$string = sanitize_text_field( $string );
+		}
+
+		$string = preg_replace( '/\[Word Count: \d+\]/', '', $string );
+
+		return trim( $string );
 	}
 }

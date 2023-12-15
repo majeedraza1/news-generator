@@ -363,6 +363,10 @@
               <th>Default instruction</th>
               <td>
                 <ShaplaInput type="textarea" v-model="state.keyword_global_instruction"/>
+                <p class="description">
+                  Remember to include the following line bottom of your instruction<br>
+                  Add [Title:], [Meta Description:] and [Content:] respectively when starting each section.
+                </p>
               </td>
             </tr>
             <tr>

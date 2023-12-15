@@ -72,7 +72,11 @@ onMounted(() => {
     </div>
     <div class="mb-2">
       <ShaplaInput type="textarea" label="Instruction" v-model="state.keyword.instruction"/>
-      <span>Leave it empty to use default/global instruction.</span>
+      <p class="description">
+        <span>Leave it empty to use default/global instruction.</span><br>
+        Remember to include the following line bottom of your instruction<br>
+        Add [Title:], [Meta Description:] and [Content:] respectively when starting each section.
+      </p>
     </div>
     <template v-slot:foot>
       <ShaplaButton theme="primary" @click="submitNewKeyword">Submit</ShaplaButton>

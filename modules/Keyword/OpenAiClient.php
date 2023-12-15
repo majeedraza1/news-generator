@@ -4,6 +4,7 @@ namespace TeraPixelNewsGenerator\Modules\Keyword;
 
 use TeraPixelNewsGenerator\Modules\Keyword\Models\Keyword;
 use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\OpenAiRestClient;
+use WP_Error;
 
 /**
  * OpenAiClient is a child class of OpenAiRestClient.
@@ -15,7 +16,7 @@ class OpenAiClient extends OpenAiRestClient {
 	 *
 	 * @param  Keyword  $keyword  The keyword object used to generate news.
 	 *
-	 * @return string|\WP_Error The generated news or an error if it occurs.
+	 * @return string|WP_Error The generated news or an error if it occurs.
 	 */
 	public static function generate_news( Keyword $keyword ) {
 		$cache_key = sprintf( 'keyword_%s', $keyword->get_id() );
@@ -49,24 +50,36 @@ class OpenAiClient extends OpenAiRestClient {
 		return $result;
 	}
 
-	public static function sanitize_response( $result ) {
+	/**
+	 * Sanitize response
+	 *
+	 * @param  string|WP_Error  $result  The data to be sanitized.
+	 *
+	 * @return string[]
+	 */
+	public static function sanitize_response( $result ): array {
 		$data = array(
-			'title'            => '',
-			'meta_description' => '',
-			'content'          => '',
+			'title' => '',
+			'meta'  => '',
+			'body'  => '',
 		);
 		if ( is_string( $result ) ) {
 			preg_match( '/\[Title:\](.*?)\[Meta Description:\]/s', $result, $matches );
-			$data['title'] = sanitize_text_field( trim( $matches[1] ) );
+			if ( $matches ) {
+				$data['title'] = static::sanitize_openai_response( $matches[1] );
+			}
 
 			preg_match( '/\[Meta Description:\](.*?)\[Content:\]/s', $result, $matches );
-			$data['meta_description'] = sanitize_text_field( trim( $matches[1] ) );
+			if ( $matches ) {
+				$data['meta'] = static::sanitize_openai_response( $matches[1] );
+			}
 
 			preg_match( '/\[Content:\](.*)/s', $result, $matches );
-			$content = sanitize_textarea_field( trim( $matches[1] ) );
-			preg_replace( '/\[Word Count: \d+\]/', '', $content );
-			$data['content'] = $content;
-
+			if ( $matches ) {
+				$data['body'] = static::sanitize_openai_response( $matches[1], true );
+			} else {
+				$data['body'] = static::sanitize_openai_response( $result );
+			}
 		}
 
 		return $data;

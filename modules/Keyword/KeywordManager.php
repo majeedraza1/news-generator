@@ -33,6 +33,7 @@ class KeywordManager {
 			add_action( 'wp_ajax_terapixel_keyword_test', array( self::$instance, 'keyword_test' ) );
 
 			AdminKeywordController::init();
+			BackgroundKeywordToNews::init();
 		}
 
 		return self::$instance;
@@ -53,11 +54,7 @@ class KeywordManager {
 			);
 		}
 
-		$keyword     = Keyword::find_single( 1 );
-		$htmlContent = OpenAiClient::generate_news( $keyword );
-		$response    = OpenAiClient::sanitize_response( $htmlContent );
-
-		var_dump( $response );
+		$keyword = BackgroundKeywordToNews::sync();
 		wp_die();
 	}
 
@@ -121,5 +118,6 @@ class KeywordManager {
 	 * Sync data
 	 */
 	public function sync() {
+		BackgroundKeywordToNews::sync();
 	}
 }

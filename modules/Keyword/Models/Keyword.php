@@ -10,7 +10,21 @@ use Stackonet\WP\Framework\Abstracts\DatabaseModel;
  * This class represents a keyword entity and extends the DatabaseModel class.
  */
 class Keyword extends DatabaseModel {
+	/**
+	 * Get table name
+	 *
+	 * @var string
+	 */
 	protected $table = 'news_keywords';
+
+	/**
+	 * Get news id
+	 *
+	 * @return int
+	 */
+	public function get_news_id(): int {
+		return (int) $this->get_prop( 'news_id' );
+	}
 
 	/**
 	 * Get keyword
@@ -54,7 +68,7 @@ class Keyword extends DatabaseModel {
 				`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `keyword` VARCHAR(255) NULL DEFAULT NULL,
                 `instruction` TEXT NULL DEFAULT NULL,
-				`news_generated` TINYINT(1) NOT NULL DEFAULT 0,
+				`news_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
 				`created_at` datetime NULL DEFAULT NULL,
 				`updated_at` datetime NULL DEFAULT NULL,
 				PRIMARY KEY (id)
