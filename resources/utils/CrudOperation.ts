@@ -8,6 +8,16 @@ interface PaginationDataInterface {
   total_pages: number;
 }
 
+interface CollectionArgumentInterface {
+  page?: number;
+  per_page?: number;
+  search?: string;
+  status?: string;
+  sort?: string | { field: string; order: 'ASC' | 'DESC' }[];
+
+  [key: string]: any;
+}
+
 interface ServerCollectionResponseDataInterface {
   items: unknown[];
   pagination: PaginationDataInterface;
@@ -41,7 +51,7 @@ class CrudOperation {
    *
    * @param  params
    */
-  public getItems(params: Record<string, string | number> = {}): Promise<ServerCollectionResponseDataInterface> {
+  public getItems(params: CollectionArgumentInterface = {}): Promise<ServerCollectionResponseDataInterface> {
     return new Promise((resolve) => {
       Spinner.activate();
       this.http
