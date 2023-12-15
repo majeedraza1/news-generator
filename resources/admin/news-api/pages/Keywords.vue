@@ -2,18 +2,11 @@
 import CrudOperation, {PaginationDataInterface} from "../../../utils/CrudOperation";
 import http from "../../../utils/axios";
 import {onMounted, reactive} from "vue";
-import {Dialog, ShaplaButton, ShaplaInput, ShaplaModal, ShaplaTable} from "@shapla/vue-components";
+import {Dialog, ShaplaButton, ShaplaTable} from "@shapla/vue-components";
+import {ExistingKeywordInterface, KeywordInterface} from "../../../utils/interfaces";
+import AddOrEditKeywordModal from "@/admin/news-api/components/AddOrEditKeywordModal.vue";
 
 const crud = new CrudOperation('admin/keywords', http);
-
-interface KeywordInterface {
-  keyword: string;
-  instruction: string;
-}
-
-interface ExistingKeywordInterface extends KeywordInterface {
-  id?: number
-}
 
 const state = reactive<{
   openAddNewModal: boolean;
@@ -22,7 +15,7 @@ const state = reactive<{
   pagination: PaginationDataInterface;
   selectedKeywords: number[];
   activeKeyword: ExistingKeywordInterface | null;
-  showEditModal: boolean;
+  openEditModal: boolean;
 }>({
   openAddNewModal: false,
   keyword: {
@@ -33,7 +26,7 @@ const state = reactive<{
   selectedKeywords: [],
   pagination: {per_page: 20, current_page: 1, total_items: 0, total_pages: 1},
   activeKeyword: null,
-  showEditModal: false,
+  openEditModal: false,
 })
 
 const getItems = (page = 1) => {
@@ -46,15 +39,27 @@ const getItems = (page = 1) => {
   })
 }
 
-const submitNewKeyword = () => {
-  crud.createItem(state.keyword).then(() => {
+const submitNewKeyword = (keyword: KeywordInterface) => {
+  crud.createItem(keyword).then(() => {
     getItems();
     closeAddNewModal();
   })
 }
 
+const updateKeyword = (keyword: ExistingKeywordInterface) => {
+  crud.updateItem(keyword.id, keyword).then(() => {
+    getItems();
+    closeEditModal();
+  })
+}
+
 const closeAddNewModal = () => {
   state.openAddNewModal = false;
+}
+
+const closeEditModal = () => {
+  state.openEditModal = false;
+  state.activeKeyword = null;
 }
 
 const onSelect = (selected: number[]) => {
@@ -77,7 +82,7 @@ const onClickAction = (action: string, row: ExistingKeywordInterface) => {
   }
   if ('edit' === action) {
     state.activeKeyword = row;
-    state.showEditModal = true;
+    state.openEditModal = true;
   }
 }
 
@@ -122,22 +127,20 @@ onMounted(() => {
       </template>
     </ShaplaTable>
   </div>
-  <ShaplaModal :active="state.openAddNewModal" title="Add New Keyword" @close="closeAddNewModal">
-    <div class="mb-2">
-      <ShaplaInput label="Keyword" v-model="state.keyword.keyword"/>
-    </div>
-    <div class="mb-2">
-      <ShaplaInput type="textarea" label="Instruction" v-model="state.keyword.instruction"/>
-      <p class="description">
-        <span>Leave it empty to use default/global instruction.</span><br>
-        Remember to include the following line bottom of your instruction<br>
-        Add [Title:], [Meta Description:] and [Content:] respectively when starting each section.
-      </p>
-    </div>
-    <template v-slot:foot>
-      <ShaplaButton theme="primary" @click="submitNewKeyword">Submit</ShaplaButton>
-    </template>
-  </ShaplaModal>
+  <AddOrEditKeywordModal
+      v-if="state.openAddNewModal"
+      :active="true"
+      :keyword="state.keyword"
+      @close="closeAddNewModal"
+      @submit="submitNewKeyword"
+  />
+  <AddOrEditKeywordModal
+      v-if="state.openEditModal"
+      :active="true"
+      :keyword="state.activeKeyword"
+      @close="closeEditModal"
+      @submit="updateKeyword"
+  />
   <div class="is-fixed bottom-4 right-4">
     <ShaplaButton fab theme="primary" size="large" @click="state.openAddNewModal = true">+</ShaplaButton>
   </div>

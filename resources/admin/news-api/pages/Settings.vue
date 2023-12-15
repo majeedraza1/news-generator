@@ -364,6 +364,7 @@
               <td>
                 <ShaplaInput type="textarea" v-model="state.keyword_global_instruction"/>
                 <p class="description">
+                  <span v-html="`Remember to user placeholder {{keyword}} to get keyword`"></span><br>
                   Remember to include the following line bottom of your instruction<br>
                   Add [Title:], [Meta Description:] and [Content:] respectively when starting each section.
                 </p>

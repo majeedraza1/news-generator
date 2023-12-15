@@ -208,6 +208,17 @@ interface InstagramAttemptLogInterface {
   updated_at: string;
 }
 
+
+
+interface KeywordInterface {
+  keyword: string;
+  instruction: string;
+}
+
+interface ExistingKeywordInterface extends KeywordInterface {
+  id?: number
+}
+
 export type {
   LocationInterfaces,
   ConceptInterfaces,
@@ -225,5 +236,7 @@ export type {
   InterestingNewsFilterInterface,
   OpenAiResponseInterface,
   NewsToSiteLogInterface,
-  InstagramAttemptLogInterface
+  InstagramAttemptLogInterface,
+  KeywordInterface,
+  ExistingKeywordInterface
 }
