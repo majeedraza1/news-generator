@@ -1,20 +1,21 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi;
+namespace StackonetNewsGenerator\OpenAIApi;
 
 use ArrayObject;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Category;
-use TeraPixelNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
-use TeraPixelNewsGenerator\Modules\Site\Site;
-use TeraPixelNewsGenerator\Modules\Site\SiteStore;
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
-use TeraPixelNewsGenerator\OpenAIApi\Models\ApiResponseLog;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsTagStore;
-use TeraPixelNewsGenerator\Supports\Country;
 use Stackonet\WP\Framework\Abstracts\Data;
+use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\Validate;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
+use StackonetNewsGenerator\Modules\Site\Site;
+use StackonetNewsGenerator\Modules\Site\SiteStore;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
+use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsTagStore;
+use StackonetNewsGenerator\Supports\Country;
 
 /**
  * News model
@@ -707,6 +708,7 @@ class News extends Data {
 	 */
 	public function send_to_sites( bool $force = false ) {
 		$sites = $this->get_sites_list();
+		Logger::log( [ $this->get_id(), $sites ] );
 		foreach ( $sites as $site_data ) {
 			$site = new Site( $site_data );
 			if ( $force ) {
@@ -723,7 +725,11 @@ class News extends Data {
 	 * @return array
 	 */
 	public function get_sites_list(): array {
-		$sites                = ( new SiteStore() )->find_multiple();
+		$sites       = ( new SiteStore() )->find_multiple();
+		$sites_count = count( $sites );
+		if ( 1 === $sites_count ) {
+			return $sites;
+		}
 		$concept              = $this->get_concept();
 		$category_slug        = $this->get_primary_category_slug();
 		$openai_category_slug = $this->get_openai_category_slug();
@@ -733,7 +739,6 @@ class News extends Data {
 		);
 		$concept              = str_replace( array_keys( $placeholders ), array_values( $placeholders ), $concept );
 		$sites_to_send        = array();
-		$sites_count          = count( $sites );
 		foreach ( $sites as $site ) {
 			$sync_settings = maybe_unserialize( $site['sync_settings'] );
 			foreach ( $sync_settings as $sync_setting ) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\REST;
+namespace StackonetNewsGenerator\REST;
 
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use Stackonet\WP\Framework\Traits\ApiResponse;

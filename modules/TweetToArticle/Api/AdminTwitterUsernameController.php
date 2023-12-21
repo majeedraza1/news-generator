@@ -1,11 +1,11 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\TweetToArticle\Api;
+namespace StackonetNewsGenerator\Modules\TweetToArticle\Api;
 
-use TeraPixelNewsGenerator\Modules\TweetToArticle\Models\TwitterTweets;
-use TeraPixelNewsGenerator\Modules\TweetToArticle\Models\TwitterUsername;
-use TeraPixelNewsGenerator\REST\ApiController;
-use TeraPixelNewsGenerator\Supports\TwitterApi;
+use StackonetNewsGenerator\Modules\TweetToArticle\Models\TwitterTweets;
+use StackonetNewsGenerator\Modules\TweetToArticle\Models\TwitterUsername;
+use StackonetNewsGenerator\REST\ApiController;
+use StackonetNewsGenerator\Supports\TwitterApi;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use WP_REST_Request;
 use WP_REST_Response;

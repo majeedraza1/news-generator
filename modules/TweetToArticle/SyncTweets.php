@@ -1,11 +1,11 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\TweetToArticle;
+namespace StackonetNewsGenerator\Modules\TweetToArticle;
 
-use TeraPixelNewsGenerator\BackgroundProcess\BackgroundProcessBase;
-use TeraPixelNewsGenerator\Modules\TweetToArticle\Models\TwitterTweets;
-use TeraPixelNewsGenerator\Modules\TweetToArticle\Models\TwitterUsername;
-use TeraPixelNewsGenerator\Supports\TwitterApi;
+use StackonetNewsGenerator\BackgroundProcess\BackgroundProcessBase;
+use StackonetNewsGenerator\Modules\TweetToArticle\Models\TwitterTweets;
+use StackonetNewsGenerator\Modules\TweetToArticle\Models\TwitterUsername;
+use StackonetNewsGenerator\Supports\TwitterApi;
 
 /**
  * SyncTweets class

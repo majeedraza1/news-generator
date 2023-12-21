@@ -1,24 +1,24 @@
 <?php
 
-namespace TeraPixelNewsGenerator\EventRegistryNewsApi;
+namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use Stackonet\WP\Framework\Supports\Logger;
-use TeraPixelNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiSyncNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiSyncTwitterFields;
-use TeraPixelNewsGenerator\BackgroundProcess\ProcessNewsTag;
-use TeraPixelNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
-use TeraPixelNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
-use TeraPixelNewsGenerator\OpenAIApi\Client as OpenAIApiClient;
-use TeraPixelNewsGenerator\OpenAIApi\Models\ApiResponseLog;
-use TeraPixelNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
-use TeraPixelNewsGenerator\OpenAIApi\Models\InterestingNews;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
-use TeraPixelNewsGenerator\Supports\Utils;
+use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncTwitterFields;
+use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
+use StackonetNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
+use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
+use StackonetNewsGenerator\OpenAIApi\Client as OpenAIApiClient;
+use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
+use StackonetNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
+use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\Supports\Utils;
 
 defined( 'ABSPATH' ) || exit;
 

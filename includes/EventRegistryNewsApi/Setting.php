@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\EventRegistryNewsApi;
+namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use Stackonet\WP\Framework\Supports\Validate;
 

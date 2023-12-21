@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\TweetToArticle\Models;
+namespace StackonetNewsGenerator\Modules\TweetToArticle\Models;
 
 use Stackonet\WP\Framework\Abstracts\OptionModel;
 

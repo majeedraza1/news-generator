@@ -1,10 +1,10 @@
 <?php
 
-namespace TeraPixelNewsGenerator\BackgroundProcess;
+namespace StackonetNewsGenerator\BackgroundProcess;
 
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Article;
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
-use TeraPixelNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\EventRegistryNewsApi\Article;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
+use StackonetNewsGenerator\OpenAIApi\News;
 use Stackonet\WP\Framework\Supports\Logger;
 use WP_Error;
 

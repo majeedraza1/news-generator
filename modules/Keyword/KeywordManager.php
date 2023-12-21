@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Keyword;
+namespace StackonetNewsGenerator\Modules\Keyword;
 
-use TeraPixelNewsGenerator\Modules\Keyword\Models\Keyword;
-use TeraPixelNewsGenerator\Modules\Keyword\Rest\AdminKeywordController;
+use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
+use StackonetNewsGenerator\Modules\Keyword\Rest\AdminKeywordController;
 
 /**
  * KeywordManager class

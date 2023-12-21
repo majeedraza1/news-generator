@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\Models;
+namespace StackonetNewsGenerator\OpenAIApi\Models;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 

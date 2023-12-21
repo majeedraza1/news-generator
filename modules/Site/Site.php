@@ -1,18 +1,19 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Site;
+namespace StackonetNewsGenerator\Modules\Site;
 
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Category;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Language;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\SyncSettings;
-use TeraPixelNewsGenerator\Modules\Site\Stores\NewsToSiteLogStore;
-use TeraPixelNewsGenerator\OpenAIApi\News;
+use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\RestClient;
+use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\EventRegistryNewsApi\Language;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\Modules\Site\Stores\NewsToSiteLogStore;
+use StackonetNewsGenerator\OpenAIApi\News;
 use WP_Error;
 
 class Site {
 	const WEBHOOK_NAMESPACE = 'wp-json/falahcoin';
-	const WEBHOOK_VERSION   = 'v1';
+	const WEBHOOK_VERSION = 'v1';
 	/**
 	 * Get defaults data
 	 */
@@ -36,7 +37,7 @@ class Site {
 	/**
 	 * The construct of the class
 	 *
-	 * @param  array $data  Raw data to set
+	 * @param  array  $data  Raw data to set
 	 */
 	public function __construct( array $data = array() ) {
 		$this->data = wp_parse_args( $data, static::$defaults );
@@ -63,7 +64,7 @@ class Site {
 	/**
 	 * Post a news to a site.
 	 *
-	 * @param  News $news  The news object.
+	 * @param  News  $news  The news object.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -75,21 +76,24 @@ class Site {
 		$news_array['source_image_uri'] = $news->get_source_image_uri();
 
 		$response = $this->get_client()->post( 'webhook/news', wp_json_encode( $news_array ) );
-		if ( ! is_wp_error( $response ) ) {
-			$data = $response['data'] ?? array();
-			if ( isset( $data['news_id'], $data['news_url'] ) ) {
-				NewsToSiteLogStore::create_if_not_exists(
-					array(
-						'news_id'         => $news->get_id(),
-						'site_id'         => $this->get_id(),
-						'remote_site_url' => $this->get_site_url(),
-						'remote_news_id'  => $data['news_id'],
-						'remote_news_url' => $data['news_url'],
-					)
-				);
-			}
-			$this->update_last_sync_datetime();
+		if ( is_wp_error( $response ) ) {
+			Logger::log( $response );
+
+			return $response;
 		}
+		$data = $response['data'] ?? array();
+		if ( isset( $data['news_id'], $data['news_url'] ) ) {
+			NewsToSiteLogStore::create_if_not_exists(
+				array(
+					'news_id'         => $news->get_id(),
+					'site_id'         => $this->get_id(),
+					'remote_site_url' => $this->get_site_url(),
+					'remote_news_id'  => $data['news_id'],
+					'remote_news_url' => $data['news_url'],
+				)
+			);
+		}
+		$this->update_last_sync_datetime();
 
 		return $response;
 	}
@@ -207,7 +211,7 @@ class Site {
 	 * Post data
 	 *
 	 * @param  array  $data  The data to be passed.
-	 * @param  string $action  The action.
+	 * @param  string  $action  The action.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -226,7 +230,7 @@ class Site {
 	/**
 	 * Format data for response
 	 *
-	 * @param  string $action  The name of action.
+	 * @param  string  $action  The name of action.
 	 * @param  mixed  $payload  The data to send for an action.
 	 *
 	 * @return false|string

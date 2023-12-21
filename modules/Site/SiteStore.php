@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Site;
+namespace StackonetNewsGenerator\Modules\Site;
 
 use Stackonet\WP\Framework\Abstracts\DataStoreBase;
 

@@ -546,14 +546,14 @@ const openai_news_sync_methods = [
 ]
 const countries = computed(() => {
   let countries = [];
-  for (const [key, value] of Object.entries(window.TeraPixelNewsGenerator.countries)) {
+  for (const [key, value] of Object.entries(window.StackonetNewsGenerator.countries)) {
     countries.push({label: value, value: key});
   }
   return countries;
 })
 const languages = computed(() => {
   let languages = [];
-  for (const [key, value] of Object.entries(window.TeraPixelNewsGenerator.languages)) {
+  for (const [key, value] of Object.entries(window.StackonetNewsGenerator.languages)) {
     languages.push({label: value, value: key});
   }
   return languages;

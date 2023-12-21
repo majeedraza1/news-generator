@@ -1,10 +1,10 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Keyword\Rest;
+namespace StackonetNewsGenerator\Modules\Keyword\Rest;
 
 use Stackonet\WP\Framework\Traits\ApiCrudOperations;
-use TeraPixelNewsGenerator\Modules\Keyword\Models\Keyword;
-use TeraPixelNewsGenerator\REST\ApiController;
+use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
+use StackonetNewsGenerator\REST\ApiController;
 
 /**
  * Class AdminKeywordController

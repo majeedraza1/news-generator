@@ -1,8 +1,8 @@
 <?php
 
-namespace TeraPixelNewsGenerator\BackgroundProcess;
+namespace StackonetNewsGenerator\BackgroundProcess;
 
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 
 /**
  * Add to background task

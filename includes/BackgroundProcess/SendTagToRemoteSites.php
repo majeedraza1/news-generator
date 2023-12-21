@@ -1,10 +1,10 @@
 <?php
 
-namespace TeraPixelNewsGenerator\BackgroundProcess;
+namespace StackonetNewsGenerator\BackgroundProcess;
 
-use TeraPixelNewsGenerator\Modules\Site\Site;
-use TeraPixelNewsGenerator\Modules\Site\SiteStore;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsTagStore;
+use StackonetNewsGenerator\Modules\Site\Site;
+use StackonetNewsGenerator\Modules\Site\SiteStore;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsTagStore;
 
 /**
  * SendTagToRemoteSites class

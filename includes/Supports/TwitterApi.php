@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Supports;
+namespace StackonetNewsGenerator\Supports;
 
 use Abraham\TwitterOAuth\TwitterOAuth;
 use Exception;

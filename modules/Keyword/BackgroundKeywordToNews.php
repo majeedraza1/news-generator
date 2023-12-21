@@ -1,12 +1,12 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Keyword;
+namespace StackonetNewsGenerator\Modules\Keyword;
 
-use TeraPixelNewsGenerator\BackgroundProcess\BackgroundProcessWithUiHelper;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\Modules\Keyword\Models\Keyword;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\BackgroundProcess\BackgroundProcessWithUiHelper;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 
 /**
  * BackgroundKeywordToNews

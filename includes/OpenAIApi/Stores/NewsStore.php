@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\Stores;
+namespace StackonetNewsGenerator\OpenAIApi\Stores;
 
-use TeraPixelNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
-use TeraPixelNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
+use StackonetNewsGenerator\OpenAIApi\News;
 use Stackonet\WP\Framework\Abstracts\DataStoreBase;
 
 class NewsStore extends DataStoreBase {

@@ -155,7 +155,7 @@ const actions = [
 	{key: 'debug', label: 'Debug'},
 ];
 
-const ajaxUrl = computed<string>(() => window.TeraPixelNewsGenerator.ajaxUrl);
+const ajaxUrl = computed<string>(() => window.StackonetNewsGenerator.ajaxUrl);
 
 const onItemSelect = (ids: number[]) => {
 	state.selectedItems = ids;
@@ -202,7 +202,7 @@ const onActionClick = (action: string, data) => {
 		reCreateItem(data.id);
 	}
 	if ('debug' === action) {
-		const url = new URL(window.TeraPixelNewsGenerator.ajaxUrl);
+		const url = new URL(window.StackonetNewsGenerator.ajaxUrl);
 		url.searchParams.append('action', 'debug_interesting_news');
 		url.searchParams.append('news_id', data.id.toString());
 		const aTag = document.createElement('a');

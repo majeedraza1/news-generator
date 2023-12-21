@@ -1,10 +1,15 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Admin;
+namespace StackonetNewsGenerator\Admin;
 
 // If this file is called directly, abort.
+use StackonetNewsGenerator\Plugin;
+
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Admin class
+ */
 class Admin {
 
 	/**
@@ -115,7 +120,7 @@ class Admin {
 	 */
 	public static function init_hooks() {
 		wp_enqueue_media();
-		wp_enqueue_style( 'terapixel-news-generator-admin' );
-		wp_enqueue_script( 'terapixel-news-generator-admin' );
+		wp_enqueue_style( Plugin::init()->get_directory_name() . '-admin' );
+		wp_enqueue_script( Plugin::init()->get_directory_name() . '-admin' );
 	}
 }

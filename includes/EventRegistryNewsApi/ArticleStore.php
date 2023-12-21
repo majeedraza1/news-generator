@@ -1,12 +1,12 @@
 <?php
 
-namespace TeraPixelNewsGenerator\EventRegistryNewsApi;
+namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use DateTime;
 use DateTimeZone;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Setting as EventRegistryNewsApiSettings;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\EventRegistryNewsApi\Setting as EventRegistryNewsApiSettings;
 use Stackonet\WP\Framework\Abstracts\DataStoreBase;
 use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;

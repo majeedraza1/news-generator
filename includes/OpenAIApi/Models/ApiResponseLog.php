@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\Models;
+namespace StackonetNewsGenerator\OpenAIApi\Models;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 
@@ -15,22 +15,45 @@ class ApiResponseLog extends DatabaseModel {
 	 */
 	protected $table = 'openai_response_log';
 
+	/**
+	 * Get belongs to group
+	 *
+	 * @return string
+	 */
+	public function get_belongs_to_group(): string {
+		return (string) $this->get_prop( 'belongs_to_group' );
+	}
+
+	/**
+	 * Get api response
+	 *
+	 * @return array
+	 */
+	public function get_api_response(): array {
+		$api_response = $this->get_prop( 'api_response' );
+		if ( is_array( $api_response ) ) {
+			return $api_response;
+		}
+
+		return array();
+	}
+
 	public static function search( $search_keywords ): array {
 		global $wpdb;
 		$table = static::get_table_name();
 		$sql   = "SELECT * FROM {$table} WHERE 1=1";
 		if ( is_numeric( $search_keywords ) ) {
-			$sql .= $wpdb->prepare( " AND source_id LIKE %s", '%' . intval( $search_keywords ) . '%' );
+			$sql .= $wpdb->prepare( ' AND source_id LIKE %s', '%' . intval( $search_keywords ) . '%' );
 		} else {
 			$sql .= ' AND';
-			$sql .= $wpdb->prepare( "  `belongs_to_group` LIKE %s", '%' . $search_keywords . '%' );
+			$sql .= $wpdb->prepare( '  `belongs_to_group` LIKE %s', '%' . $search_keywords . '%' );
 		}
 
 		$sql .= ' ORDER BY id DESC';
 		$sql .= ' LIMIT 100';
 
 		$results = $wpdb->get_results( $sql, ARRAY_A );
-		$data    = [];
+		$data    = array();
 		foreach ( $results as $result ) {
 			$data[] = new static( $result );
 		}
@@ -47,11 +70,11 @@ class ApiResponseLog extends DatabaseModel {
 		global $wpdb;
 		$table = static::get_table_name();
 		$sql   = "SELECT `belongs_to_group`, COUNT(*) AS num_rows FROM {$table}";
-		$sql   .= " GROUP BY `belongs_to_group`";
+		$sql  .= ' GROUP BY `belongs_to_group`';
 
 		$results = (array) $wpdb->get_results( $sql, ARRAY_A );
 
-		$counts = [];
+		$counts = array();
 		foreach ( $results as $row ) {
 			$counts[ $row['belongs_to_group'] ] = intval( $row['num_rows'] );
 		}
@@ -62,7 +85,7 @@ class ApiResponseLog extends DatabaseModel {
 	/**
 	 * Get total completion time
 	 *
-	 * @param int $source_id Source id.
+	 * @param  int $source_id  Source id.
 	 *
 	 * @return array
 	 */
@@ -72,19 +95,19 @@ class ApiResponseLog extends DatabaseModel {
 		$total_requests = 0;
 		foreach ( $logs as $log ) {
 			$seconds += $log->get_total_time();
-			++ $total_requests;
+			++$total_requests;
 		}
 
-		return [
+		return array(
 			'total_requests' => $total_requests,
 			'total_time'     => ceil( $seconds ),
-		];
+		);
 	}
 
 	/**
 	 * Get logs for source news
 	 *
-	 * @param int $source_id Source news id.
+	 * @param  int $source_id  Source news id.
 	 *
 	 * @return static[]|array
 	 */
@@ -95,7 +118,7 @@ class ApiResponseLog extends DatabaseModel {
 			$wpdb->prepare( "SELECT * FROM $table WHERE source_id = %d", $source_id ),
 			ARRAY_A
 		);
-		$data    = [];
+		$data    = array();
 		foreach ( $results as $result ) {
 			$data[] = new static( $result );
 		}
@@ -106,8 +129,8 @@ class ApiResponseLog extends DatabaseModel {
 	/**
 	 * Get log
 	 *
-	 * @param int $source_id Source news id.
-	 * @param string $group Group.
+	 * @param  int    $source_id  Source news id.
+	 * @param  string $group  Group.
 	 *
 	 * @return false|array
 	 */
@@ -115,7 +138,11 @@ class ApiResponseLog extends DatabaseModel {
 		global $wpdb;
 		$table  = static::get_table_name();
 		$result = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM $table WHERE `source_id` = %d AND `belongs_to_group` = %s", $source_id, $group ),
+			$wpdb->prepare(
+				"SELECT * FROM $table WHERE `source_id` = %d AND `belongs_to_group` = %s",
+				$source_id,
+				$group
+			),
 			ARRAY_A
 		);
 		if ( ! ( is_array( $result ) && isset( $result['api_response'], $result['response_type'] ) ) ) {
@@ -141,7 +168,7 @@ class ApiResponseLog extends DatabaseModel {
 	/**
 	 * Delete old logs
 	 *
-	 * @param int $day Number of days.
+	 * @param  int $day  Number of days.
 	 *
 	 * @return void
 	 * @throws \Exception
@@ -156,8 +183,8 @@ class ApiResponseLog extends DatabaseModel {
 		$datetime    = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
 		$datetime->modify( $day_or_days );
 
-		$sql = "DELETE FROM `{$table}` WHERE 1 = 1";
-		$sql .= $wpdb->prepare( " AND created_at <= %s", $datetime->format( 'Y-m-d H:i:s' ) );
+		$sql  = "DELETE FROM `{$table}` WHERE 1 = 1";
+		$sql .= $wpdb->prepare( ' AND created_at <= %s', $datetime->format( 'Y-m-d H:i:s' ) );
 
 		$wpdb->query( $sql );
 	}
@@ -203,7 +230,19 @@ class ApiResponseLog extends DatabaseModel {
 
 		$data['created_at'] = mysql_to_rfc3339( $data['created_at'] );
 		$data['total_time'] = round( $this->get_total_time(), 2 );
-		$data['group']      = $this->get_prop( 'belongs_to_group' );
+		$data['group']      = $this->get_belongs_to_group();
+		$data['debug_url']  = wp_nonce_url(
+			add_query_arg(
+				array(
+					'action' => 'debug_openai_logs',
+					'log_id' => $this->get_id(),
+					'group'  => $this->get_belongs_to_group(),
+				),
+				admin_url( 'admin-ajax.php' )
+			),
+			'debug_openai_logs',
+			'_token'
+		);
 
 		return $data;
 	}

@@ -1,15 +1,15 @@
 <?php
 
-namespace TeraPixelNewsGenerator\BackgroundProcess;
+namespace StackonetNewsGenerator\BackgroundProcess;
 
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Article;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
-use TeraPixelNewsGenerator\OpenAIApi\Models\ApiResponseLog;
-use TeraPixelNewsGenerator\OpenAIApi\Models\InterestingNews;
-use TeraPixelNewsGenerator\OpenAIApi\News;
-use TeraPixelNewsGenerator\OpenAIApi\Setting;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\Article;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
+use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
+use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
+use StackonetNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Setting;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use Stackonet\WP\Framework\Supports\Logger;
 
 /**

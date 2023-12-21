@@ -1,8 +1,8 @@
 <?php
 
-namespace TeraPixelNewsGenerator\BackgroundProcess;
+namespace StackonetNewsGenerator\BackgroundProcess;
 
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use Stackonet\WP\Framework\BackgroundProcessing\BackgroundProcess;
 
 /**

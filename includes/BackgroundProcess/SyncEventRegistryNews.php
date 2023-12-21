@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\BackgroundProcess;
+namespace StackonetNewsGenerator\BackgroundProcess;
 
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
 use Stackonet\WP\Framework\Supports\Logger;
 
 /**

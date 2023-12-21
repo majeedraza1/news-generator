@@ -5,7 +5,7 @@ import WordPressMenuFix from "../../utils/WordPressMenuFix";
 
 declare global {
     interface Window {
-        TeraPixelNewsGenerator: {
+        StackonetNewsGenerator: {
             restRoot: string;
             restNonce: string;
             ajaxUrl: string;

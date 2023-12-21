@@ -1,11 +1,11 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\ApiConnection;
+namespace StackonetNewsGenerator\OpenAIApi\ApiConnection;
 
 use Stackonet\WP\Framework\Supports\RestClient;
-use TeraPixelNewsGenerator\OpenAIApi\Models\ApiResponseLog;
-use TeraPixelNewsGenerator\OpenAIApi\Models\BlackListWords;
-use TeraPixelNewsGenerator\OpenAIApi\Setting;
+use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
+use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
+use StackonetNewsGenerator\OpenAIApi\Setting;
 use WP_Error;
 
 /**
@@ -285,7 +285,7 @@ class OpenAiRestClient extends RestClient {
 	 *
 	 * @return string|WP_Error
 	 */
-	protected static function filter_api_response( $response, bool $check_blacklist = true, array $extra_args = [] ) {
+	public static function filter_api_response( $response, bool $check_blacklist = true, array $extra_args = [] ) {
 		if ( ! ( is_array( $response ) && isset( $response['choices'][0]['message']['content'] ) ) ) {
 			return new WP_Error( 'empty_response_from_api', 'Empty response from api.' );
 		}

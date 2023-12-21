@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\Models;
+namespace StackonetNewsGenerator\OpenAIApi\Models;
 
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
-use TeraPixelNewsGenerator\OpenAIApi\Setting;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
+use StackonetNewsGenerator\OpenAIApi\Setting;
 use Stackonet\WP\Framework\Abstracts\OptionModel;
 
 class BlackListWords extends OptionModel {

@@ -123,7 +123,7 @@ const canCreateAiNews = computed(() => {
       state.facebook.length > 10 && state.tag.length > 10)
 })
 
-const instructions = computed(() => window.TeraPixelNewsGenerator.instructions)
+const instructions = computed(() => window.StackonetNewsGenerator.instructions)
 
 watch(() => canCreateAiNews, newValue => {
   emit('open', newValue)

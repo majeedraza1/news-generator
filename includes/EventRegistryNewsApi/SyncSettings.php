@@ -1,8 +1,8 @@
 <?php
 
-namespace TeraPixelNewsGenerator\EventRegistryNewsApi;
+namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
-use TeraPixelNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
+use StackonetNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
 use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\Sanitize;
 use Stackonet\WP\Framework\Supports\Validate;

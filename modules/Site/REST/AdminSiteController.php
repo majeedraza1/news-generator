@@ -1,16 +1,16 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Site\REST;
+namespace StackonetNewsGenerator\Modules\Site\REST;
 
-use TeraPixelNewsGenerator\BackgroundProcess\CopyNewsImage;
-use TeraPixelNewsGenerator\BackgroundProcess\ProcessNewsTag;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Category;
-use TeraPixelNewsGenerator\Modules\Site\Site;
-use TeraPixelNewsGenerator\Modules\Site\SiteStore;
-use TeraPixelNewsGenerator\OpenAIApi\News;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
-use TeraPixelNewsGenerator\REST\ApiController;
+use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
+use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\Modules\Site\Site;
+use StackonetNewsGenerator\Modules\Site\SiteStore;
+use StackonetNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\REST\ApiController;
 use Stackonet\WP\Framework\Supports\Sanitize;
 use Stackonet\WP\Framework\Supports\Validate;
 use Stackonet\WP\Framework\Traits\ApiCrudOperations;
@@ -40,67 +40,83 @@ class AdminSiteController extends ApiController {
 	 * Registers the routes for the objects of the controller.
 	 */
 	public function _register_routes() {
-		$args = [
+		$args = array(
 			'methods'             => WP_REST_Server::CREATABLE,
-			'callback'            => [ $this, 'send_to_sites' ],
-			'permission_callback' => [ $this, 'create_item_permissions_check' ],
-			'args'                => [
-				'news_ids' => [
+			'callback'            => array( $this, 'send_to_sites' ),
+			'permission_callback' => array( $this, 'create_item_permissions_check' ),
+			'args'                => array(
+				'news_ids' => array(
 					'description'       => 'List of news ids.',
 					'type'              => 'array',
-					'sanitize_callback' => [ Sanitize::class, 'deep' ],
+					'sanitize_callback' => array( Sanitize::class, 'deep' ),
 					'validate_callback' => 'rest_validate_request_arg',
-				],
-				'force'    => [
+				),
+				'force'    => array(
 					'description'       => 'Should send instantly.',
 					'type'              => 'bool',
-					'sanitize_callback' => [ Sanitize::class, 'checked' ],
+					'sanitize_callback' => array( Sanitize::class, 'checked' ),
 					'validate_callback' => 'rest_validate_request_arg',
-				],
-			],
-		];
+				),
+			),
+		);
 		register_rest_route( $this->namespace, $this->rest_base . '/send-news-to-sites', $args );
-		register_rest_route( $this->namespace, $this->rest_base . '/send-general-data-to-sites', [
-			'methods'             => WP_REST_Server::CREATABLE,
-			'callback'            => [ $this, 'send_data_to_sites' ],
-			'permission_callback' => [ $this, 'create_item_permissions_check' ],
-		] );
-		register_rest_route( $this->namespace, $this->rest_base . '/copy-image', [
-			'methods'             => WP_REST_Server::CREATABLE,
-			'callback'            => [ $this, 'copy_image' ],
-			'permission_callback' => [ $this, 'create_item_permissions_check' ],
-			'args'                => [
-				'id' => [
-					'type'              => 'integer',
-					'sanitize_callback' => [ Sanitize::class, 'int' ],
-					'validate_callback' => 'rest_validate_request_arg',
-				]
-			]
-		] );
-		register_rest_route( $this->namespace, $this->rest_base . '/sync-tag', [
-			'methods'             => WP_REST_Server::CREATABLE,
-			'callback'            => [ $this, 'sync_tags' ],
-			'permission_callback' => [ $this, 'create_item_permissions_check' ],
-			'args'                => [
-				'id' => [
-					'type'              => 'integer',
-					'sanitize_callback' => [ Sanitize::class, 'int' ],
-					'validate_callback' => 'rest_validate_request_arg',
-				]
-			]
-		] );
-		register_rest_route( $this->namespace, $this->rest_base . '/sync-categories', [
-			'methods'             => WP_REST_Server::CREATABLE,
-			'callback'            => [ $this, 'sync_categories' ],
-			'permission_callback' => [ $this, 'create_item_permissions_check' ],
-			'args'                => [
-				'id' => [
-					'type'              => 'integer',
-					'sanitize_callback' => [ Sanitize::class, 'int' ],
-					'validate_callback' => 'rest_validate_request_arg',
-				]
-			]
-		] );
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/send-general-data-to-sites',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'send_data_to_sites' ),
+				'permission_callback' => array( $this, 'create_item_permissions_check' ),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/copy-image',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'copy_image' ),
+				'permission_callback' => array( $this, 'create_item_permissions_check' ),
+				'args'                => array(
+					'id' => array(
+						'type'              => 'integer',
+						'sanitize_callback' => array( Sanitize::class, 'int' ),
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/sync-tag',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'sync_tags' ),
+				'permission_callback' => array( $this, 'create_item_permissions_check' ),
+				'args'                => array(
+					'id' => array(
+						'type'              => 'integer',
+						'sanitize_callback' => array( Sanitize::class, 'int' ),
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/sync-categories',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'sync_categories' ),
+				'permission_callback' => array( $this, 'create_item_permissions_check' ),
+				'args'                => array(
+					'id' => array(
+						'type'              => 'integer',
+						'sanitize_callback' => array( Sanitize::class, 'int' ),
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
 	}
 
 	public function send_to_sites( WP_REST_Request $request ): WP_REST_Response {
@@ -108,7 +124,7 @@ class AdminSiteController extends ApiController {
 		$news_ids = array_map( 'intval', $news_ids );
 		$force    = Validate::checked( $request->get_param( 'force' ) );
 		/** @var News[] $news */
-		$news = ( new NewsStore() )->find_multiple( [ 'id__in' => $news_ids ] );
+		$news = ( new NewsStore() )->find_multiple( array( 'id__in' => $news_ids ) );
 		if ( ! $news ) {
 			return $this->respondNotFound();
 		}
@@ -138,10 +154,12 @@ class AdminSiteController extends ApiController {
 		$response = ( new Site( $site_setting ) )->get_sync_settings();
 		if ( ! is_wp_error( $response ) ) {
 			if ( is_array( $response ) && isset( $response['data']['sync_settings'] ) ) {
-				$site_store->update( [
-					'id'            => $site_setting['id'],
-					'sync_settings' => $response['data']['sync_settings'],
-				] );
+				$site_store->update(
+					array(
+						'id'            => $site_setting['id'],
+						'sync_settings' => $response['data']['sync_settings'],
+					)
+				);
 			}
 		}
 
@@ -178,7 +196,7 @@ class AdminSiteController extends ApiController {
 			intval( $news['id'] )
 		);
 
-		return $this->respondOK( [ 'id' => $attachment_id ] );
+		return $this->respondOK( array( 'id' => $attachment_id ) );
 	}
 
 	public function sync_tags( WP_REST_Request $request ): WP_REST_Response {
@@ -196,17 +214,21 @@ class AdminSiteController extends ApiController {
 
 		$bg_task = ProcessNewsTag::init();
 		foreach ( $tags as $slug => $name ) {
-			$bg_task->push_to_queue( [
-				'task'    => 'sync_tags_with_site',
-				'site_id' => $site->get_id(),
-				'slug'    => $slug,
-				'name'    => $name,
-			] );
+			$bg_task->push_to_queue(
+				array(
+					'task'    => 'sync_tags_with_site',
+					'site_id' => $site->get_id(),
+					'slug'    => $slug,
+					'name'    => $name,
+				)
+			);
 		}
 
-		return $this->respondOK( [
-			'tags_count' => count( $tags )
-		] );
+		return $this->respondOK(
+			array(
+				'tags_count' => count( $tags ),
+			)
+		);
 	}
 
 	/**
@@ -236,15 +258,17 @@ class AdminSiteController extends ApiController {
 			return $this->respondWithWpError( $categories );
 		}
 
-		$cats = [];
+		$cats = array();
 		foreach ( $categories as $category ) {
 			$cats[ $category['slug'] ] = $category['name'];
 		}
 
 		Category::update_categories( $cats );
 
-		return $this->respondOK( [
-			'tags_count' => count( $categories )
-		] );
+		return $this->respondOK(
+			array(
+				'tags_count' => count( $categories ),
+			)
+		);
 	}
 }

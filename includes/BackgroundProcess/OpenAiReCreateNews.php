@@ -1,15 +1,15 @@
 <?php
 
-namespace TeraPixelNewsGenerator\BackgroundProcess;
+namespace StackonetNewsGenerator\BackgroundProcess;
 
 use DateTimeZone;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Article;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\OpenAiRestClient;
-use TeraPixelNewsGenerator\OpenAIApi\News;
-use TeraPixelNewsGenerator\OpenAIApi\Setting;
 use Stackonet\WP\Framework\Supports\Logger;
+use StackonetNewsGenerator\EventRegistryNewsApi\Article;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\OpenAiRestClient;
+use StackonetNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Setting;
 
 /**
  * BackgroundSync
@@ -36,7 +36,7 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 	/**
 	 * Add to sync
 	 *
-	 * @param int $news_id News id.
+	 * @param  int  $news_id  News id.
 	 *
 	 * @return array
 	 */
@@ -45,10 +45,10 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 			$pending_tasks = static::init()->get_pending_background_tasks();
 			if ( ! in_array( $news_id, $pending_tasks, true ) ) {
 				static::init()->push_to_queue(
-					[
+					array(
 						'news_id'    => $news_id,
 						'created_at' => current_time( 'mysql', true ),
-					]
+					)
 				);
 				$pending_tasks[] = $news_id;
 			}
@@ -56,7 +56,7 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 			return $pending_tasks;
 		}
 
-		return [];
+		return array();
 	}
 
 	/**
@@ -67,12 +67,16 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 	public function get_pending_background_tasks(): array {
 		$items = $this->get_pending_items();
 
-		$data = [];
+		$data = array();
 		foreach ( $items as $value ) {
 			$data[] = $value['news_id'];
 		}
 
-		return array_values( array_unique( $data ) );
+		if ( count( $data ) > 1 ) {
+			return array_values( array_unique( $data ) );
+		}
+
+		return $data;
 	}
 
 	/**
@@ -108,7 +112,7 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 	/**
 	 * Perform task
 	 *
-	 * @param array $item Lists of data to process.
+	 * @param  array  $item  Lists of data to process.
 	 *
 	 * @return array|false
 	 */
@@ -156,9 +160,9 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 			OpenAiSyncNews::add_to_sync(
 				array_merge(
 					$item,
-					[
+					array(
 						'news_id' => $article->get_openai_news_id(),
-					]
+					)
 				)
 			);
 
@@ -206,9 +210,9 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 			OpenAiSyncNews::add_to_sync(
 				array_merge(
 					$item,
-					[
+					array(
 						'news_id' => $ai_news->get_id(),
-					]
+					)
 				)
 			);
 

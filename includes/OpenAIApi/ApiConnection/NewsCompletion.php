@@ -1,19 +1,19 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\ApiConnection;
+namespace StackonetNewsGenerator\OpenAIApi\ApiConnection;
 
-use TeraPixelNewsGenerator\BackgroundProcess\CopyNewsImage;
-use TeraPixelNewsGenerator\BackgroundProcess\ProcessNewsTag;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Article;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Category;
-use TeraPixelNewsGenerator\Modules\ExternalLink\Models\ExternalLink;
-use TeraPixelNewsGenerator\OpenAIApi\Models\ApiResponseLog;
-use TeraPixelNewsGenerator\OpenAIApi\News;
-use TeraPixelNewsGenerator\OpenAIApi\Setting;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsTagStore;
-use TeraPixelNewsGenerator\Supports\Country;
-use TeraPixelNewsGenerator\Supports\Utils;
+use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
+use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
+use StackonetNewsGenerator\EventRegistryNewsApi\Article;
+use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\Modules\ExternalLink\Models\ExternalLink;
+use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
+use StackonetNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Setting;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsTagStore;
+use StackonetNewsGenerator\Supports\Country;
+use StackonetNewsGenerator\Supports\Utils;
 use WP_Error;
 
 /**

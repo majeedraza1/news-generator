@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\Rest;
+namespace StackonetNewsGenerator\OpenAIApi\Rest;
 
-use TeraPixelNewsGenerator\OpenAIApi\Models\BlackListWords;
-use TeraPixelNewsGenerator\REST\ApiController;
+use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
+use StackonetNewsGenerator\REST\ApiController;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use WP_REST_Server;
 

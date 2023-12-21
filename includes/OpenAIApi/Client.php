@@ -1,12 +1,12 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi;
+namespace StackonetNewsGenerator\OpenAIApi;
 
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiSyncTwitterFields;
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\OpenAiRestClient;
-use TeraPixelNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncTwitterFields;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\OpenAiRestClient;
+use StackonetNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use WP_Error;
 
 /**

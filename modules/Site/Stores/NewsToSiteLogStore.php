@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Site\Stores;
+namespace StackonetNewsGenerator\Modules\Site\Stores;
 
 use Stackonet\WP\Framework\Abstracts\DataStoreBase;
-use TeraPixelNewsGenerator\Modules\Site\Models\NewsToSiteLog;
+use StackonetNewsGenerator\Modules\Site\Models\NewsToSiteLog;
 
 /**
  * NewsToSiteLog class

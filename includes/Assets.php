@@ -1,15 +1,18 @@
 <?php
 
-namespace TeraPixelNewsGenerator;
+namespace StackonetNewsGenerator;
 
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Category;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Country;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Language;
-use TeraPixelNewsGenerator\OpenAIApi\Setting;
+use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\EventRegistryNewsApi\Country;
+use StackonetNewsGenerator\EventRegistryNewsApi\Language;
+use StackonetNewsGenerator\OpenAIApi\Setting;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Assets class
+ */
 class Assets {
 
 	/**
@@ -42,10 +45,10 @@ class Assets {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			add_action( 'wp_loaded', [ self::$instance, 'register' ] );
+			add_action( 'wp_loaded', array( self::$instance, 'register' ) );
 
-			add_action( 'admin_head', [ self::$instance, 'localize_data' ], 9 );
-			add_action( 'wp_head', [ self::$instance, 'localize_data' ], 9 );
+			add_action( 'admin_head', array( self::$instance, 'localize_data' ), 9 );
+			add_action( 'wp_head', array( self::$instance, 'localize_data' ), 9 );
 		}
 
 		return self::$instance;
@@ -58,13 +61,13 @@ class Assets {
 		$user              = wp_get_current_user();
 		$is_user_logged_in = $user->exists();
 
-		$data = [
+		$data = array(
 			'homeUrl'          => home_url(),
 			'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
 			'restRoot'         => esc_url_raw( rest_url( 'terapixel-news-generator/v1' ) ),
 			'isUserLoggedIn'   => $is_user_logged_in,
 			'privacyPolicyUrl' => get_privacy_policy_url(),
-		];
+		);
 
 		if ( ! $is_user_logged_in ) {
 			$data['lostPasswordUrl'] = wp_lostpassword_url();
@@ -73,10 +76,10 @@ class Assets {
 		if ( $is_user_logged_in ) {
 			$data['restNonce'] = wp_create_nonce( 'wp_rest' );
 
-			$data['user'] = [
+			$data['user'] = array(
 				'name'      => $user->display_name,
 				'avatarUrl' => get_avatar_url( $user->user_email ),
-			];
+			);
 
 			$data['logoutUrl'] = wp_logout_url( get_the_permalink() );
 		}
@@ -88,7 +91,7 @@ class Assets {
 			$data['instructions'] = Setting::get_instructions();
 		}
 
-		echo '<script>window.TeraPixelNewsGenerator = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;
+		echo '<script>window.StackonetNewsGenerator = ' . wp_json_encode( $data ) . '</script>' . PHP_EOL;
 	}
 
 	/**
@@ -139,11 +142,11 @@ class Assets {
 	 * @return array
 	 */
 	public function get_scripts(): array {
-		return [
-			"{$this->plugin_name}-admin" => [
+		return array(
+			"{$this->plugin_name}-admin" => array(
 				'src' => static::get_assets_url( 'js/admin.js' ),
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -204,10 +207,10 @@ class Assets {
 	 * @return array
 	 */
 	public function get_styles(): array {
-		return [
-			"{$this->plugin_name}-admin" => [
+		return array(
+			"{$this->plugin_name}-admin" => array(
 				'src' => static::get_assets_url( 'css/admin.css' ),
-			],
-		];
+			),
+		);
 	}
 }

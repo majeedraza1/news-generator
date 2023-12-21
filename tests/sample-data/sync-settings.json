@@ -1,0 +1,138 @@
+[
+  {
+    "option_id": "e7d1794f-2729-4a69-885d-a943ea42f9de",
+    "fields": [
+      "categoryUri",
+      "lang",
+      "keyword",
+      "enable_news_filtering"
+    ],
+    "categories": [
+      {
+        "uri": "news/Health",
+        "label": "news/Health",
+        "parentUri": "news"
+      }
+    ],
+    "locations": [],
+    "concepts": [],
+    "sources": [],
+    "keyword": "vegetarian",
+    "keywordLoc": "body",
+    "categoryUri": [
+      "news/Health"
+    ],
+    "locationUri": [],
+    "conceptUri": [],
+    "sourceUri": [],
+    "lang": [
+      "eng"
+    ],
+    "primary_category": "health",
+    "copy_news_image": false,
+    "enable_category_check": true,
+    "enable_live_news": false,
+    "enable_news_filtering": true,
+    "news_filtering_instruction": "{{news_titles_list}} Based on the above news titles, could you select one article that would be interesting to the Google search audience and is specifically a news article? No promotion or PR News. Please reply with only the titles enclosed in square brackets. We don't need any descriptions. Thank you!"
+  },
+  {
+    "option_id": "856917fb-12c8-430c-9f81-ef7bdc4e4889",
+    "fields": [
+      "locationUri",
+      "lang",
+      "keyword",
+      "enable_news_filtering"
+    ],
+    "categories": [],
+    "locations": [
+      {
+        "type": "country",
+        "wikiUri": "http://en.wikipedia.org/wiki/United_Kingdom",
+        "label": {
+          "eng": "United Kingdom"
+        },
+        "lat": 54.75844,
+        "long": -2
+      }
+    ],
+    "concepts": [],
+    "sources": [],
+    "keyword": "vegan",
+    "keywordLoc": "title-or-body",
+    "categoryUri": [],
+    "locationUri": [
+      "http://en.wikipedia.org/wiki/United_Kingdom"
+    ],
+    "conceptUri": [],
+    "sourceUri": [],
+    "lang": [
+      "eng"
+    ],
+    "primary_category": "health",
+    "copy_news_image": false,
+    "enable_category_check": true,
+    "enable_live_news": false,
+    "enable_news_filtering": true,
+    "news_filtering_instruction": "{{news_titles_list}} Based on the above news titles, could you select one article that would be interesting to the Google search audience and is specifically a news article? No promotion or PR News. Please reply with only the titles enclosed in square brackets. We don't need any descriptions. Thank you!"
+  },
+  {
+    "option_id": "928d5f19-18f2-48df-933e-9095e858c04f",
+    "fields": [
+      "categoryUri",
+      "locationUri",
+      "lang",
+      "enable_news_filtering"
+    ],
+    "categories": [
+      {
+        "uri": "news/Technology",
+        "label": "news/Technology",
+        "parentUri": "news"
+      },
+      {
+        "uri": "news/Science",
+        "label": "news/Science",
+        "parentUri": "news"
+      },
+      {
+        "uri": "news/Business",
+        "label": "news/Business",
+        "parentUri": "news"
+      }
+    ],
+    "locations": [
+      {
+        "type": "country",
+        "wikiUri": "http://en.wikipedia.org/wiki/United_States",
+        "label": {
+          "eng": "United States"
+        },
+        "lat": 39.76,
+        "long": -98
+      }
+    ],
+    "concepts": [],
+    "sources": [],
+    "keyword": "",
+    "keywordLoc": "title-or-body",
+    "categoryUri": [
+      "news/Technology",
+      "news/Science",
+      "news/Business"
+    ],
+    "locationUri": [
+      "http://en.wikipedia.org/wiki/United_States"
+    ],
+    "conceptUri": [],
+    "sourceUri": [],
+    "lang": [
+      "eng"
+    ],
+    "primary_category": "general",
+    "copy_news_image": false,
+    "enable_category_check": true,
+    "enable_live_news": false,
+    "enable_news_filtering": true,
+    "news_filtering_instruction": "{{news_titles_list}} Based on the above news titles, could you select one article that would be interesting to the Google search audience and is specifically a news article? No promotion or PR News. Please reply with only the titles enclosed in square brackets. We don't need any descriptions. Thank you!"
+  }
+]

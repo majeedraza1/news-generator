@@ -1,43 +1,44 @@
 <?php
 
-namespace TeraPixelNewsGenerator;
+namespace StackonetNewsGenerator;
 
-use TeraPixelNewsGenerator\Admin\Admin;
-use TeraPixelNewsGenerator\BackgroundProcess\CopyNewsImage;
-use TeraPixelNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateOldNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiSyncNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiSyncTwitterFields;
-use TeraPixelNewsGenerator\BackgroundProcess\ProcessNewsTag;
-use TeraPixelNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\NewsApiCronEvent;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\NewsSource;
-use TeraPixelNewsGenerator\Modules\ExternalLink\ExternalLinkManager;
-use TeraPixelNewsGenerator\Modules\Keyword\KeywordManager;
-use TeraPixelNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
-use TeraPixelNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
-use TeraPixelNewsGenerator\Modules\Site\REST\AdminSiteController;
-use TeraPixelNewsGenerator\Modules\Site\REST\SiteController;
-use TeraPixelNewsGenerator\Modules\Site\SiteStore;
-use TeraPixelNewsGenerator\Modules\Site\Stores\NewsToSiteLogStore;
-use TeraPixelNewsGenerator\Modules\TweetToArticle\TweetToArticleManager;
-use TeraPixelNewsGenerator\OpenAIApi\Models\ApiResponseLog;
-use TeraPixelNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
-use TeraPixelNewsGenerator\OpenAIApi\Models\InterestingNews;
-use TeraPixelNewsGenerator\OpenAIApi\Rest\ApiResponseLogController;
-use TeraPixelNewsGenerator\OpenAIApi\Rest\OpenAiBlacklistController;
-use TeraPixelNewsGenerator\OpenAIApi\Rest\OpenAiController;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsTagStore;
-use TeraPixelNewsGenerator\REST\AdminInstagramAttemptLogController;
-use TeraPixelNewsGenerator\REST\AdminNewsController;
-use TeraPixelNewsGenerator\REST\AdminNewsFilteringController;
-use TeraPixelNewsGenerator\REST\AdminNewsSourceController;
-use TeraPixelNewsGenerator\REST\AdminSettingController;
+use StackonetNewsGenerator\Admin\Admin;
+use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
+use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateOldNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncTwitterFields;
+use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
+use StackonetNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\NewsApiCronEvent;
+use StackonetNewsGenerator\EventRegistryNewsApi\NewsSource;
+use StackonetNewsGenerator\Modules\ExternalLink\ExternalLinkManager;
+use StackonetNewsGenerator\Modules\Keyword\KeywordManager;
+use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
+use StackonetNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
+use StackonetNewsGenerator\Modules\Site\REST\AdminNewsToSiteLogController;
+use StackonetNewsGenerator\Modules\Site\REST\AdminSiteController;
+use StackonetNewsGenerator\Modules\Site\REST\SiteController;
+use StackonetNewsGenerator\Modules\Site\SiteStore;
+use StackonetNewsGenerator\Modules\Site\Stores\NewsToSiteLogStore;
+use StackonetNewsGenerator\Modules\TweetToArticle\TweetToArticleManager;
+use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
+use StackonetNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
+use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
+use StackonetNewsGenerator\OpenAIApi\Rest\ApiResponseLogController;
+use StackonetNewsGenerator\OpenAIApi\Rest\OpenAiBlacklistController;
+use StackonetNewsGenerator\OpenAIApi\Rest\OpenAiController;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsTagStore;
+use StackonetNewsGenerator\REST\AdminInstagramAttemptLogController;
+use StackonetNewsGenerator\REST\AdminNewsController;
+use StackonetNewsGenerator\REST\AdminNewsFilteringController;
+use StackonetNewsGenerator\REST\AdminNewsSourceController;
+use StackonetNewsGenerator\REST\AdminSettingController;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -131,8 +132,8 @@ class Plugin {
 			$loader = new Autoloader();
 
 			// register the base directories for the namespace prefix.
-			$loader->add_namespace( 'TeraPixelNewsGenerator', $this->get_plugin_path() . '/includes' );
-			$loader->add_namespace( 'TeraPixelNewsGenerator\Modules', $this->get_plugin_path() . '/modules' );
+			$loader->add_namespace( 'StackonetNewsGenerator', $this->get_plugin_path() . '/includes' );
+			$loader->add_namespace( 'StackonetNewsGenerator\Modules', $this->get_plugin_path() . '/modules' );
 
 			// register the autoloader.
 			$loader->register();
@@ -238,6 +239,7 @@ class Plugin {
 		$this->container['rest_news_filtering']    = AdminNewsFilteringController::init();
 		$this->container['rest_api_log']           = ApiResponseLogController::init();
 		$this->container['rest_instagram_log']     = AdminInstagramAttemptLogController::init();
+		$this->container['rest_news_to_site_logs'] = AdminNewsToSiteLogController::init();
 	}
 
 	/**

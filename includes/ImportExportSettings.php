@@ -1,13 +1,13 @@
 <?php
 
-namespace TeraPixelNewsGenerator;
+namespace StackonetNewsGenerator;
 
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Category;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Setting;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\SyncSettings;
-use TeraPixelNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
-use TeraPixelNewsGenerator\Providers\GoogleVisionClient;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\EventRegistryNewsApi\Setting;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
+use StackonetNewsGenerator\Providers\GoogleVisionClient;
 use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Supports\RestClient;
 

@@ -1,21 +1,21 @@
 <?php
 
-namespace TeraPixelNewsGenerator\REST;
+namespace StackonetNewsGenerator\REST;
 
 use Stackonet\WP\Framework\Supports\Validate;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateOldNews;
-use TeraPixelNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Category;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Client;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Setting;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\SyncSettings;
-use TeraPixelNewsGenerator\Modules\Keyword\Setting as KeywordSetting;
-use TeraPixelNewsGenerator\Modules\Site\SiteStore;
-use TeraPixelNewsGenerator\OpenAIApi\Models\BlackListWords;
-use TeraPixelNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
-use TeraPixelNewsGenerator\Providers\GoogleVisionClient;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateOldNews;
+use StackonetNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\EventRegistryNewsApi\Client;
+use StackonetNewsGenerator\EventRegistryNewsApi\Setting;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\Modules\Keyword\Setting as KeywordSetting;
+use StackonetNewsGenerator\Modules\Site\SiteStore;
+use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
+use StackonetNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
+use StackonetNewsGenerator\Providers\GoogleVisionClient;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;

@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\TweetToArticle;
+namespace StackonetNewsGenerator\Modules\TweetToArticle;
 
 /**
  * Settings class

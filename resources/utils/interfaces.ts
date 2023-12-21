@@ -197,6 +197,7 @@ interface OpenAiResponseInterface {
   created_at: string;
   instruction: string;
   api_response: string;
+  debug_url: string;
 }
 
 interface InstagramAttemptLogInterface {
@@ -207,7 +208,6 @@ interface InstagramAttemptLogInterface {
   created_at: string;
   updated_at: string;
 }
-
 
 
 interface KeywordInterface {

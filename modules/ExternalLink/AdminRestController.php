@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\ExternalLink;
+namespace StackonetNewsGenerator\Modules\ExternalLink;
 
-use TeraPixelNewsGenerator\Modules\ExternalLink\Models\ExternalLink;
-use TeraPixelNewsGenerator\REST\ApiController;
+use StackonetNewsGenerator\Modules\ExternalLink\Models\ExternalLink;
+use StackonetNewsGenerator\REST\ApiController;
 use Stackonet\WP\Framework\Traits\ApiCrudOperations;
 
 /**

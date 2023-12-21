@@ -1,11 +1,11 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\TweetToArticle;
+namespace StackonetNewsGenerator\Modules\TweetToArticle;
 
-use TeraPixelNewsGenerator\Modules\TweetToArticle\Api\AdminTwitterSettingsController;
-use TeraPixelNewsGenerator\Modules\TweetToArticle\Api\AdminTwitterTweetsController;
-use TeraPixelNewsGenerator\Modules\TweetToArticle\Api\AdminTwitterUsernameController;
-use TeraPixelNewsGenerator\Modules\TweetToArticle\Models\TwitterTweets;
+use StackonetNewsGenerator\Modules\TweetToArticle\Api\AdminTwitterSettingsController;
+use StackonetNewsGenerator\Modules\TweetToArticle\Api\AdminTwitterTweetsController;
+use StackonetNewsGenerator\Modules\TweetToArticle\Api\AdminTwitterUsernameController;
+use StackonetNewsGenerator\Modules\TweetToArticle\Models\TwitterTweets;
 
 /**
  * TweetToArticleManager

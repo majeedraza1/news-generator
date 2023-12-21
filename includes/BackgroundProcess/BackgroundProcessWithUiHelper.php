@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\BackgroundProcess;
+namespace StackonetNewsGenerator\BackgroundProcess;
 
 use Stackonet\WP\Framework\BackgroundProcessing\BackgroundProcess;
 

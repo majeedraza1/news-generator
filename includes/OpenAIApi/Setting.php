@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi;
+namespace StackonetNewsGenerator\OpenAIApi;
 
 use Stackonet\WP\Framework\Supports\Validate;
 

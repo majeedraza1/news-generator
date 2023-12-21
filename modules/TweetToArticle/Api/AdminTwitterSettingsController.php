@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\TweetToArticle\Api;
+namespace StackonetNewsGenerator\Modules\TweetToArticle\Api;
 
-use TeraPixelNewsGenerator\Modules\TweetToArticle\Settings;
-use TeraPixelNewsGenerator\REST\ApiController;
+use StackonetNewsGenerator\Modules\TweetToArticle\Settings;
+use StackonetNewsGenerator\REST\ApiController;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use WP_REST_Request;
 use WP_REST_Response;

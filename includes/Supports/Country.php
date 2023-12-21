@@ -1,8 +1,8 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Supports;
+namespace StackonetNewsGenerator\Supports;
 
-use TeraPixelNewsGenerator\Plugin;
+use StackonetNewsGenerator\Plugin;
 
 class Country {
 	public static function get_country_name( string $code ): string {

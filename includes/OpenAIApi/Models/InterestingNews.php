@@ -1,12 +1,12 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\Models;
+namespace StackonetNewsGenerator\OpenAIApi\Models;
 
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\SyncSettings;
-use TeraPixelNewsGenerator\OpenAIApi\Client;
-use TeraPixelNewsGenerator\OpenAIApi\Setting;
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\OpenAIApi\Client;
+use StackonetNewsGenerator\OpenAIApi\Setting;
 use WP_Error;
 
 /**
@@ -25,12 +25,12 @@ class InterestingNews extends DatabaseModel {
 	 *
 	 * @var array
 	 */
-	protected $news = [];
+	protected $news = array();
 
 	/**
 	 * Find by setting id.
 	 *
-	 * @param string $setting_id Setting id.
+	 * @param  string  $setting_id  Setting id.
 	 *
 	 * @return false|static
 	 */
@@ -49,9 +49,9 @@ class InterestingNews extends DatabaseModel {
 	}
 
 	/**
-	 * @param array $articles
-	 * @param array $sync_option
-	 * @param bool $force
+	 * @param  array  $articles
+	 * @param  array  $sync_option
+	 * @param  bool  $force
 	 *
 	 * @return InterestingNews|WP_Error
 	 */
@@ -66,7 +66,7 @@ class InterestingNews extends DatabaseModel {
 			$instruction = Setting::get_news_filtering_instruction();
 		}
 		$title_html = '';
-		$based_on   = [];
+		$based_on   = array();
 		foreach ( $articles as $index => $article ) {
 			$total_words = intval( $article['title_words_count'] ) + intval( $article['body_words_count'] );
 			if ( ! Client::is_valid_for_max_token( $total_words ) ) {
@@ -80,34 +80,34 @@ class InterestingNews extends DatabaseModel {
 			$title_html .= sprintf( '%s. %s', $index + 1, $article['title'] ) . PHP_EOL;
 		}
 
-		$log_data       = [
+		$log_data       = array(
 			'raw_news_ids'            => wp_list_pluck( $articles, 'id' ),
 			'news_ids_for_suggestion' => $based_on,
 			'openai_api_instruction'  => str_replace( '{{news_titles_list}}', $title_html, $instruction ),
 			'sync_settings'           => $sync_setting->get_client_query_args(),
 			'setting_id'              => $sync_setting->get_option_id(),
 			'primary_category'        => $sync_setting->get_primary_category(),
-			'suggested_news_ids'      => [],
+			'suggested_news_ids'      => array(),
 			'total_suggested_news'    => 0,
-		];
+		);
 		$log_data['id'] = static::create( $log_data );
 
 		$response = Client::find_interesting_news(
 			$title_html,
 			$instruction,
-			[
+			array(
 				'source_type' => 'sync_settings',
 				'source_id'   => $log_data['id'],
-			],
+			),
 			$force
 		);
 
 		if ( is_wp_error( $response ) ) {
 			static::update(
-				[
+				array(
 					'id'                  => $log_data['id'],
 					'openai_api_response' => $response->get_error_message(),
-				]
+				)
 			);
 
 			$response->add( 'batch_info', wp_json_encode( $log_data ) );
@@ -133,9 +133,9 @@ class InterestingNews extends DatabaseModel {
 	 * @return array
 	 */
 	public static function sanitize_sync_settings( $settings ): array {
-		$options = [];
+		$options = array();
 		foreach ( $settings as $key => $value ) {
-			if ( empty( $value ) || in_array( $key, [ 'query_info', 'last_sync' ], true ) ) {
+			if ( empty( $value ) || in_array( $key, array( 'query_info', 'last_sync' ), true ) ) {
 				continue;
 			}
 			$options[ $key ] = $value;
@@ -146,14 +146,14 @@ class InterestingNews extends DatabaseModel {
 
 	public static function parse_openai_response_for_titles( string $string ): array {
 		preg_match_all( '/\[(.*?)\]/', $string, $matches );
-		$indexes = [];
+		$indexes = array();
 		if ( isset( $matches[1] ) && count( $matches[1] ) ) {
 			foreach ( $matches[1] as $line ) {
 				preg_match( '/^(?P<index>\d+)(.)(?P<text>.*)?/', $line, $_match );
 				if ( isset( $_match['text'] ) ) {
-					$indexes[] = rtrim( str_replace( [ '[', ']' ], '', $_match['text'] ) );
+					$indexes[] = rtrim( str_replace( array( '[', ']' ), '', $_match['text'] ) );
 				} else {
-					$indexes[] = rtrim( str_replace( [ '[', ']' ], '', $line ) );
+					$indexes[] = rtrim( str_replace( array( '[', ']' ), '', $line ) );
 				}
 			}
 		} else {
@@ -161,26 +161,30 @@ class InterestingNews extends DatabaseModel {
 			if ( isset( $_match['texts'] ) ) {
 				$indexes = array_map(
 					function ( $value ) {
-						return trim( str_replace( [ '[', ']' ], '', $value ) );
+						return trim( str_replace( array( '[', ']' ), '', $value ) );
 					},
 					$_match['texts']
 				);
 			}
 		}
 
+		if ( count( $indexes ) ) {
+			$indexes = array_map( 'trim', $indexes );
+		}
+
 		return $indexes;
 	}
 
 	/**
-	 * @param array $articles
-	 * @param array $titles
+	 * @param  array  $articles
+	 * @param  array  $titles
 	 * @param $response
 	 *
 	 * @return array
 	 */
 	public static function get_select_news_ids_from_title( array $articles, array $titles, $response ): array {
-		$selected  = [];
-		$_articles = [];
+		$selected  = array();
+		$_articles = array();
 		foreach ( $articles as $article ) {
 			$_articles[ $article['id'] ] = $article['title'];
 			if (
@@ -237,10 +241,10 @@ class InterestingNews extends DatabaseModel {
 		) {$collate}";
 
 		$version = get_option( $table . '_version', '0.1.0' );
-		if ( version_compare( $version, '1.0.0', '<' ) ) {
+		if ( version_compare( $version, '1.1.0', '<' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 			dbDelta( $sql );
-			update_option( $table . '_version', '1.0.0' );
+			update_option( $table . '_version', '1.1.0' );
 		}
 	}
 
@@ -257,14 +261,14 @@ class InterestingNews extends DatabaseModel {
 
 	public function get_sync_settings(): array {
 		$settings = $this->get_prop( 'sync_settings' );
-		$settings = is_array( $settings ) ? $settings : [];
+		$settings = is_array( $settings ) ? $settings : array();
 
 		return static::sanitize_sync_settings( $settings );
 	}
 
 	public function get_openai_news_ids(): array {
 		$ids = $this->get_prop( 'openai_news_ids' );
-		$ids = is_array( $ids ) ? $ids : [];
+		$ids = is_array( $ids ) ? $ids : array();
 		if ( count( $ids ) < 1 ) {
 			$ids = $this->recalculate_openai_news_ids();
 		}
@@ -273,7 +277,7 @@ class InterestingNews extends DatabaseModel {
 	}
 
 	public function recalculate_openai_news_ids(): array {
-		$ids         = [];
+		$ids         = array();
 		$source_news = $this->get_source_news();
 		foreach ( $source_news as $news ) {
 			$openai_news_id = isset( $news['openai_news_id'] ) ? intval( $news['openai_news_id'] ) : 0;
@@ -285,11 +289,11 @@ class InterestingNews extends DatabaseModel {
 			}
 		}
 		static::update(
-			[
+			array(
 				'id'                   => $this->get_id(),
 				'openai_news_ids'      => $ids,
 				'total_recreated_news' => count( $ids ),
-			]
+			)
 		);
 		$this->set_prop( 'openai_news_ids', $ids );
 		$this->set_prop( 'total_recreated_news', count( $ids ) );
@@ -305,10 +309,10 @@ class InterestingNews extends DatabaseModel {
 	public function get_source_news(): array {
 		if ( empty( $this->news ) ) {
 			$this->news = ( new ArticleStore() )->find_multiple(
-				[
+				array(
 					'id__in' => $this->get_prop( 'raw_news_ids' ),
 					'limit'  => count( $this->get_prop( 'raw_news_ids' ) ),
-				]
+				)
 			);
 		}
 
@@ -318,27 +322,27 @@ class InterestingNews extends DatabaseModel {
 	public function get_suggested_news_ids(): array {
 		$ids = $this->get_prop( 'suggested_news_ids' );
 
-		return is_array( $ids ) ? array_map( 'intval', $ids ) : [];
+		return is_array( $ids ) ? array_map( 'intval', $ids ) : array();
 	}
 
 	public function recalculate_suggested_news_ids(): array {
 		$response = $this->get_prop( 'openai_api_response' );
 		$articles = ( new ArticleStore() )->find_multiple(
-			[
+			array(
 				'id__in' => $this->get_prop( 'news_ids_for_suggestion' ),
 				'limit'  => count( $this->get_prop( 'news_ids_for_suggestion' ) ),
-			]
+			)
 		);
 		$titles   = static::parse_openai_response_for_titles( $response );
 		$selected = static::get_select_news_ids_from_title( $articles, $titles, $response );
 		$this->set_prop( 'suggested_news_ids', $selected );
 		$this->set_prop( 'total_suggested_news', count( $selected ) );
 		static::update(
-			[
+			array(
 				'suggested_news_ids'   => $selected,
 				'total_suggested_news' => count( $selected ),
 				'id'                   => $this->get_id(),
-			]
+			)
 		);
 
 		return $selected;
@@ -347,7 +351,7 @@ class InterestingNews extends DatabaseModel {
 	/**
 	 * Delete old logs
 	 *
-	 * @param int $day Number of days.
+	 * @param  int  $day  Number of days.
 	 *
 	 * @return void
 	 * @throws \Exception
@@ -363,7 +367,7 @@ class InterestingNews extends DatabaseModel {
 		$datetime->modify( $day_or_days );
 
 		$sql = "DELETE FROM `{$table}` WHERE 1 = 1";
-		$sql .= $wpdb->prepare( " AND created_at <= %s", $datetime->format( 'Y-m-d H:i:s' ) );
+		$sql .= $wpdb->prepare( ' AND created_at <= %s', $datetime->format( 'Y-m-d H:i:s' ) );
 
 		$wpdb->query( $sql );
 	}

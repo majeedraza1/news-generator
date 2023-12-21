@@ -1,8 +1,8 @@
 <?php
 
-namespace TeraPixelNewsGenerator\REST;
+namespace StackonetNewsGenerator\REST;
 
-use TeraPixelNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
+use StackonetNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use WP_REST_Request;
 use WP_REST_Response;

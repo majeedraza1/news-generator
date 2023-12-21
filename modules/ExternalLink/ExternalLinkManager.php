@@ -1,8 +1,8 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\ExternalLink;
+namespace StackonetNewsGenerator\Modules\ExternalLink;
 
-use TeraPixelNewsGenerator\Modules\ExternalLink\Models\ExternalLink;
+use StackonetNewsGenerator\Modules\ExternalLink\Models\ExternalLink;
 
 /**
  * ExternalLinkManager class

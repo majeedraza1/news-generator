@@ -1,10 +1,10 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Site;
+namespace StackonetNewsGenerator\Modules\Site;
 
-use TeraPixelNewsGenerator\BackgroundProcess\BackgroundProcessBase;
-use TeraPixelNewsGenerator\OpenAIApi\News;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\BackgroundProcess\BackgroundProcessBase;
+use StackonetNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 
 /**
  * BackgroundSendNewsToSite class

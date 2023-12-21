@@ -1,8 +1,8 @@
 <?php
 
-namespace TeraPixelNewsGenerator\REST;
+namespace StackonetNewsGenerator\REST;
 
-use TeraPixelNewsGenerator\EventRegistryNewsApi\NewsSource;
+use StackonetNewsGenerator\EventRegistryNewsApi\NewsSource;
 use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use WP_REST_Request;

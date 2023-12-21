@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\BackgroundProcess;
+namespace StackonetNewsGenerator\BackgroundProcess;
 
-use TeraPixelNewsGenerator\OpenAIApi\Client;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsTagStore;
+use StackonetNewsGenerator\OpenAIApi\Client;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsTagStore;
 
 /**
  * ProcessNewsTag class

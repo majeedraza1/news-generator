@@ -1,10 +1,10 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Site\REST;
+namespace StackonetNewsGenerator\Modules\Site\REST;
 
-use TeraPixelNewsGenerator\Modules\Site\Site;
-use TeraPixelNewsGenerator\Modules\Site\SiteStore;
-use TeraPixelNewsGenerator\REST\ApiController;
+use StackonetNewsGenerator\Modules\Site\Site;
+use StackonetNewsGenerator\Modules\Site\SiteStore;
+use StackonetNewsGenerator\REST\ApiController;
 use WP_REST_Request;
 use WP_REST_Server;
 

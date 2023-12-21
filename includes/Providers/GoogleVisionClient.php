@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Providers;
+namespace StackonetNewsGenerator\Providers;
 
 use Exception;
 use Stackonet\WP\Framework\Supports\Logger;

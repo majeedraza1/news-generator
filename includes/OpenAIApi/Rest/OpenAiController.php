@@ -1,22 +1,22 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\Rest;
+namespace StackonetNewsGenerator\OpenAIApi\Rest;
 
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
-use TeraPixelNewsGenerator\BackgroundProcess\ProcessNewsTag;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Article;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use TeraPixelNewsGenerator\EventRegistryNewsApi\Category;
-use TeraPixelNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
-use TeraPixelNewsGenerator\Modules\Site\SiteStore;
-use TeraPixelNewsGenerator\Modules\Site\Stores\NewsToSiteLogStore;
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
-use TeraPixelNewsGenerator\OpenAIApi\News;
-use TeraPixelNewsGenerator\OpenAIApi\Setting;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsTagStore;
-use TeraPixelNewsGenerator\REST\ApiController;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
+use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
+use StackonetNewsGenerator\EventRegistryNewsApi\Article;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
+use StackonetNewsGenerator\Modules\Site\SiteStore;
+use StackonetNewsGenerator\Modules\Site\Stores\NewsToSiteLogStore;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
+use StackonetNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Setting;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsTagStore;
+use StackonetNewsGenerator\REST\ApiController;
 use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\Validate;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;

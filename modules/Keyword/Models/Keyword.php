@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Keyword\Models;
+namespace StackonetNewsGenerator\Modules\Keyword\Models;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 

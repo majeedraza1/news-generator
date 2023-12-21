@@ -1,10 +1,10 @@
 <?php
 
-namespace TeraPixelNewsGenerator\REST;
+namespace StackonetNewsGenerator\REST;
 
-use TeraPixelNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
-use TeraPixelNewsGenerator\OpenAIApi\Models\InterestingNews;
-use TeraPixelNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use WP_REST_Server;
 

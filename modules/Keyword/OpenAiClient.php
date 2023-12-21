@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Keyword;
+namespace StackonetNewsGenerator\Modules\Keyword;
 
-use TeraPixelNewsGenerator\Modules\Keyword\Models\Keyword;
-use TeraPixelNewsGenerator\OpenAIApi\ApiConnection\OpenAiRestClient;
+use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\OpenAiRestClient;
 use WP_Error;
 
 /**

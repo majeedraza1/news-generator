@@ -1,9 +1,9 @@
 <?php
 
-namespace TeraPixelNewsGenerator\OpenAIApi\Stores;
+namespace StackonetNewsGenerator\OpenAIApi\Stores;
 
-use TeraPixelNewsGenerator\OpenAIApi\Client;
-use TeraPixelNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Client;
+use StackonetNewsGenerator\OpenAIApi\News;
 use Stackonet\WP\Framework\Abstracts\DataStoreBase;
 
 class NewsTagStore extends DataStoreBase {

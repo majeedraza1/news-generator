@@ -1,6 +1,6 @@
 <?php
 
-namespace TeraPixelNewsGenerator\Modules\Keyword;
+namespace StackonetNewsGenerator\Modules\Keyword;
 
 /**
  * Class Setting

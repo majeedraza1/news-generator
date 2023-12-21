@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 const axiosArgs = {
-    baseURL: window.TeraPixelNewsGenerator.restRoot,
+    baseURL: window.StackonetNewsGenerator.restRoot,
     headers: {},
 };
-if (window.TeraPixelNewsGenerator && window.TeraPixelNewsGenerator.restNonce) {
-    axiosArgs.headers = {'X-WP-Nonce': window.TeraPixelNewsGenerator.restNonce};
+if (window.StackonetNewsGenerator && window.StackonetNewsGenerator.restNonce) {
+    axiosArgs.headers = {'X-WP-Nonce': window.StackonetNewsGenerator.restNonce};
 }
 
 const http = axios.create(axiosArgs);

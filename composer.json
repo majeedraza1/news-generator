@@ -19,8 +19,8 @@
   "minimum-stability": "stable",
   "autoload": {
     "psr-4": {
-      "TeraPixelNewsGenerator\\": "includes",
-      "TeraPixelNewsGenerator\\Modules\\": "modules"
+      "StackonetNewsGenerator\\": "includes",
+      "StackonetNewsGenerator\\Modules\\": "modules"
     }
   },
   "require": {
