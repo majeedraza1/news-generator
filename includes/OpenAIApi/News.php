@@ -8,6 +8,8 @@ use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
 use StackonetNewsGenerator\Modules\Site\Site;
 use StackonetNewsGenerator\Modules\Site\SiteStore;
@@ -107,10 +109,11 @@ class News extends Data {
 			'category'                 => $this->get_primary_category(),
 			'openai_category'          => $this->get_openai_category(),
 			'openai_category_response' => $this->get_prop( 'openai_category_response' ),
-			'created_via'              => $this->get_prop( 'created_via' ),
+			'created_via'              => $this->get_created_via(),
 			'sync_status'              => $this->get_sync_status(),
 			'concept'                  => $this->get_prop( 'concept' ),
-			'sync_setting_id'          => $this->get_prop( 'sync_setting_id' ),
+			'sync_setting_id'          => $this->get_sync_setting_id(),
+			'sync_setting'             => $this->get_sync_setting(),
 			'live_news'                => $this->get_prop( 'live_news' ),
 			'source_title'             => $this->get_prop( 'source_title' ),
 			'source_uri'               => $this->get_prop( 'source_uri' ),
@@ -801,7 +804,59 @@ class News extends Data {
 	 * @return bool
 	 */
 	public function is_manual(): bool {
-		return 'manual' === $this->get_prop( 'created_via' );
+		return 'manual' === $this->get_created_via();
+	}
+
+	/**
+	 * Get created via
+	 *
+	 * @return string
+	 */
+	public function get_created_via(): string {
+		$created_via = $this->get_prop( 'created_via' );
+
+		return (string) $created_via;
+	}
+
+	/**
+	 * Get sync setting id
+	 *
+	 * @return string
+	 */
+	public function get_sync_setting_id(): string {
+		return (string) $this->get_prop( 'sync_setting_id' );
+	}
+
+	/**
+	 * Get sync setting
+	 *
+	 * @return array|false
+	 */
+	public function get_sync_setting() {
+		if ( 'newsapi.ai' === $this->get_created_via() && $this->get_sync_setting_id() ) {
+			$settings = SyncSettings::get_setting( $this->get_sync_setting_id() );
+			if ( is_array( $settings ) ) {
+				$_setting = [];
+				foreach ( $settings as $key => $value ) {
+					if ( 'query_info' === $key || ( ! is_bool( $value ) && empty( $value ) ) ) {
+						continue;
+					}
+					$_setting[ $key ] = $value;
+				}
+
+				return $_setting;
+			}
+
+			return $settings;
+		}
+		if ( 'keyword' === $this->get_created_via() ) {
+			$keyword = Keyword::find_single( $this->get_sync_setting_id() );
+			if ( $keyword ) {
+				return [ 'keyword' => $keyword['keyword'] ];
+			}
+		}
+
+		return false;
 	}
 
 	/**

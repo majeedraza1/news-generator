@@ -66,66 +66,12 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
-		$instruction = "1. Lufthansa Group to Buy up to 100 737 MAX Jets in First Boeing Single-Aisle Order in Nearly 30 Years
-2. Cold start to Tuesday, warming up as the week goes on
-3. One of the Best Illustrated Children's Books for 2024 Is A Wink At Coronavirus by Kiran Katib
-4. Governor Kemp announces five appointments to state Superior Courts
-5. Pebblebrook Hotel Trust Provides Operating Update
-6. Georgia gas prices decline before Christmas
-7. Lufthansa Group to Buy up to 100 737 MAX Jets in First Boeing Single-Aisle Order in Nearly 30 Years - Boeing (NYSE:BA)
-8. This e-commerce brand is growing as fast as the babies and toddlers it's clothing
-9. Logan Airport works to get back on track after storm caused ground stops
-10. Operation Exodus: Thousands of soldiers returning home for the holidays
-11. Georgia announces employee retention pay supplement
-12. Harpoon Therapeutics Abstract for HPN328 Accepted for Rapid Oral Presentation at the 2024 American Society of Clinical Oncology Genitourinary Cancers Symposium
-13. Trinity Capital Inc. Provides $40 Million Term Loan to Taysha Gene Therapies
-14. VPR Brands Acquires CARTDUB: Setting New Standards in Cannabis and Hemp Oil Recovery - VPR Brands (OTC:VPRB)
-16. Waters Corporation Named to Dow Jones Sustainability Index for the Third Consecutive Year
-18. Mosquito Sex Just Got Interesting: EPA goes national with new biocontrol method
-19. Lufthansa Group Orders 40 Airbus, 40 Boeing Aircraft
-20. Deli salads sold locally, made in Ohio, recalled: FDA
-21. US moves to protect old growth forests as climate change threatens their survival - Jamaica Observer
-22. Mayor-elect Angie Nelson Deuitch has appointed an all-new Michigan City Board of Public Works & Safety.
-23. California: CPPA clarifies registration procedures and requirements
-24. Whitmer approves state-funded $42M renovation of Eastern Michigan building
-25. Accenture Confirms Business Outlook For FY24
-26. Mama's Creations, Inc. Announces Pricing of the Public Secondary Offering of Common Stock by Selling Stockholders
-27. Repligen Corporation to Present at 42nd Annual J.P. Morgan Healthcare Conference
-28. Clinical Trial Supplies Market is Expected to Reach $6.3 Billion | MarketsandMarkets.
-29. Harpoon Therapeutics Abstract for HPN328 Accepted for Rapid Oral Presentation at the 2024 American Society of Clinical Oncology Genitourinary Cancers Symposium - Harpoon Therapeutics (NASDAQ:HARP)
-30. Cardlytics Announces Multi-Year Contract Renewal with Lloyds Bank Plc - Cardlytics (NASDAQ:CDLX)
-31. Repligen Corporation to Present at 42nd Annual J.P. Morgan Healthcare Conference - Repligen (NASDAQ:RGEN)
-32. Cardlytics Announces Multi-Year Contract Renewal with Lloyds Bank Plc
-33. ADM Broadens Global Flavors Capabilities with Agreement to Acquire UK-Based FDL
-34. AYR Cannabis Dispensary Announces Opening of Two New Dispensaries in Florida
-35. Singapore Airlines Nonstop Flights from Singapore to London
-36. ENGIE Announces Commissioning of its 100MW+ Sun Valley Utility Scale Battery Storage Project in U.S.
-37. Elevat Announces Groundbreaking Technical Partnership with Microsoft to Revolutionize IoT with the Heavy Machinery industries
-38. Major cleanup underway after storm batters Northeastern US, knocks out power and floods roads
-39. Nebraska lawmakers focused on workforce development as top issue for the 2024 session
-40. 'Armed and dangerous' man wanted in connection to deadly Griffin shooting: Police
-41. Spectral AI Names Industry Veteran and Former Top MiMedx Financial Executive Peter M. Carlson as CFO
-42. Humble Imports, Inc., the Wholly Owned Subsidiary of ECD Automotive Design, Reports 68% Increase in Revenue, Positive Net Income, for Third Quarter of 2023
-43. Multi-vehicle accident closes I-79 S near Lost Creek
-44. Univar Solutions Named on TIME's Best Companies for Future Leaders 2024 List
-45. Cerence Pioneers Automotive-Specific LLM in Collaboration with NVIDIA, Powering the Future of In-Car Experiences
-46. Bluefield Union Mission preparing for Christmas dinner and food bag distribution
-47. Balfour Beatty Announces Executive Appointments for US Operations
-48. Grant Street Bridge now open
-49. B+C Station Awards 2023: CBS Stations Builds Local TV for Today  --  and Tomorrow
-50. Bluefield ordinance would require registration, insurance for ATV, UTV vehicles
-51. Major cleanup underway after storm batters Northeastern US, knocks...
-52. US announces 10-nation force against Houthis in Red Sea
-53. Philadelphia 76ers new arena plan update faces scrutiny at 1st official city review
-54. FuelCell Energy: Fiscal Q4 Earnings Snapshot
-55. Fewer Breaking Into Market As Home Prices Soar Higher
- Based on the above news titles, could you select one article that would be interesting to the Google search audience and is specifically a news article? No promotion or PR News. Please reply with only the titles enclosed in square brackets. We don't need any descriptions. Thank you!";
-		$response    = '[37. Elevat Announces Groundbreaking Technical Partnership with Microsoft to Revolutionize IoT with the Heavy Machinery industries]';
-
-		$news = InterestingNews::parse_openai_response_for_titles( $response );
+		/** @var Article $article */
+		$article = ArticleStore::find_by_id( 83 );
 		var_dump(
 			array(
-				'news' => $news,
+				'sync_setting' => $article->get_sync_settings(),
+				'news'         => $article,
 			)
 		);
 

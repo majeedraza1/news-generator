@@ -443,5 +443,9 @@ class NewsStore extends DataStoreBase {
 
 			update_option( $table . '_version', '1.0.0' );
 		}
+		if ( version_compare( $version, '1.0.0', '<' ) ) {
+			$wpdb->query("ALTER TABLE `{$table}` ADD COLUMN ");
+			update_option( $table . '_version', '1.0.0' );
+		}
 	}
 }

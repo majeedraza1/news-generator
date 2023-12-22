@@ -2,6 +2,9 @@
 
 namespace StackonetNewsGenerator\OpenAIApi\Rest;
 
+use Stackonet\WP\Framework\Abstracts\Data;
+use Stackonet\WP\Framework\Supports\Validate;
+use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
 use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
@@ -17,9 +20,6 @@ use StackonetNewsGenerator\OpenAIApi\Setting;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsTagStore;
 use StackonetNewsGenerator\REST\ApiController;
-use Stackonet\WP\Framework\Abstracts\Data;
-use Stackonet\WP\Framework\Supports\Validate;
-use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -631,6 +631,7 @@ class OpenAiController extends ApiController {
 		$data['updated']         = mysql_to_rfc3339( $data['updated'] );
 		$data['sync_step_done']  = $news->sync_step_done();
 		$data['total_sync_step'] = $news->total_sync_step();
+		$data['created_via']     = $news->get_prop( 'created_via' );
 		$data['remote_log']      = array();
 
 		return $data;

@@ -103,7 +103,10 @@ interface OpenAiNewsInterface {
     code: string;
     name: string;
   };
-  remote_log?: NewsToSiteLogInterface[]
+  remote_log?: NewsToSiteLogInterface[];
+  created_via?: string;
+  sync_setting_id?: string;
+  sync_setting?: Record<string, string>;
 }
 
 interface NewsTagInterface {

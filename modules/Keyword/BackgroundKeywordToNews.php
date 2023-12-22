@@ -42,7 +42,7 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 	}
 
 	/**
-	 * @param array $item
+	 * @param  array  $item
 	 *
 	 * @return false|array
 	 */
@@ -79,12 +79,7 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 
 			return $item;
 		}
-		$openai_news_id = static::create_news(
-			array(
-				'title' => $keyword->get_title(),
-				'body'  => $keyword->get_body(),
-			)
-		);
+		$openai_news_id = static::create_news( $keyword );
 		if ( is_numeric( $openai_news_id ) ) {
 			$keyword->set_prop( 'news_id', $openai_news_id );
 			$keyword->update();
@@ -96,19 +91,19 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 	/**
 	 * Create news
 	 *
-	 * @param  array  $data  The data.
+	 * @param  Keyword  $keyword  The data.
 	 *
 	 * @return int|\WP_Error
 	 */
-	public static function create_news( array $data ) {
-		$title_words_count = str_word_count( $data['title'] );
+	public static function create_news( Keyword $keyword ) {
+		$title_words_count = str_word_count( $keyword->get_title() );
 		if ( $title_words_count < 3 ) {
 			return new \WP_Error(
 				'news_title_length_error',
 				'News title is too short. Add least 3 words required.'
 			);
 		}
-		$body_words_count = str_word_count( $data['body'] );
+		$body_words_count = str_word_count( $keyword->get_body() );
 		if ( $body_words_count < 100 ) {
 			return new \WP_Error(
 				'news_content_length_error',
@@ -121,12 +116,12 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 
 		$article_store = new ArticleStore();
 
-		$slug       = sanitize_title_with_dashes( $data['title'], '', 'save' );
+		$slug       = sanitize_title_with_dashes( $keyword->get_title(), '', 'save' );
 		$article_id = $article_store->create(
 			array(
-				'title'             => $data['title'],
+				'title'             => $keyword->get_title(),
 				'slug'              => mb_substr( $slug, 0, 250 ),
-				'body'              => $data['body'],
+				'body'              => $keyword->get_body(),
 				'title_words_count' => $title_words_count,
 				'body_words_count'  => $body_words_count,
 				'image_id'          => 0,
@@ -137,13 +132,13 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 
 		$data = array(
 			'source_id'        => $article_id,
-			'title'            => $data['title'],
-			'body'             => $data['body'],
+			'title'            => $keyword->get_title(),
+			'body'             => $keyword->get_body(),
 			'sync_status'      => 'in-progress',
-			'sync_setting_id'  => '',
+			'sync_setting_id'  => $keyword->get_id(),
 			'live_news'        => 0,
 			'image_id'         => 0,
-			'created_via'      => 'manual',
+			'created_via'      => 'keyword',
 			'primary_category' => '',
 		);
 		$id   = ( new NewsStore() )->create( $data );

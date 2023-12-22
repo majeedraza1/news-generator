@@ -162,7 +162,7 @@
               </div>
               <ShaplaToggles>
                 <ShaplaToggle v-for="(setting, index) in state.news_sync" :key="index"
-                              :name="`Setting ${index + 1}`"
+                              :name="`Setting ${index + 1}: ${setting.option_id}`"
                               :subtext="getSettingSubtext(setting)">
                   <div>
                     <div class="flex justify-between">

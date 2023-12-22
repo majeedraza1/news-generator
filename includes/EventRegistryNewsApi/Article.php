@@ -51,8 +51,11 @@ class Article extends Data {
 	 */
 	public function get_sync_settings_raw(): array {
 		$sync_settings = $this->get_prop( 'sync_settings' );
+		if ( is_string( $sync_settings ) && strlen( $sync_settings ) ) {
+			$sync_settings = maybe_unserialize( $sync_settings );
+		}
 
-		return is_array( $sync_settings ) ? $sync_settings : [];
+		return is_array( $sync_settings ) ? $sync_settings : array();
 	}
 
 	/**
@@ -98,7 +101,7 @@ class Article extends Data {
 	public function get_links(): array {
 		$links = $this->get_prop( 'links' );
 
-		return is_array( $links ) ? $links : [];
+		return is_array( $links ) ? $links : array();
 	}
 
 	public function get_links_as_string(): string {
@@ -119,7 +122,7 @@ class Article extends Data {
 	 * @return void
 	 */
 	public function update_field( string $column, $value ) {
-		$data            = [ 'id' => $this->get_id() ];
+		$data            = array( 'id' => $this->get_id() );
 		$data[ $column ] = $value;
 		( new ArticleStore() )->update( $data );
 	}

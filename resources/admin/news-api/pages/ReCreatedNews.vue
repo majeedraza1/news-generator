@@ -75,6 +75,17 @@
           <template v-slot:remote_log="data">
             {{ data.row.remote_log.length ? data.row.remote_log.length : '' }}
           </template>
+          <template v-slot:created_via="data">
+            <span>{{ data.row.created_via }}</span>
+            <div v-if="data.row.sync_setting_id">
+              <span v-if="'keyword' === data.row.created_via && !!data.row.sync_setting.keyword" class="text-green-600">
+                {{ data.row.sync_setting.keyword }}
+              </span>
+              <a v-if="'newsapi.ai' === data.row.created_via" href="#" @click.prevent="() => showSyncSetting(data.row)">
+                {{ data.row.sync_setting_id }}
+              </a>
+            </div>
+          </template>
           <template v-slot:category="data">
             <span>{{ data.row.category.name }}</span><br>
             <span v-if="data.row.category.name !== data.row.openai_category.name" class="text-green-600">
@@ -169,6 +180,14 @@
                title="OpenAi Logs" content-size="full">
     <OpenAiLogs :logs="state.openAiLogs"/>
   </ShaplaModal>
+  <ShaplaModal :active="state.showSyncSettingModal" @close="state.showSyncSettingModal = false" title="Sync Setting">
+    <template v-for="(setting_value,setting_key) in state.item.sync_setting">
+      <div class="flex mb-1">
+        <div class="lg:min-w-[180px]">{{ setting_key }}</div>
+        <div class="font-bold">{{ setting_value }}</div>
+      </div>
+    </template>
+  </ShaplaModal>
 </template>
 
 <script lang="ts" setup>
@@ -205,6 +224,7 @@ const state = reactive<{
   showModal: boolean;
   showItemLogsModal: boolean;
   openAddNewModal: boolean;
+  showSyncSettingModal: boolean;
   pagination: PaginationDataInterface;
   selectedItems: number[]
   status: 'complete' | 'in-progress' | 'fail' | string;
@@ -226,6 +246,7 @@ const state = reactive<{
   },
   originalNews: null,
   showModal: false,
+  showSyncSettingModal: false,
   openAddNewModal: false,
   showItemLogsModal: false,
   openAiLogs: [],
@@ -252,6 +273,11 @@ const openAiLogsColumns = [
   {label: 'Token used', key: 'total_tokens'},
   {label: 'Datetime', key: 'created_at'},
 ];
+
+const showSyncSetting = (news: OpenAiNewsInterface) => {
+  state.item = news;
+  state.showSyncSettingModal = true;
+}
 
 const getSingleArticle = (newsId: number) => {
   Spinner.show();
@@ -365,6 +391,7 @@ const columns = computed(() => {
   columns.push({label: 'For Twitter', key: 'important_for_tweet'});
   columns.push({label: 'Category', key: 'category'});
   columns.push({label: 'Country', key: 'country'});
+  columns.push({label: 'Source', key: 'created_via'});
   columns.push({label: 'Updated', key: 'updated'});
 
   return columns;
