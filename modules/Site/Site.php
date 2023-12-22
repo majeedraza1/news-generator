@@ -12,7 +12,7 @@ use StackonetNewsGenerator\OpenAIApi\News;
 use WP_Error;
 
 class Site {
-	const WEBHOOK_NAMESPACE = 'wp-json/falahcoin';
+	const WEBHOOK_NAMESPACE = 'wp-json/stackonet-news-receiver';
 	const WEBHOOK_VERSION = 'v1';
 	/**
 	 * Get defaults data

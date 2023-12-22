@@ -92,9 +92,9 @@ class NewsApiCronEvent {
 			add_filter( 'cron_schedules', array( self::$instance, 'cron_schedules' ) );
 			add_action( 'wp', array( self::$instance, 'schedule_cron_event' ) );
 			add_action( 'event_registry_news_api/sync', array( self::$instance, 'sync' ) );
-			add_action( 'falahcoin_send_news_to_site', array( self::$instance, 'send_news_to_site' ) );
-			add_action( 'falahcoin_clear_garbage', array( self::$instance, 'clear_garbage' ) );
-			add_action( 'falahcoin_bg_tasks_dispatcher', array( self::$instance, 'dispatcher' ) );
+			add_action( 'stackonet_news_generator_send_news_to_site', array( self::$instance, 'send_news_to_site' ) );
+			add_action( 'stackonet_news_generator_clear_garbage', array( self::$instance, 'clear_garbage' ) );
+			add_action( 'stackonet_news_generator_bg_tasks_dispatcher', array( self::$instance, 'dispatcher' ) );
 			add_action( 'shutdown', array( self::$instance, 'dispatcher' ) );
 			add_action( 'admin_notices', array( self::$instance, 'admin_notices' ) );
 		}
@@ -114,17 +114,17 @@ class NewsApiCronEvent {
 
 		$schedules['news_sync_interval'] = array(
 			'interval' => $interval * MINUTE_IN_SECONDS,
-			'display'  => __( 'TeraPixel: News Sync Interval', 'terapixel-news-generator' ),
+			'display'  => __( 'News Sync Interval', 'stackonet-news-generator' ),
 		);
 
 		$schedules['background_progress_checker'] = array(
 			'interval' => 2 * MINUTE_IN_SECONDS,
-			'display'  => __( 'TeraPixel: Every 2 minute', 'terapixel-news-generator' ),
+			'display'  => __( 'Every 2 minute', 'stackonet-news-generator' ),
 		);
 
-		$schedules['falahcoin_five_minutes'] = array(
+		$schedules['stackonet_news_generator_five_minutes'] = array(
 			'interval' => 5 * MINUTE_IN_SECONDS,
-			'display'  => __( 'TeraPixel: Every 5 minute', 'terapixel-news-generator' ),
+			'display'  => __( 'Every 5 minute', 'stackonet-news-generator' ),
 		);
 
 		return $schedules;
@@ -139,14 +139,14 @@ class NewsApiCronEvent {
 		if ( ! wp_next_scheduled( 'event_registry_news_api/sync' ) ) {
 			wp_schedule_event( time(), 'news_sync_interval', 'event_registry_news_api/sync' );
 		}
-		if ( ! wp_next_scheduled( 'falahcoin_bg_tasks_dispatcher' ) ) {
-			wp_schedule_event( time(), 'background_progress_checker', 'falahcoin_bg_tasks_dispatcher' );
+		if ( ! wp_next_scheduled( 'stackonet_news_generator_bg_tasks_dispatcher' ) ) {
+			wp_schedule_event( time(), 'background_progress_checker', 'stackonet_news_generator_bg_tasks_dispatcher' );
 		}
-		if ( ! wp_next_scheduled( 'falahcoin_send_news_to_site' ) ) {
-			wp_schedule_event( time(), 'falahcoin_five_minutes', 'falahcoin_send_news_to_site' );
+		if ( ! wp_next_scheduled( 'stackonet_news_generator_send_news_to_site' ) ) {
+			wp_schedule_event( time(), 'stackonet_news_generator_five_minutes', 'stackonet_news_generator_send_news_to_site' );
 		}
-		if ( ! wp_next_scheduled( 'falahcoin_clear_garbage' ) ) {
-			wp_schedule_event( time(), 'daily', 'falahcoin_clear_garbage' );
+		if ( ! wp_next_scheduled( 'stackonet_news_generator_clear_garbage' ) ) {
+			wp_schedule_event( time(), 'daily', 'stackonet_news_generator_clear_garbage' );
 		}
 	}
 
@@ -170,7 +170,7 @@ class NewsApiCronEvent {
 		if ( false === Setting::is_auto_sync_enabled() ) {
 			$message .= ' Auto sync news is disabled. No news will be synced.';
 		}
-		$event2 = wp_get_scheduled_event( 'falahcoin_bg_tasks_dispatcher' );
+		$event2 = wp_get_scheduled_event( 'stackonet_news_generator_bg_tasks_dispatcher' );
 		if ( false !== $event2 ) {
 			$dif      = human_time_diff( time(), $event2->timestamp );
 			$message .= '<br>' . sprintf( 'Background process dispatcher cron event will run in %s.', $dif );

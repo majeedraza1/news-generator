@@ -8,6 +8,7 @@ use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\Modules\Keyword\OpenAiClient;
 use StackonetNewsGenerator\OpenAIApi\Client as OpenAIApiClient;
 use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
 use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
@@ -62,7 +63,7 @@ class Ajax {
 	 */
 	public function do_ajax_testing() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
 		$instruction = "1. Lufthansa Group to Buy up to 100 737 MAX Jets in First Boeing Single-Aisle Order in Nearly 30 Years
@@ -141,7 +142,7 @@ class Ajax {
 			wp_die(
 				esc_html__(
 					'Sorry. This link only for developer to do some testing.',
-					'terapixel-news-generator'
+					'stackonet-news-generator'
 				)
 			);
 		}
@@ -168,7 +169,7 @@ class Ajax {
 			wp_die(
 				esc_html__(
 					'Sorry. This link only for developer to do some testing.',
-					'terapixel-news-generator'
+					'stackonet-news-generator'
 				)
 			);
 		}
@@ -179,9 +180,10 @@ class Ajax {
 			if ( ! $log instanceof ApiResponseLog ) {
 				wp_die( 'No log found for that id.' );
 			}
+			$api_response      = $log->get_api_response();
+			$assistant_message = OpenAIApiClient::filter_api_response( $api_response );
 			if ( 'interesting_news' === $log->get_belongs_to_group() ) {
-				$assistant_message = OpenAIApiClient::filter_api_response( $log->get_api_response() );
-				$selected_titles   = InterestingNews::parse_openai_response_for_titles( $assistant_message );
+				$selected_titles = InterestingNews::parse_openai_response_for_titles( $assistant_message );
 
 				$query     = ( new ArticleStore() )->get_query_builder();
 				$condition = array();
@@ -210,6 +212,16 @@ class Ajax {
 
 				wp_die();
 			}
+			if ( 'keyword' === $log->get_belongs_to_group() ) {
+				$response = OpenAiClient::sanitize_response( $assistant_message );
+				var_dump(
+					array(
+						'formatted' => $response,
+						'raw'       => $assistant_message,
+					)
+				);
+				die;
+			}
 			var_dump( array( $_REQUEST, $log ) );
 		}
 
@@ -223,11 +235,11 @@ class Ajax {
 	 */
 	public function important_news_for_instagram() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 		$news_array = NewsStore::get_news_for_instagram( true );
 		if ( count( $news_array ) < 1 ) {
-			wp_die( __( 'Sorry. No new news in last one hour.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. No new news in last one hour.', 'stackonet-news-generator' ) );
 		}
 		$news_ids = OpenAIApiClient::find_important_news_for_instagram( $news_array, true );
 		if ( is_array( $news_ids ) ) {
@@ -248,7 +260,7 @@ class Ajax {
 
 	public function test_google_vision() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 		$image_id = isset( $_GET['id'] ) ? intval( $_GET['id'] ) : 0;
 		if ( empty( $image_id ) ) {
@@ -282,7 +294,7 @@ class Ajax {
 	 */
 	public function debug_interesting_news() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
 		$news_id = isset( $_GET['news_id'] ) ? intval( $_GET['news_id'] ) : 0;
@@ -299,7 +311,7 @@ class Ajax {
 	 */
 	public function debug_blacklist_item() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
 		$news_id = isset( $_GET['news_id'] ) ? intval( $_GET['news_id'] ) : 0;
@@ -320,7 +332,7 @@ class Ajax {
 
 	public function delete_old_articles() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
 		$day = isset( $_GET['day'] ) ? intval( $_GET['day'] ) : 7;
@@ -333,7 +345,7 @@ class Ajax {
 
 	public function delete_old_logs() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
 		$day = isset( $_GET['day'] ) ? intval( $_GET['day'] ) : 3;
@@ -346,7 +358,7 @@ class Ajax {
 
 	public function delete_duplicate_image() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
 		$force = isset( $_GET['force'] );
@@ -368,7 +380,7 @@ class Ajax {
 
 	public function delete_old_news_filter() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
 		$day = isset( $_GET['day'] ) ? intval( $_GET['day'] ) : 3;

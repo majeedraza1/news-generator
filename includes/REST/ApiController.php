@@ -23,5 +23,5 @@ class ApiController extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'terapixel-news-generator/v1';
+	protected $namespace = 'stackonet-news-generator/v1';
 }

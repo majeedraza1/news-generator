@@ -151,9 +151,9 @@ class OpenAiRestClient extends RestClient {
 	 * @return array
 	 */
 	public static function get_last_few_requests_times(): array {
-		$last_ten = get_option( 'openai_last_few_request_time', [] );
+		$last_ten = get_option( 'openai_last_few_request_time', array() );
 
-		return is_array( $last_ten ) && count( $last_ten ) ? $last_ten : [ 8.5, 18.75, .5 ];
+		return is_array( $last_ten ) && count( $last_ten ) ? $last_ten : array( 8.5, 18.75, .5 );
 	}
 
 	/**
@@ -185,22 +185,22 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Use completions api
 	 *
-	 * @param  string  $instruction  Instruction.
+	 * @param  string $instruction  Instruction.
 	 * @param  array  $extra_args  Extra arguments.
 	 *
 	 * @return string|WP_Error
 	 */
-	public function completions( string $instruction, array $extra_args = [] ) {
+	public function completions( string $instruction, array $extra_args = array() ) {
 		$start_time = microtime( true );
 		$args       = wp_parse_args(
 			$extra_args,
-			[
+			array(
 				'percentage'      => 48,
 				'group'           => 'undefined',
 				'source_type'     => '',
 				'source_id'       => 0,
 				'check_blacklist' => true,
-			]
+			)
 		);
 		if ( empty( $instruction ) ) {
 			return new WP_Error( 'empty_instruction', 'Instruction cannot be empty.' );
@@ -220,26 +220,26 @@ class OpenAiRestClient extends RestClient {
 			);
 		}
 
-		$log_data = [
+		$log_data = array(
 			'belongs_to_group' => $args['group'],
 			'model'            => static::DEFAULT_MODEL,
 			'instruction'      => $instruction,
 			'source_type'      => $args['source_type'],
 			'source_id'        => $args['source_id'],
-		];
+		);
 
 		$response = $this->post(
 			'chat/completions',
 			wp_json_encode(
-				[
+				array(
 					'model'    => static::DEFAULT_MODEL,
-					'messages' => [
-						[
+					'messages' => array(
+						array(
 							'role'    => 'user',
 							'content' => $instruction,
-						],
-					],
-				]
+						),
+					),
+				)
 			)
 		);
 
@@ -280,12 +280,12 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Filter api response
 	 *
-	 * @param  mixed  $response  Raw response.
+	 * @param  mixed $response  Raw response.
 	 * @param  bool  $check_blacklist  If it needs to check blacklist words/phrase.
 	 *
 	 * @return string|WP_Error
 	 */
-	public static function filter_api_response( $response, bool $check_blacklist = true, array $extra_args = [] ) {
+	public static function filter_api_response( $response, bool $check_blacklist = true, array $extra_args = array() ) {
 		if ( ! ( is_array( $response ) && isset( $response['choices'][0]['message']['content'] ) ) ) {
 			return new WP_Error( 'empty_response_from_api', 'Empty response from api.' );
 		}
@@ -309,8 +309,8 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Is it valid for maximum token
 	 *
-	 * @param  int  $total_words  Total number of words.
-	 * @param  int  $percentage  Acceptable percentage.
+	 * @param  int $total_words  Total number of words.
+	 * @param  int $percentage  Acceptable percentage.
 	 *
 	 * @return bool
 	 */
@@ -352,7 +352,7 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Increase daily token and token per minute count
 	 *
-	 * @param  int  $token_used  Total token used.
+	 * @param  int $token_used  Total token used.
 	 *
 	 * @return void
 	 */
@@ -369,7 +369,7 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Update average request time
 	 *
-	 * @param  float  $new_time_in_seconds  New time in seconds.
+	 * @param  float $new_time_in_seconds  New time in seconds.
 	 *
 	 * @return void
 	 */
@@ -388,8 +388,8 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Internal helper function to sanitize a string from user input or from the db
 	 *
-	 * @param  string|mixed  $string  String to sanitize.
-	 * @param  bool  $keep_newlines  Optional. Whether to keep newlines. Default: false.
+	 * @param  string|mixed $string  String to sanitize.
+	 * @param  bool         $keep_newlines  Optional. Whether to keep newlines. Default: false.
 	 *
 	 * @return string Sanitized string.
 	 */
@@ -401,6 +401,7 @@ class OpenAiRestClient extends RestClient {
 		}
 
 		$string = preg_replace( '/\[Word Count: \d+\]/', '', $string );
+		$string = str_replace( array( '[', ']' ), '', $string );
 
 		return trim( $string );
 	}

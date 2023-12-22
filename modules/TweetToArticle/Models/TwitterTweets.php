@@ -21,9 +21,9 @@ class TwitterTweets extends DatabaseModel {
 	/**
 	 * Batch create
 	 *
-	 * @param array $data
-	 * @param string $username
-	 * @param string $batch_id
+	 * @param  array  $data
+	 * @param  string  $username
+	 * @param  string  $batch_id
 	 *
 	 * @return int[]
 	 */
@@ -48,13 +48,17 @@ class TwitterTweets extends DatabaseModel {
 	/**
 	 * Prepare item for database.
 	 *
-	 * @param array $tweet Twitter data from response.
-	 * @param string $username Twitter username.
-	 * @param string|null $batch_id Batch id.
+	 * @param  array  $tweet  Twitter data from response.
+	 * @param  string  $username  Twitter username.
+	 * @param  string|null  $batch_id  Batch id.
 	 *
 	 * @return array
 	 */
-	public static function prepare_item_for_database( array $tweet, string $username, ?string $batch_id = null ): array {
+	public static function prepare_item_for_database(
+		array $tweet,
+		string $username,
+		?string $batch_id = null
+	): array {
 		try {
 			$datatime   = new DateTime( $tweet['created_at'], new DateTimeZone( 'UTC' ) );
 			$created_at = $datatime->format( 'Y-m-d H:i:s' );
@@ -78,7 +82,7 @@ class TwitterTweets extends DatabaseModel {
 	/**
 	 * Create a new record if not exists
 	 *
-	 * @param array $data Raw data.
+	 * @param  array  $data  Raw data.
 	 *
 	 * @return int
 	 */
@@ -116,7 +120,6 @@ class TwitterTweets extends DatabaseModel {
 				`tweet_id` VARCHAR(30) NOT NULL,
                 `tweet_text` text NULL DEFAULT NULL,
     			`sync_with_openai` TINYINT(1) NOT NULL DEFAULT 0,
-				`tweet_datetime` datetime NULL DEFAULT NULL,
     			`batch_id` CHAR(36) NULL DEFAULT NULL,
     			`tweet_datetime` datetime NULL DEFAULT NULL,
     			`language` CHAR(2) NULL DEFAULT NULL,
@@ -128,11 +131,11 @@ class TwitterTweets extends DatabaseModel {
 		) {$collate}";
 
 		$version = get_option( $table . '_version', '0.1.0' );
-		if ( version_compare( $version, '1.0.0', '<' ) ) {
+		if ( version_compare( $version, '1.2.0', '<' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 			dbDelta( $sql );
 
-			update_option( $table . '_version', '1.0.0' );
+			update_option( $table . '_version', '1.2.0' );
 		}
 	}
 

@@ -18,8 +18,8 @@ class OpenAiClient extends OpenAiRestClient {
 	 *
 	 * @return string|WP_Error The generated news or an error if it occurs.
 	 */
-	public static function generate_news( Keyword $keyword ) {
-		$cache_key = sprintf( 'keyword_%s', $keyword->get_id() );
+	public static function generate_news_body( Keyword $keyword ) {
+		$cache_key = sprintf( 'keyword_%s_body', $keyword->get_id() );
 
 		// Check if it is available on transient cache.
 		$result = get_transient( $cache_key );
@@ -30,7 +30,7 @@ class OpenAiClient extends OpenAiRestClient {
 		if ( $keyword->has_instruction() ) {
 			$prompt = $keyword->get_instruction();
 		} else {
-			$prompt = Setting::get_global_instruction();
+			$prompt = Setting::get_keyword_instruction_for_body();
 		}
 		$prompt = str_replace( '{{keyword}}', $keyword->get_keyword(), $prompt );
 
@@ -38,8 +38,44 @@ class OpenAiClient extends OpenAiRestClient {
 			$prompt,
 			array(
 				'percentage'  => 70,
-				'group'       => 'keyword',
-				'source_type' => 'keyyword',
+				'group'       => 'keyword-body',
+				'source_type' => 'keyword',
+				'source_id'   => $keyword->get_id(),
+			)
+		);
+		if ( ! is_wp_error( $result ) ) {
+			set_transient( $cache_key, $result, HOUR_IN_SECONDS );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Generate news based on a keyword.
+	 *
+	 * @param  Keyword  $keyword  The keyword object used to generate news.
+	 *
+	 * @return string|WP_Error The generated news or an error if it occurs.
+	 */
+	public static function generate_news_title( Keyword $keyword ) {
+		$cache_key = sprintf( 'keyword_%s_title', $keyword->get_id() );
+
+		// Check if it is available on transient cache.
+		$result = get_transient( $cache_key );
+		if ( ! empty( $result ) ) {
+			return $result;
+		}
+
+		$prompt = Setting::get_keyword_instruction_for_title();
+		$prompt = str_replace( '{{keyword}}', $keyword->get_keyword(), $prompt );
+		$prompt = str_replace( '{{content}}', $keyword->get_body(), $prompt );
+
+		$result = ( new static() )->completions(
+			$prompt,
+			array(
+				'percentage'  => 70,
+				'group'       => 'keyword-title',
+				'source_type' => 'keyword',
 				'source_id'   => $keyword->get_id(),
 			)
 		);
@@ -64,7 +100,7 @@ class OpenAiClient extends OpenAiRestClient {
 			'body'  => '',
 		);
 		if ( is_string( $result ) ) {
-			preg_match( '/\[Title:\](.*?)\[Meta Description:\]/s', $result, $matches );
+			preg_match( '/\[?Title:\]?(.*?)\[Meta Description:\]/s', $result, $matches );
 			if ( $matches ) {
 				$data['title'] = static::sanitize_openai_response( $matches[1] );
 			}

@@ -161,7 +161,8 @@ class AdminSettingController extends ApiController {
 			'google_vision_secret_key'            => GoogleVisionClient::get_google_vision_secret_key(),
 			'keyword_news_sync_interval'          => KeywordSetting::get_sync_interval(),
 			'keyword_item_per_sync'               => KeywordSetting::get_item_per_sync(),
-			'keyword_global_instruction'          => KeywordSetting::get_global_instruction(),
+			'keyword_instruction_for_body'        => KeywordSetting::get_keyword_instruction_for_body(),
+			'keyword_instruction_for_title'       => KeywordSetting::get_keyword_instruction_for_title(),
 		);
 
 		$news_sync_query_info = array();
@@ -387,8 +388,11 @@ class AdminSettingController extends ApiController {
 		$keyword_item_per_sync             = $request->get_param( 'keyword_item_per_sync' );
 		$settings['keyword_item_per_sync'] = KeywordSetting::update_item_per_sync( $keyword_item_per_sync );
 
-		$keyword_global_instruction             = $request->get_param( 'keyword_global_instruction' );
-		$settings['keyword_global_instruction'] = KeywordSetting::update_global_instruction( $keyword_global_instruction );
+		$keyword_instruction_for_body             = $request->get_param( 'keyword_instruction_for_body' );
+		$settings['keyword_instruction_for_body'] = KeywordSetting::update_keyword_instruction_for_body( $keyword_instruction_for_body );
+
+		$keyword_instruction_for_title             = $request->get_param( 'keyword_instruction_for_title' );
+		$settings['keyword_instruction_for_title'] = KeywordSetting::update_keyword_instruction_for_title( $keyword_instruction_for_title );
 
 		// @TODO make it background
 		SiteStore::send_general_data_to_sites();

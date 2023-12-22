@@ -17,6 +17,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\NewsApiCronEvent;
 use StackonetNewsGenerator\EventRegistryNewsApi\NewsSource;
 use StackonetNewsGenerator\Modules\ExternalLink\ExternalLinkManager;
+use StackonetNewsGenerator\Modules\ImportExport\ImportExportManager;
 use StackonetNewsGenerator\Modules\Keyword\KeywordManager;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
@@ -146,7 +147,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function load_plugin_textdomain() {
-		load_plugin_textdomain( 'terapixel-news-generator', false,
+		load_plugin_textdomain( 'stackonet-news-generator', false,
 			basename( $this->get_plugin_path() ) . '/languages' );
 	}
 
@@ -260,6 +261,7 @@ class Plugin {
 		$this->container['module_tweet_to_article'] = TweetToArticleManager::init();
 		$this->container['module_external_link']    = ExternalLinkManager::init();
 		$this->container['module_keyword']          = KeywordManager::init();
+		$this->container['module_import_export']    = ImportExportManager::init();
 	}
 
 	/**
@@ -313,10 +315,10 @@ class Plugin {
 		if ( $this->is_supported_php() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$error = __( 'Your installed PHP Version is: ', 'terapixel-news-generator' ) . PHP_VERSION . '. ';
+		$error = __( 'Your installed PHP Version is: ', 'stackonet-news-generator' ) . PHP_VERSION . '. ';
 		$error .= sprintf(
 		/* translators: 1: plugin name, 2: php version number */
-			__( 'The %1$s plugin requires PHP version %2$s or greater.', 'terapixel-news-generator' ),
+			__( 'The %1$s plugin requires PHP version %2$s or greater.', 'stackonet-news-generator' ),
 			$this->plugin_data['Name'],
 			$this->plugin_data['RequiresPHP']
 		);
@@ -337,25 +339,25 @@ class Plugin {
 			return;
 		}
 		deactivate_plugins( plugin_basename( $this->get_plugin_file() ) );
-		$error = '<h1>' . __( 'An Error Occurred', 'terapixel-news-generator' ) . '</h1>';
-		$error .= '<h2>' . __( 'Your installed PHP Version is: ', 'terapixel-news-generator' ) . PHP_VERSION . '</h2>';
+		$error = '<h1>' . __( 'An Error Occurred', 'stackonet-news-generator' ) . '</h1>';
+		$error .= '<h2>' . __( 'Your installed PHP Version is: ', 'stackonet-news-generator' ) . PHP_VERSION . '</h2>';
 		$error .= '<p>' . sprintf(
 			/* translators: 1: plugin name, 2: php version number */
-				__( 'The %1$s requires PHP version %2$s or greater', 'terapixel-news-generator' ),
+				__( 'The %1$s requires PHP version %2$s or greater', 'stackonet-news-generator' ),
 				$this->plugin_data['Name'],
 				$this->plugin_data['RequiresPHP']
 			) . '</p>';
 		$error .= '<p>' . sprintf(
 			/* translators: 1: php doc page link start, 2: php doc page link end */
-				__( 'The version of your PHP is %1$s unsupported and old %2$s. ', 'terapixel-news-generator' ),
+				__( 'The version of your PHP is %1$s unsupported and old %2$s. ', 'stackonet-news-generator' ),
 				'<a href="https://php.net/supported-versions.php" target="_blank"><strong>',
 				'</strong></a>'
 			);
 		$error .= __(
 			          'You should update your PHP software or contact your host regarding this matter.',
-			          'terapixel-news-generator'
+			          'stackonet-news-generator'
 		          ) . '</p>';
-		$title = __( 'Plugin Activation Error', 'terapixel-news-generator' );
+		$title = __( 'Plugin Activation Error', 'stackonet-news-generator' );
 		wp_die( wp_kses_post( $error ), esc_html( $title ), [ 'back_link' => true ] );
 	}
 

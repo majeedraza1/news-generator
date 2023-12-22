@@ -39,7 +39,7 @@ class ExternalLinkManager {
 	 */
 	public function external_link_test() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Sorry. This link only for developer to do some testing.', 'terapixel-news-generator' ) );
+			wp_die( esc_html__( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
 		$text = 'Sayful islam is a WordPress developer. Here the name should be replaced with a link.';

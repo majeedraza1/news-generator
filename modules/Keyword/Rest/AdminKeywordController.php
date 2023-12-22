@@ -3,8 +3,10 @@
 namespace StackonetNewsGenerator\Modules\Keyword\Rest;
 
 use Stackonet\WP\Framework\Traits\ApiCrudOperations;
+use StackonetNewsGenerator\Modules\Keyword\BackgroundKeywordToNews;
 use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
 use StackonetNewsGenerator\REST\ApiController;
+use WP_REST_Server;
 
 /**
  * Class AdminKeywordController
@@ -44,8 +46,32 @@ class AdminKeywordController extends ApiController {
 			self::$instance = new self();
 
 			add_action( 'rest_api_init', array( self::$instance, 'register_routes' ) );
+			add_action( 'rest_api_init', array( self::$instance, '_register_routes' ) );
 		}
 
 		return self::$instance;
+	}
+
+	public function _register_routes() {
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/sync',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'sync_items' ),
+				'permission_callback' => array( $this, 'create_item_permissions_check' ),
+			)
+		);
+	}
+
+	/**
+	 * Sync keywords
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function sync_items() {
+		BackgroundKeywordToNews::sync();
+
+		return $this->respondAccepted();
 	}
 }

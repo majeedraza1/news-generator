@@ -114,7 +114,7 @@ onMounted(() => {
       <ShaplaButton theme="primary" size="small" outline @click="() => getItems()">Refresh</ShaplaButton>
     </div>
     <ShaplaTable
-        :columns="[{key:'keyword',label:'Keyword'},{key:'instruction',label:'Instruction'}]"
+        :columns="[{key:'keyword',label:'Keyword'},{key:'instruction',label:'Instruction'},{key:'news_id',label:'News'}]"
         :actions="[{key:'edit',label:'Edit'},{key:'delete',label:'Delete'}]"
         :items="state.keywords"
         :selected-items="state.selectedKeywords"

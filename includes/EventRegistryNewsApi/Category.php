@@ -50,7 +50,7 @@ class Category {
 	 * @return array
 	 */
 	public static function get_categories(): array {
-		return (array) get_option( '_falahcoin_news_categories', static::$defaults );
+		return (array) get_option( '_stackonet_news_generator_news_categories', static::$defaults );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Category {
 
 			$categories[ $key ] = $value;
 		}
-		update_option( '_falahcoin_news_categories', $categories );
+		update_option( '_stackonet_news_generator_news_categories', $categories );
 
 		return $categories;
 	}

@@ -1,5 +1,5 @@
 {
-  "name": "stackonet/terapixel-news-generator",
+  "name": "stackonet/stackonet-news-generator",
   "description": "A powerful WordPress plugin to recreate news using OpenAI api.",
   "type": "project",
   "license": "GPL-3.0-only",
@@ -42,7 +42,7 @@
     "wp-coding-standards/wpcs": "*"
   },
   "scripts": {
-    "make-pot": "wp i18n make-pot . languages/terapixel-news-generator.pot",
+    "make-pot": "wp i18n make-pot . languages/stackonet-news-generator.pot",
     "lint": "phpcs --standard=phpcs.xml",
     "format": "phpcbf --standard=phpcs.xml"
   },

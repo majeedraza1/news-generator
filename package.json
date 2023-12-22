@@ -1,5 +1,5 @@
 {
-  "name": "terapixel-news-generator",
+  "name": "stackonet-news-generator",
   "version": "23.10.31",
   "description": "A powerful WordPress plugin to recreate news using OpenAI api.",
   "keywords": [
@@ -14,12 +14,12 @@
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stackonet/terapixel-news-generator.git"
+    "url": "git+https://github.com/stackonet/stackonet-news-generator.git"
   },
   "bugs": {
-    "url": "https://github.com/stackonet/terapixel-news-generator/issues"
+    "url": "https://github.com/stackonet/stackonet-news-generator/issues"
   },
-  "homepage": "https://github.com/stackonet/terapixel-news-generator#readme",
+  "homepage": "https://github.com/stackonet/stackonet-news-generator#readme",
   "scripts": {
     "dev": "webpack --mode=development --progress --watch",
     "dev-build": "cross-env NODE_ENV=development webpack --mode=development",

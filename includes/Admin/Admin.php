@@ -43,8 +43,8 @@ class Admin {
 		$slug       = 'news-api';
 
 		$hook = add_menu_page(
-			__( 'News', 'terapixel-news-generator' ),
-			__( 'News', 'terapixel-news-generator' ),
+			__( 'News', 'stackonet-news-generator' ),
+			__( 'News', 'stackonet-news-generator' ),
 			$capability,
 			$slug,
 			[ self::$instance, 'menu_page_callback' ],
@@ -54,47 +54,47 @@ class Admin {
 
 		$menus = [
 			[
-				'title' => __( 'News', 'terapixel-news-generator' ),
+				'title' => __( 'News', 'stackonet-news-generator' ),
 				'slug'  => '#/',
 			],
 			[
-				'title' => __( 'News (newsapi.ai)', 'terapixel-news-generator' ),
+				'title' => __( 'News (newsapi.ai)', 'stackonet-news-generator' ),
 				'slug'  => '#/news',
 			],
 			[
-				'title' => __( 'Tweets', 'terapixel-news-generator' ),
+				'title' => __( 'Tweets', 'stackonet-news-generator' ),
 				'slug'  => '#/tweets',
 			],
 			[
-				'title' => __( 'Keywords', 'terapixel-news-generator' ),
+				'title' => __( 'Keywords', 'stackonet-news-generator' ),
 				'slug'  => '#/keywords',
 			],
 			[
-				'title' => __( 'News Tags', 'terapixel-news-generator' ),
+				'title' => __( 'News Tags', 'stackonet-news-generator' ),
 				'slug'  => '#/tags',
 			],
 			[
-				'title' => __( 'News Sources', 'terapixel-news-generator' ),
+				'title' => __( 'News Sources', 'stackonet-news-generator' ),
 				'slug'  => '#/sources',
 			],
 			[
-				'title' => __( 'Sites', 'terapixel-news-generator' ),
+				'title' => __( 'Sites', 'stackonet-news-generator' ),
 				'slug'  => '#/sites',
 			],
 			[
-				'title' => __( 'External Links', 'terapixel-news-generator' ),
+				'title' => __( 'External Links', 'stackonet-news-generator' ),
 				'slug'  => '#/external-links',
 			],
 			[
-				'title' => __( 'Manual Sync', 'terapixel-news-generator' ),
+				'title' => __( 'Manual Sync', 'stackonet-news-generator' ),
 				'slug'  => '#/sync',
 			],
 			[
-				'title' => __( 'Settings', 'terapixel-news-generator' ),
+				'title' => __( 'Settings', 'stackonet-news-generator' ),
 				'slug'  => '#/settings',
 			],
 			[
-				'title' => __( 'Logs', 'terapixel-news-generator' ),
+				'title' => __( 'Logs', 'stackonet-news-generator' ),
 				'slug'  => '#/logs',
 			],
 		];

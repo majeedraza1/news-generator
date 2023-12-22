@@ -357,19 +357,8 @@
             </tr>
           </table>
         </ShaplaTab>
-        <ShaplaTab name="Keyword">
+        <ShaplaTab name="Blog Keyword">
           <table class="form-table">
-            <tr>
-              <th>Default instruction</th>
-              <td>
-                <ShaplaInput type="textarea" v-model="state.keyword_global_instruction"/>
-                <p class="description">
-                  <span v-html="`Remember to user placeholder {{keyword}} to get keyword`"></span><br>
-                  Remember to include the following line bottom of your instruction<br>
-                  Add [Title:], [Meta Description:] and [Content:] respectively when starting each section.
-                </p>
-              </td>
-            </tr>
             <tr>
               <th scope="row">
                 <label for="">(Keyword to) News Sync Interval</label>
@@ -388,6 +377,24 @@
               <td>
                 <input type="number" v-model="state.keyword_item_per_sync" min="1" step="1"/>
                 <p class="description">Number of keywords to sync per batch run.</p>
+              </td>
+            </tr>
+            <tr>
+              <th>Instruction for news body</th>
+              <td>
+                <ShaplaInput type="textarea" v-model="state.keyword_instruction_for_body" rows="7"/>
+                <p class="description">
+                  <span v-html="`Remember to user placeholder {{keyword}} to get keyword`"></span>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <th>Instruction for news title</th>
+              <td>
+                <ShaplaInput type="textarea" v-model="state.keyword_instruction_for_title" rows="7"/>
+                <p class="description">
+                  <span v-html="`Remember to user placeholder {{keyword}} and {{content}}`"></span>
+                </p>
               </td>
             </tr>
           </table>
@@ -469,7 +476,8 @@ const state = reactive<{
   instructions: Record<string, string>,
   keyword_news_sync_interval: number,
   keyword_item_per_sync: number,
-  keyword_global_instruction: string,
+  keyword_instruction_for_body: string,
+  keyword_instruction_for_title: string,
   news_sync_query_info: NewsSyncQueryInfoInterface[],
   categories: CategoryInterface[],
   category: CategoryInterface | {},
@@ -537,7 +545,8 @@ const state = reactive<{
   important_news_for_instagram: '',
   keyword_news_sync_interval: 30,
   keyword_item_per_sync: 1,
-  keyword_global_instruction: '',
+  keyword_instruction_for_body: '',
+  keyword_instruction_for_title: '',
 })
 
 const openai_news_sync_methods = [
@@ -707,7 +716,8 @@ function getSettings() {
     state.sync_image_copy_setting_from_source = settings.sync_image_copy_setting_from_source;
     state.keyword_news_sync_interval = settings.keyword_news_sync_interval;
     state.keyword_item_per_sync = settings.keyword_item_per_sync;
-    state.keyword_global_instruction = settings.keyword_global_instruction;
+    state.keyword_instruction_for_body = settings.keyword_instruction_for_body;
+    state.keyword_instruction_for_title = settings.keyword_instruction_for_title;
     state.primary_categories = _categories;
   })
 }
@@ -740,7 +750,8 @@ function saveSettings() {
     use_linkedin_data_for_instagram: state.use_linkedin_data_for_instagram,
     keyword_item_per_sync: state.keyword_item_per_sync,
     keyword_news_sync_interval: state.keyword_news_sync_interval,
-    keyword_global_instruction: state.keyword_global_instruction,
+    keyword_instruction_for_body: state.keyword_instruction_for_body,
+    keyword_instruction_for_title: state.keyword_instruction_for_title,
   };
   crud.createItem(data).then(() => {
     getSettings();

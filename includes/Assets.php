@@ -64,7 +64,7 @@ class Assets {
 		$data = array(
 			'homeUrl'          => home_url(),
 			'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
-			'restRoot'         => esc_url_raw( rest_url( 'terapixel-news-generator/v1' ) ),
+			'restRoot'         => esc_url_raw( rest_url( 'stackonet-news-generator/v1' ) ),
 			'isUserLoggedIn'   => $is_user_logged_in,
 			'privacyPolicyUrl' => get_privacy_policy_url(),
 		);

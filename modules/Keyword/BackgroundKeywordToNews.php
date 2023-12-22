@@ -41,18 +41,50 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 		return self::$instance;
 	}
 
+	/**
+	 * @param array $item
+	 *
+	 * @return false|array
+	 */
 	protected function task( $item ) {
 		$id      = isset( $item['id'] ) ? intval( $item['id'] ) : 0;
 		$keyword = Keyword::find_single( $id );
 		if ( ! $keyword instanceof Keyword ) {
 			return false;
 		}
-		$response = OpenAiClient::generate_news( $keyword );
-		if ( ! is_string( $response ) ) {
-			return false;
+		if ( ! $keyword->has_body() ) {
+			$news_body = OpenAiClient::generate_news_body( $keyword );
+			if ( ! is_string( $news_body ) ) {
+				return false;
+			}
+			$body = OpenAiClient::sanitize_openai_response( $news_body, true );
+			if ( str_word_count( $body ) > 100 ) {
+				$keyword->set_prop( 'body', $body );
+				$keyword->update();
+			}
+
+			return $item;
 		}
-		$response       = OpenAiClient::sanitize_response( $response );
-		$openai_news_id = static::create_news( $response );
+		if ( ! $keyword->has_title() ) {
+			// Generate title && push to openAI queue.
+			$news_title = OpenAiClient::generate_news_title( $keyword );
+			if ( ! is_string( $news_title ) ) {
+				return false;
+			}
+			$news_title = OpenAiClient::sanitize_openai_response( $news_title, false );
+			if ( str_word_count( $news_title ) > 3 ) {
+				$keyword->set_prop( 'title', $news_title );
+				$keyword->update();
+			}
+
+			return $item;
+		}
+		$openai_news_id = static::create_news(
+			array(
+				'title' => $keyword->get_title(),
+				'body'  => $keyword->get_body(),
+			)
+		);
 		if ( is_numeric( $openai_news_id ) ) {
 			$keyword->set_prop( 'news_id', $openai_news_id );
 			$keyword->update();
@@ -107,7 +139,6 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 			'source_id'        => $article_id,
 			'title'            => $data['title'],
 			'body'             => $data['body'],
-			'meta'             => $data['meta'],
 			'sync_status'      => 'in-progress',
 			'sync_setting_id'  => '',
 			'live_news'        => 0,
@@ -130,17 +161,37 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 		return $id;
 	}
 
+	/**
+	 * Add keyword to sync
+	 *
+	 * @return void
+	 */
 	public static function sync() {
+		$items = static::get_next_keywords_to_sync();
+		$self  = self::init();
+		foreach ( $items as $item ) {
+			$self->push_to_queue( array( 'id' => $item->get_id() ) );
+		}
+		$self->save()->dispatch();
+	}
+
+	/**
+	 * Get next keywords to sync
+	 *
+	 * @return Keyword[]
+	 */
+	public static function get_next_keywords_to_sync(): array {
 		$query = Keyword::get_query_builder();
 		$query->where( 'news_id', 0 );
 		$query->order_by( 'id', 'ASC' );
 		$query->limit( Setting::get_item_per_sync() );
 
-		$items = $query->get();
-		$self  = self::init();
+		$items    = $query->get();
+		$keywords = array();
 		foreach ( $items as $item ) {
-			$self->push_to_queue( array( 'id' => intval( $item['id'] ) ) );
+			$keywords[] = new Keyword( $item );
 		}
-		$self->save()->dispatch();
+
+		return $keywords;
 	}
 }

@@ -225,7 +225,6 @@ class InterestingNews extends DatabaseModel {
                 `raw_news_ids` longtext NULL DEFAULT NULL,
                 `news_ids_for_suggestion` longtext NULL DEFAULT NULL,
                 `suggested_news_ids` text NULL DEFAULT NULL,
-    			`openai_news_ids` longtext NULL DEFAULT NULL,
                 `openai_news_ids` longtext NULL DEFAULT NULL,
                 `openai_api_instruction` longtext NULL DEFAULT NULL,
                 `openai_api_response` longtext NULL DEFAULT NULL,
@@ -241,10 +240,10 @@ class InterestingNews extends DatabaseModel {
 		) {$collate}";
 
 		$version = get_option( $table . '_version', '0.1.0' );
-		if ( version_compare( $version, '1.1.0', '<' ) ) {
+		if ( version_compare( $version, '1.2.0', '<' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 			dbDelta( $sql );
-			update_option( $table . '_version', '1.1.0' );
+			update_option( $table . '_version', '1.2.0' );
 		}
 	}
 

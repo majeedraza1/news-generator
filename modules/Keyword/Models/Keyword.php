@@ -36,6 +36,62 @@ class Keyword extends DatabaseModel {
 	}
 
 	/**
+	 * Get title
+	 *
+	 * @return string
+	 */
+	public function get_title(): string {
+		return (string) $this->get_prop( 'title' );
+	}
+
+	/**
+	 * If it has news body
+	 *
+	 * @return bool
+	 */
+	public function has_title(): bool {
+		$title = $this->get_title();
+		if ( empty( $title ) ) {
+			return false;
+		}
+
+		$words = str_word_count( $title );
+		if ( $words < 3 ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get body
+	 *
+	 * @return string
+	 */
+	public function get_body(): string {
+		return (string) $this->get_prop( 'body' );
+	}
+
+	/**
+	 * If it has news body
+	 *
+	 * @return bool
+	 */
+	public function has_body(): bool {
+		$body = $this->get_body();
+		if ( empty( $body ) ) {
+			return false;
+		}
+
+		$words = str_word_count( $body );
+		if ( $words < 100 ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get instruction
 	 *
 	 * @return string
@@ -80,6 +136,12 @@ class Keyword extends DatabaseModel {
 			dbDelta( $sql );
 
 			update_option( $table . '_version', '1.0.0' );
+		}
+		if ( version_compare( $version, '1.1.0', '<' ) ) {
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `body` longtext NULL DEFAULT NULL AFTER `keyword`" );
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `title` text NULL DEFAULT NULL AFTER `keyword`" );
+
+			update_option( $table . '_version', '1.1.0' );
 		}
 	}
 }

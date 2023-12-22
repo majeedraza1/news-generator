@@ -39,8 +39,8 @@ class ImportExportSettings {
 
 	public function register_importer() {
 		register_importer(
-			'falahcoin-import-settings',
-			'TeraPixel import News settings',
+			'stackonet_news_generator-import-settings',
+			'Stackonet import News settings',
 			'Lets you import those things',
 			array( $this, 'do_import' )
 		);
@@ -65,7 +65,7 @@ class ImportExportSettings {
 						public function __construct() {
 //							$this->add_headers( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 							$this->add_headers( 'Content-Type', 'application/json' );
-							parent::__construct( rest_url( 'terapixel-news-generator/v1' ) );
+							parent::__construct( rest_url( 'stackonet-news-generator/v1' ) );
 						}
 					};
 					$response    = $rest_client->post( 'settings', wp_json_encode( $content ) );
@@ -74,7 +74,7 @@ class ImportExportSettings {
 					}
 				}
 			}
-			wp_redirect( admin_url( 'admin.php?import=falahcoin-import-settings' ) );
+			wp_redirect( admin_url( 'admin.php?import=stackonet_news_generator-import-settings' ) );
 			exit();
 		}
 	}
@@ -82,11 +82,11 @@ class ImportExportSettings {
 	public function do_import_form() {
 		?>
         <div class="wrap">
-            <h2>Import TeraPixel Settings</h2>
+            <h2>Import Stackonet Settings</h2>
             <div class="narrow">
                 <p>Choose a JSON (.json) file to upload, then click Upload file and import.</p>
                 <form enctype="multipart/form-data" id="import-upload-form" method="post" class="wp-upload-form"
-                      action="admin.php?import=falahcoin-import-settings&amp;step=1">
+                      action="admin.php?import=stackonet_news_generator-import-settings&amp;step=1">
                     <p>
                         <label for="upload">Choose a file from your computer:</label>
                         <input type="file" id="upload" name="import" size="25" accept=".json">
@@ -105,7 +105,7 @@ class ImportExportSettings {
 		?>
         <p>
             <label>
-                <input type="radio" name="content" value="falahcoin-settings">
+                <input type="radio" name="content" value="stackonet_news_generator-settings">
                 News settings
             </label>
         </p>
@@ -113,7 +113,7 @@ class ImportExportSettings {
 	}
 
 	public function export_wp( array $args ) {
-		if ( 'falahcoin-settings' === $args['content'] ) {
+		if ( 'stackonet_news_generator-settings' === $args['content'] ) {
 			$sitename = sanitize_key( get_bloginfo( 'name' ) );
 			if ( ! empty( $sitename ) ) {
 				$sitename .= '.';

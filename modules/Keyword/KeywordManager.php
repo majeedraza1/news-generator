@@ -28,9 +28,9 @@ class KeywordManager {
 			add_action( 'admin_init', array( Keyword::class, 'create_table' ) );
 			add_filter( 'cron_schedules', array( self::$instance, 'cron_schedules' ) );
 			add_action( 'wp', array( self::$instance, 'schedule_cron_event' ) );
-			add_action( 'terapixel_news_generator/keyword_sync', array( self::$instance, 'sync' ) );
+			add_action( 'stackonet_news_generator/keyword_sync', array( self::$instance, 'sync' ) );
 			add_action( 'admin_notices', array( self::$instance, 'admin_notices' ) );
-			add_action( 'wp_ajax_terapixel_keyword_test', array( self::$instance, 'keyword_test' ) );
+			add_action( 'wp_ajax_stackonet_keyword_test', array( self::$instance, 'keyword_test' ) );
 
 			AdminKeywordController::init();
 			BackgroundKeywordToNews::init();
@@ -49,12 +49,13 @@ class KeywordManager {
 			wp_die(
 				esc_html__(
 					'Sorry. This link only for developer to do some testing.',
-					'terapixel-news-generator'
+					'stackonet-news-generator'
 				)
 			);
 		}
 
-		$keyword = BackgroundKeywordToNews::sync();
+		$keyword = BackgroundKeywordToNews::get_next_keywords_to_sync();
+		var_dump( $keyword );
 		wp_die();
 	}
 
@@ -64,7 +65,7 @@ class KeywordManager {
 	 * @return void
 	 */
 	public function admin_notices() {
-		$event = wp_get_scheduled_event( 'terapixel_news_generator/keyword_sync' );
+		$event = wp_get_scheduled_event( 'stackonet_news_generator/keyword_sync' );
 		if ( false === $event ) {
 			?>
             <div class="notice notice-error is-dismissible">
@@ -72,7 +73,7 @@ class KeywordManager {
             </div>
 			<?php
 			// try to schedule again.
-			wp_schedule_event( time(), 'keyword_sync_interval', 'terapixel_news_generator/keyword_sync' );
+			wp_schedule_event( time(), 'keyword_sync_interval', 'stackonet_news_generator/keyword_sync' );
 
 			return;
 		}
@@ -97,7 +98,7 @@ class KeywordManager {
 
 		$schedules['keyword_sync_interval'] = array(
 			'interval' => $interval * MINUTE_IN_SECONDS,
-			'display'  => __( 'TeraPixel: Keyword Sync Interval', 'terapixel-news-generator' ),
+			'display'  => __( 'Keyword Sync Interval', 'stackonet-news-generator' ),
 		);
 
 		return $schedules;
@@ -109,8 +110,8 @@ class KeywordManager {
 	 * @return void
 	 */
 	public static function schedule_cron_event() {
-		if ( ! wp_next_scheduled( 'terapixel_news_generator/keyword_sync' ) ) {
-			wp_schedule_event( time(), 'keyword_sync_interval', 'terapixel_news_generator/keyword_sync' );
+		if ( ! wp_next_scheduled( 'stackonet_news_generator/keyword_sync' ) ) {
+			wp_schedule_event( time(), 'keyword_sync_interval', 'stackonet_news_generator/keyword_sync' );
 		}
 	}
 

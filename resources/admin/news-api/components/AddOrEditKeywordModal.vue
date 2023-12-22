@@ -37,9 +37,7 @@ watch(() => props.keyword, (newValue) => {
       <ShaplaInput type="textarea" label="Instruction" v-model="keyword.instruction"/>
       <p class="description">
         <span>Leave it empty to use default/global instruction.</span><br>
-        <span v-html="`Remember to user placeholder {{keyword}} to get keyword`"></span><br>
-        Remember to include the following line bottom of your instruction<br>
-        Add [Title:], [Meta Description:] and [Content:] respectively when starting each section.
+        <span v-html="`Remember to user placeholder {{keyword}} to get keyword`"></span>
       </p>
     </div>
     <template v-slot:foot>

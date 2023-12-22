@@ -361,9 +361,6 @@ const columns = computed(() => {
     columns.push({label: 'on Remote', key: 'remote_log'});
   }
 
-  if (state.important_news_for_tweets_enabled) {
-    columns.push({label: 'For Tweet', key: 'important_for_tweet'});
-  }
   columns.push({label: 'For Instagram', key: 'important_for_instagram'});
   columns.push({label: 'For Twitter', key: 'important_for_tweet'});
   columns.push({label: 'Category', key: 'category'});
