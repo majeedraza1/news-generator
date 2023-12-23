@@ -353,21 +353,18 @@ class InterestingNews extends DatabaseModel {
 	 * @param  int  $day  Number of days.
 	 *
 	 * @return void
-	 * @throws \Exception
 	 */
 	public static function delete_old_logs( int $day = 3 ) {
 		global $wpdb;
 		$self  = new static();
 		$table = $self->get_table_name();
+		$time  = time() - ( max( 1, $day ) * DAY_IN_SECONDS );
 
-		$day         = max( 1, $day );
-		$day_or_days = 1 === $day ? '- 1 day' : sprintf( '- %s days', $day );
-		$datetime    = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
-		$datetime->modify( $day_or_days );
-
-		$sql = "DELETE FROM `{$table}` WHERE 1 = 1";
-		$sql .= $wpdb->prepare( ' AND created_at <= %s', $datetime->format( 'Y-m-d H:i:s' ) );
-
-		$wpdb->query( $sql );
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM `{$table}` WHERE created_at <= %s",
+				gmdate( 'Y-m-d H:i:s', $time )
+			)
+		);
 	}
 }

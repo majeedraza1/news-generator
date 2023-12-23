@@ -222,6 +222,17 @@ interface ExistingKeywordInterface extends KeywordInterface {
   id?: number
 }
 
+interface NewsApiResponseLogInterface {
+  id: number;
+  existing_records_ids: number[];
+  new_records_ids: number[];
+  news_articles: Record<string, any>[];
+  total_pages: number;
+  sync_setting_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type {
   LocationInterfaces,
   ConceptInterfaces,
@@ -241,5 +252,6 @@ export type {
   NewsToSiteLogInterface,
   InstagramAttemptLogInterface,
   KeywordInterface,
-  ExistingKeywordInterface
+  ExistingKeywordInterface,
+  NewsApiResponseLogInterface
 }

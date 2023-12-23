@@ -25,7 +25,7 @@ use StackonetNewsGenerator\Supports\Country;
 class News extends Data {
 
 	protected $source_news = null;
-	protected $tags = array();
+	protected $tags        = array();
 
 	/**
 	 * Get list of fields to sync with openai
@@ -41,7 +41,7 @@ class News extends Data {
 	/**
 	 * Sanitize tag
 	 *
-	 * @param  mixed  $string  The string to be sanitized.
+	 * @param  mixed $string  The string to be sanitized.
 	 *
 	 * @return string
 	 */
@@ -306,7 +306,7 @@ class News extends Data {
 	/**
 	 * Parse news tags from string
 	 *
-	 * @param  mixed|string  $raw_tags  String containing raw tags.
+	 * @param  mixed|string $raw_tags  String containing raw tags.
 	 *
 	 * @return array
 	 */
@@ -378,7 +378,7 @@ class News extends Data {
 	/**
 	 * Get image
 	 *
-	 * @param  string  $size  The image size.
+	 * @param  string $size  The image size.
 	 *
 	 * @return ArrayObject
 	 */
@@ -407,7 +407,7 @@ class News extends Data {
 	/**
 	 * Get image
 	 *
-	 * @param  string  $size  The image size.
+	 * @param  string $size  The image size.
 	 *
 	 * @return ArrayObject
 	 */
@@ -625,7 +625,7 @@ class News extends Data {
 	/**
 	 * Set source news
 	 *
-	 * @param  array  $article  The source article.
+	 * @param  array $article  The source article.
 	 *
 	 * @return void
 	 */
@@ -695,7 +695,7 @@ class News extends Data {
 		$done = 0;
 		foreach ( static::get_fields_sync_with_openai() as $column ) {
 			if ( ! empty( $this->get_prop( $column ) ) ) {
-				++ $done;
+				++$done;
 			}
 		}
 
@@ -705,13 +705,12 @@ class News extends Data {
 	/**
 	 * Send news to sites
 	 *
-	 * @param  bool  $force  Should send immediately.
+	 * @param  bool $force  Should send immediately.
 	 *
 	 * @return void
 	 */
 	public function send_to_sites( bool $force = false ) {
 		$sites = $this->get_sites_list();
-		Logger::log( [ $this->get_id(), $sites ] );
 		foreach ( $sites as $site_data ) {
 			$site = new Site( $site_data );
 			if ( $force ) {
@@ -836,9 +835,12 @@ class News extends Data {
 		if ( 'newsapi.ai' === $this->get_created_via() && $this->get_sync_setting_id() ) {
 			$settings = SyncSettings::get_setting( $this->get_sync_setting_id() );
 			if ( is_array( $settings ) ) {
-				$_setting = [];
+				$_setting = array();
 				foreach ( $settings as $key => $value ) {
-					if ( 'query_info' === $key || ( ! is_bool( $value ) && empty( $value ) ) ) {
+					if (
+						in_array( $key, array( 'query_info', 'last_sync' ), true ) ||
+						( ! is_bool( $value ) && empty( $value ) )
+					) {
 						continue;
 					}
 					$_setting[ $key ] = $value;
@@ -852,7 +854,7 @@ class News extends Data {
 		if ( 'keyword' === $this->get_created_via() ) {
 			$keyword = Keyword::find_single( $this->get_sync_setting_id() );
 			if ( $keyword ) {
-				return [ 'keyword' => $keyword['keyword'] ];
+				return array( 'keyword' => $keyword['keyword'] );
 			}
 		}
 
@@ -891,7 +893,7 @@ class News extends Data {
 	/**
 	 * Update field.
 	 *
-	 * @param  string  $column  table column name.
+	 * @param  string $column  table column name.
 	 * @param  mixed  $value  The value to be updated.
 	 *
 	 * @return void
@@ -907,7 +909,7 @@ class News extends Data {
 	/**
 	 * Update fields
 	 *
-	 * @param  array  $data  The array of data to be updated.
+	 * @param  array $data  The array of data to be updated.
 	 *
 	 * @return void
 	 */

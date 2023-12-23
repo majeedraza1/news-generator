@@ -14,8 +14,10 @@ use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncTwitterFields;
 use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
 use StackonetNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\ClientResponseLog;
 use StackonetNewsGenerator\EventRegistryNewsApi\NewsApiCronEvent;
 use StackonetNewsGenerator\EventRegistryNewsApi\NewsSource;
+use StackonetNewsGenerator\EventRegistryNewsApi\Rest\AdminNewsApiLogController;
 use StackonetNewsGenerator\Modules\ExternalLink\ExternalLinkManager;
 use StackonetNewsGenerator\Modules\ImportExport\ImportExportManager;
 use StackonetNewsGenerator\Modules\Keyword\KeywordManager;
@@ -219,6 +221,7 @@ class Plugin {
 		add_action( 'admin_init', array( ApiResponseLog::class, 'create_table' ) );
 		add_action( 'admin_init', array( NewsToSiteLogStore::class, 'create_table' ) );
 		add_action( 'admin_init', array( InstagramAttemptLog::class, 'create_table' ) );
+		add_action( 'admin_init', array( ClientResponseLog::class, 'create_table' ) );
 
 		$this->container['admin']                  = Admin::init();
 		$this->container['import_export_settings'] = ImportExportSettings::init();
@@ -241,6 +244,7 @@ class Plugin {
 		$this->container['rest_api_log']           = ApiResponseLogController::init();
 		$this->container['rest_instagram_log']     = AdminInstagramAttemptLogController::init();
 		$this->container['rest_news_to_site_logs'] = AdminNewsToSiteLogController::init();
+		$this->container['rest_newsapi_logs']      = AdminNewsApiLogController::init();
 	}
 
 	/**

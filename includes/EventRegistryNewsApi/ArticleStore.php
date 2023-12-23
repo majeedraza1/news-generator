@@ -4,11 +4,11 @@ namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use DateTime;
 use DateTimeZone;
+use Stackonet\WP\Framework\Abstracts\DataStoreBase;
+use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
 use StackonetNewsGenerator\EventRegistryNewsApi\Setting as EventRegistryNewsApiSettings;
-use Stackonet\WP\Framework\Abstracts\DataStoreBase;
-use Stackonet\WP\Framework\Supports\Validate;
 use WP_Error;
 
 /**
@@ -38,7 +38,7 @@ class ArticleStore extends DataStoreBase {
 		return false;
 	}
 
-	public static function get_unique_primary_categories( array $ids = [] ): array {
+	public static function get_unique_primary_categories( array $ids = array() ): array {
 		global $wpdb;
 		$self  = new self();
 		$table = $self->get_table_name();
@@ -55,25 +55,25 @@ class ArticleStore extends DataStoreBase {
 		}
 		$sql           .= ' GROUP BY primary_category';
 		$count_results = $wpdb->get_results( $sql, ARRAY_A );
-		$counts        = [];
+		$counts        = array();
 		foreach ( $count_results as $result ) {
 			$counts[ $result['primary_category'] ] = intval( $result['total_records'] );
 		}
 
 		$all_cats   = Category::get_categories();
-		$categories = [];
+		$categories = array();
 		foreach ( $primary_categories as $cat_slug ) {
 			if ( empty( $cat_slug ) ) {
 				continue;
 			}
 			$name         = ! empty( $all_cats[ $cat_slug ] ) ? $all_cats[ $cat_slug ] : $cat_slug;
 			$count        = $counts[ $cat_slug ] ?? 0;
-			$categories[] = [
+			$categories[] = array(
 				'name'  => ! empty( $name ) ? $name : 'undefined',
 				'slug'  => $cat_slug,
 				'count' => $count,
 				'label' => sprintf( '%s (%s)', ( ! empty( $name ) ? $name : 'undefined' ), $count ),
-			];
+			);
 		}
 
 		return $categories;
@@ -104,7 +104,7 @@ class ArticleStore extends DataStoreBase {
 		$end_datetime->modify( 'tomorrow' );
 		$end_datetime->setTimestamp( $end_datetime->getTimestamp() - 1 );
 
-		return [ $start_datetime, $end_datetime ];
+		return array( $start_datetime, $end_datetime );
 	}
 
 	public static function is_it_duplicate( array $article ): bool {
@@ -114,7 +114,7 @@ class ArticleStore extends DataStoreBase {
 		}
 		$min_percent = EventRegistryNewsApiSettings::get_similarity_in_percent();
 		$titles      = static::find_title_by_date( $article );
-		$similarity  = [ 1, 2 ];
+		$similarity  = array( 1, 2 );
 		foreach ( $titles as $title ) {
 			similar_text( $article['title'], $title, $percent );
 			$similarity[] = $percent;
@@ -126,8 +126,11 @@ class ArticleStore extends DataStoreBase {
 	public static function find_title_by_date( array $article ): array {
 		$include_ids  = OpenAiReCreateNews::init()->get_pending_background_tasks();
 		$hour_count   = EventRegistryNewsApiSettings::get_num_of_hours_for_similarity();
-		$end_datetime = DateTime::createFromFormat( 'Y-m-d H:i:s', $article['news_datetime'],
-			new DateTimeZone( 'UTC' ) );
+		$end_datetime = DateTime::createFromFormat(
+			'Y-m-d H:i:s',
+			$article['news_datetime'],
+			new DateTimeZone( 'UTC' )
+		);
 
 		$start_datetime = clone $end_datetime;
 		if ( $hour_count === 1 ) {
@@ -152,7 +155,7 @@ class ArticleStore extends DataStoreBase {
 		}
 		$results = $wpdb->get_results( $sql, ARRAY_A );
 
-		$data = [];
+		$data = array();
 		foreach ( $results as $result ) {
 			$data[ $result['id'] ] = $result['title'];
 		}
@@ -195,7 +198,7 @@ class ArticleStore extends DataStoreBase {
 		string $country_code,
 		string $date,
 		?string $primary_category = null,
-		array $search_keywords = []
+		array $search_keywords = array()
 	): array {
 		if ( Validate::date( $date ) ) {
 			$dateTime  = new DateTime( $date );
@@ -206,29 +209,29 @@ class ArticleStore extends DataStoreBase {
 			$date_to   = date( 'Y-m-d H:i:s', time() );
 		}
 
-		$search_items = [];
+		$search_items = array();
 		if ( count( $search_keywords ) ) {
 			$search_items = static::search_articles(
 				$search_keywords,
-				[
+				array(
 					'country'   => $country_code,
 					'date_from' => $date_from,
 					'date_to'   => $date_to,
 					'category'  => $primary_category,
-				]
+				)
 			);
 		}
 
 		$self  = new static();
 		$query = $self->get_query_builder();
 		$query->where( 'country', $country_code );
-		$query->where( 'news_datetime', [ $date_from, $date_to ], 'BETWEEN' );
+		$query->where( 'news_datetime', array( $date_from, $date_to ), 'BETWEEN' );
 		if ( $primary_category && Category::exists( $primary_category ) ) {
 			$query->where( 'primary_category', $primary_category );
 		}
 		$items = $query->get();
 
-		$articles = [];
+		$articles = array();
 		foreach ( array_merge( $search_items, $items ) as $item ) {
 			$articles[ $item[ $self->primary_key ] ] = new Article( $item );
 		}
@@ -244,15 +247,15 @@ class ArticleStore extends DataStoreBase {
 	 *
 	 * @return array
 	 */
-	public static function search_articles( array $keys, array $args = [] ): array {
+	public static function search_articles( array $keys, array $args = array() ): array {
 		$params = wp_parse_args(
 			$args,
-			[
+			array(
 				'country'   => '',
 				'date_from' => '',
 				'date_to'   => '',
 				'category'  => '',
-			]
+			)
 		);
 
 		global $wpdb;
@@ -300,15 +303,18 @@ class ArticleStore extends DataStoreBase {
 
 		$store = new static();
 
-		$existing_news_ids = [];
-		$new_ids           = [];
+		$existing_news_ids = array();
+		$new_ids           = array();
+		$articles          = array();
 		foreach ( $news['results'] as $index => $result ) {
 			$slug = sanitize_title_with_dashes( $result['title'], '', 'save' );
 			$slug = mb_substr( $slug, 0, 250 );
 
 			$existing_news = static::find_by_slug_or_uri( $slug, $result['uri'] );
 			if ( $existing_news ) {
-				$existing_news_ids[] = $existing_news['id'] ?? 0;
+				$article_id          = $existing_news['id'] ?? 0;
+				$existing_news_ids[] = $article_id;
+				$articles[]          = array_merge( $result, [ 'id' => $article_id, 'type' => 'existing' ] );
 				continue;
 			}
 
@@ -317,6 +323,7 @@ class ArticleStore extends DataStoreBase {
 			$not_before  = time() - ( $max_minutes * MINUTE_IN_SECONDS );
 
 			if ( $news_time < $not_before ) {
+				$articles[] = array_merge( $result, [ 'id' => 0, 'type' => 'very-old' ] );
 				continue;
 			}
 
@@ -331,7 +338,8 @@ class ArticleStore extends DataStoreBase {
 
 			$id = $store->create( $article );
 			if ( $id ) {
-				$new_ids[] = $id;
+				$new_ids[]  = $id;
+				$articles[] = array_merge( $result, [ 'id' => $id, 'type' => 'new' ] );
 			}
 		}
 
@@ -349,11 +357,21 @@ class ArticleStore extends DataStoreBase {
 			}
 		}
 
-		return [
+		ClientResponseLog::add_log(
+			array(
+				'sync_setting_id'      => $settings->get_option_id(),
+				'news_articles'        => $articles,
+				'existing_records_ids' => $existing_news_ids,
+				'new_records_ids'      => $new_ids,
+				'total_pages'          => $news['pages'],
+			)
+		);
+
+		return array(
 			'existing_records_ids' => $existing_news_ids,
 			'new_records_ids'      => $new_ids,
 			'total_pages'          => $news['pages'],
-		];
+		);
 	}
 
 	/**
@@ -404,7 +422,7 @@ class ArticleStore extends DataStoreBase {
 		$concept          = is_array( $sync_settings['conceptUri'] ) && count( $sync_settings['conceptUri'] ) ?
 			$sync_settings['conceptUri'][0] : $sync_settings['conceptUri'];
 
-		return [
+		return array(
 			'uri'               => $data['uri'],
 			'data_type'         => $data['dataType'],
 			'lang'              => $data['lang'],
@@ -429,7 +447,7 @@ class ArticleStore extends DataStoreBase {
 			'news_datetime'     => gmdate( 'Y-m-d H:i:s', strtotime( $data['dateTimePub'] ) ),
 			'news_filtering'    => $enable_news_filtering ? 1 : 0,
 			'sync_settings'     => static::sanitize_sync_settings( $sync_settings ),
-		];
+		);
 	}
 
 	/**
@@ -438,8 +456,8 @@ class ArticleStore extends DataStoreBase {
 	 * @return array
 	 */
 	public static function sanitize_sync_settings( $settings ): array {
-		$black_list = [ 'query_info', 'last_sync', 'concepts', 'sources', 'news_filtering_instruction' ];
-		$options    = [];
+		$black_list = array( 'query_info', 'last_sync', 'concepts', 'sources', 'news_filtering_instruction' );
+		$options    = array();
 		foreach ( $settings as $key => $value ) {
 			if ( empty( $value ) || in_array( $key, $black_list, true ) ) {
 				continue;
@@ -456,22 +474,19 @@ class ArticleStore extends DataStoreBase {
 	 * @param  int  $day  Number of days.
 	 *
 	 * @return void
-	 * @throws \Exception
 	 */
 	public static function delete_old_articles( int $day = 3 ) {
 		global $wpdb;
 		$self  = new static();
 		$table = $self->get_table_name();
+		$time  = time() - ( max( 1, $day ) * DAY_IN_SECONDS );
 
-		$day         = max( 1, $day );
-		$day_or_days = 1 === $day ? '- 1 day' : sprintf( '- %s days', $day );
-		$datetime    = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
-		$datetime->modify( $day_or_days );
-
-		$sql = "DELETE FROM `{$table}` WHERE `openai_news_id` = 0";
-		$sql .= $wpdb->prepare( " AND created_at <= %s", $datetime->format( 'Y-m-d H:i:s' ) );
-
-		$wpdb->query( $sql );
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM `{$table}` WHERE WHERE `openai_news_id` = 0 AND created_at <= %s",
+				gmdate( 'Y-m-d H:i:s', $time )
+			)
+		);
 	}
 
 	/**
@@ -537,14 +552,14 @@ class ArticleStore extends DataStoreBase {
 
 	public static function sanitize_links( $links ): array {
 		if ( ! is_array( $links ) ) {
-			return [];
+			return array();
 		}
-		$black_list_links = [
+		$black_list_links = array(
 			'chat.whatsapp.com',
 			'login',
-			'signup'
-		];
-		$black_list_index = [];
+			'signup',
+		);
+		$black_list_index = array();
 		foreach ( $black_list_links as $black_list_link ) {
 			foreach ( $links as $index => $link ) {
 				if ( false !== strpos( $link, $black_list_link ) ) {
@@ -568,7 +583,7 @@ class ArticleStore extends DataStoreBase {
 	 * @type int $trash The total number of trashed records.
 	 * }
 	 */
-	public function count_records( array $args = [] ): array {
+	public function count_records( array $args = array() ): array {
 		$cache_key = $this->get_cache_key_for_count_records( $args );
 		$counts    = $this->get_cache( $cache_key );
 
@@ -576,7 +591,7 @@ class ArticleStore extends DataStoreBase {
 			global $wpdb;
 			$table = $this->get_table_name();
 
-			$counts = [];
+			$counts = array();
 			$sql    = "SELECT COUNT(*) AS total_records FROM {$table} WHERE 1 = 1";
 
 			if ( isset( $args['datetime_start'], $args['datetime_end'] ) ) {

@@ -70,7 +70,7 @@ class ApiResponseLog extends DatabaseModel {
 		global $wpdb;
 		$table = static::get_table_name();
 		$sql   = "SELECT `belongs_to_group`, COUNT(*) AS num_rows FROM {$table}";
-		$sql  .= ' GROUP BY `belongs_to_group`';
+		$sql   .= ' GROUP BY `belongs_to_group`';
 
 		$results = (array) $wpdb->get_results( $sql, ARRAY_A );
 
@@ -85,7 +85,7 @@ class ApiResponseLog extends DatabaseModel {
 	/**
 	 * Get total completion time
 	 *
-	 * @param  int $source_id  Source id.
+	 * @param  int  $source_id  Source id.
 	 *
 	 * @return array
 	 */
@@ -95,7 +95,7 @@ class ApiResponseLog extends DatabaseModel {
 		$total_requests = 0;
 		foreach ( $logs as $log ) {
 			$seconds += $log->get_total_time();
-			++$total_requests;
+			++ $total_requests;
 		}
 
 		return array(
@@ -107,7 +107,7 @@ class ApiResponseLog extends DatabaseModel {
 	/**
 	 * Get logs for source news
 	 *
-	 * @param  int $source_id  Source news id.
+	 * @param  int  $source_id  Source news id.
 	 *
 	 * @return static[]|array
 	 */
@@ -129,8 +129,8 @@ class ApiResponseLog extends DatabaseModel {
 	/**
 	 * Get log
 	 *
-	 * @param  int    $source_id  Source news id.
-	 * @param  string $group  Group.
+	 * @param  int  $source_id  Source news id.
+	 * @param  string  $group  Group.
 	 *
 	 * @return false|array
 	 */
@@ -168,25 +168,22 @@ class ApiResponseLog extends DatabaseModel {
 	/**
 	 * Delete old logs
 	 *
-	 * @param  int $day  Number of days.
+	 * @param  int  $day  Number of days.
 	 *
 	 * @return void
-	 * @throws \Exception
 	 */
 	public static function delete_old_logs( int $day = 3 ) {
 		global $wpdb;
 		$self  = new static();
 		$table = $self->get_table_name();
+		$time  = time() - ( max( 1, $day ) * DAY_IN_SECONDS );
 
-		$day         = max( 1, $day );
-		$day_or_days = 1 === $day ? '- 1 day' : sprintf( '- %s days', $day );
-		$datetime    = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
-		$datetime->modify( $day_or_days );
-
-		$sql  = "DELETE FROM `{$table}` WHERE 1 = 1";
-		$sql .= $wpdb->prepare( ' AND created_at <= %s', $datetime->format( 'Y-m-d H:i:s' ) );
-
-		$wpdb->query( $sql );
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM `{$table}` WHERE created_at <= %s",
+				gmdate( 'Y-m-d H:i:s', $time )
+			)
+		);
 	}
 
 	/**

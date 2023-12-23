@@ -3,7 +3,10 @@
   <hr class="wp-header-end">
   <div>
     <ShaplaTabs alignment="center">
-      <ShaplaTab selected name="OpenAI Logs">
+      <ShaplaTab selected name="NewsApi Logs">
+        <NewsApiLogs/>
+      </ShaplaTab>
+      <ShaplaTab name="OpenAI Logs">
         <OpenAiLogs/>
       </ShaplaTab>
       <ShaplaTab name="News Filtering">
@@ -30,4 +33,5 @@ import NewsFiltering from "./NewsFiltering.vue";
 import InstagramAttemptLog from "@/admin/news-api/components/InstagramAttemptLog.vue";
 import LinkeditLog from "@/admin/news-api/components/LinkeditLog.vue";
 import TwitterLog from "@/admin/news-api/components/TwitterLog.vue";
+import NewsApiLogs from "@/admin/news-api/components/NewsApiLogs.vue";
 </script>

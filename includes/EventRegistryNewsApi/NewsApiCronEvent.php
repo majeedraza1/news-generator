@@ -2,7 +2,6 @@
 
 namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
-use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
@@ -105,7 +104,7 @@ class NewsApiCronEvent {
 	/**
 	 * Add custom cron schedules
 	 *
-	 * @param  array $schedules  array of available schedules.
+	 * @param  array  $schedules  array of available schedules.
 	 *
 	 * @return array
 	 */
@@ -143,7 +142,8 @@ class NewsApiCronEvent {
 			wp_schedule_event( time(), 'background_progress_checker', 'stackonet_news_generator_bg_tasks_dispatcher' );
 		}
 		if ( ! wp_next_scheduled( 'stackonet_news_generator_send_news_to_site' ) ) {
-			wp_schedule_event( time(), 'stackonet_news_generator_five_minutes', 'stackonet_news_generator_send_news_to_site' );
+			wp_schedule_event( time(), 'stackonet_news_generator_five_minutes',
+				'stackonet_news_generator_send_news_to_site' );
 		}
 		if ( ! wp_next_scheduled( 'stackonet_news_generator_clear_garbage' ) ) {
 			wp_schedule_event( time(), 'daily', 'stackonet_news_generator_clear_garbage' );
@@ -159,9 +159,9 @@ class NewsApiCronEvent {
 		$event = wp_get_scheduled_event( 'event_registry_news_api/sync' );
 		if ( false === $event ) {
 			?>
-			<div class="notice notice-error is-dismissible">
-				<p>Scheduled event (to sync news from newsapi.ai) is not running.</p>
-			</div>
+            <div class="notice notice-error is-dismissible">
+                <p>Scheduled event (to sync news from newsapi.ai) is not running.</p>
+            </div>
 			<?php
 			return;
 		}
@@ -172,25 +172,25 @@ class NewsApiCronEvent {
 		}
 		$event2 = wp_get_scheduled_event( 'stackonet_news_generator_bg_tasks_dispatcher' );
 		if ( false !== $event2 ) {
-			$dif      = human_time_diff( time(), $event2->timestamp );
+			$dif     = human_time_diff( time(), $event2->timestamp );
 			$message .= '<br>' . sprintf( 'Background process dispatcher cron event will run in %s.', $dif );
 		}
 		$max_exe_time = Utils::max_execution_time();
-		$message     .= '<br>' . sprintf( 'Current max execution time is %s seconds.', $max_exe_time );
-		$message     .= ' It takes more than 90 seconds to sync a news from OpenAI.';
+		$message      .= '<br>' . sprintf( 'Current max execution time is %s seconds.', $max_exe_time );
+		$message      .= ' It takes more than 90 seconds to sync a news from OpenAI.';
 		if ( $max_exe_time < 60 ) {
 			$message .= ' Current max execution time is not enough. It should be 60 or higher.';
 		}
 
 		$mem_limit = Utils::bytes_to_human_size( Utils::get_memory_limit() );
-		$message  .= sprintf( ' Current max memory limit is %s', $mem_limit );
+		$message   .= sprintf( ' Current max memory limit is %s', $mem_limit );
 
 		$message .= '<br>' . OpenAIApiClient::daily_status_message();
 		$message .= '<br>' . NewsCompletion::rate_limit_message();
 		?>
-		<div class="notice notice-warning is-dismissible">
-			<p><?php printf( $message ); ?></p>
-		</div>
+        <div class="notice notice-warning is-dismissible">
+            <p><?php printf( $message ); ?></p>
+        </div>
 		<?php
 		$sleep_end = (int) get_option( 'sync_openai_api_sleep_end' );
 
@@ -198,15 +198,15 @@ class NewsApiCronEvent {
 			$human_time = human_time_diff( time(), $sleep_end );
 			$message    = get_option( 'sync_openai_api_sleep_message' );
 			?>
-			<div class="notice notice-error is-dismissible">
-				<p>OpenAI Background task is in sleep mode. The task will start again
-					after <strong><?php echo $human_time; ?></strong>. Check OpenAi logs to find the issue.</p>
+            <div class="notice notice-error is-dismissible">
+                <p>OpenAI Background task is in sleep mode. The task will start again
+                    after <strong><?php echo $human_time; ?></strong>. Check OpenAi logs to find the issue.</p>
 				<?php
 				if ( ! empty( $message ) ) {
 					echo '<p><strong>OpenAI Message:</strong> ' . esc_html( $message ) . '</p>';
 				}
 				?>
-			</div>
+            </div>
 			<?php
 		}
 	}
@@ -311,49 +311,11 @@ class NewsApiCronEvent {
 	 * @return void
 	 */
 	public function clear_garbage() {
-		try {
-			ArticleStore::delete_old_articles();
-		} catch ( \Exception $e ) {
-			Logger::log(
-				array(
-					'from'    => 'Cron event: delete old articles',
-					'message' => $e->getMessage(),
-				)
-			);
-		}
-
-		try {
-			ApiResponseLog::delete_old_logs();
-		} catch ( \Exception $e ) {
-			Logger::log(
-				array(
-					'from'    => 'Cron event: delete old logs',
-					'message' => $e->getMessage(),
-				)
-			);
-		}
-
-		try {
-			InterestingNews::delete_old_logs();
-		} catch ( \Exception $e ) {
-			Logger::log(
-				array(
-					'from'    => 'Cron event: delete old interesting news filter',
-					'message' => $e->getMessage(),
-				)
-			);
-		}
-
-		try {
-			InstagramAttemptLog::delete_old_logs();
-		} catch ( \Exception $e ) {
-			Logger::log(
-				array(
-					'from'    => 'Cron event: delete old instagram log',
-					'message' => $e->getMessage(),
-				)
-			);
-		}
+		ArticleStore::delete_old_articles();
+		ApiResponseLog::delete_old_logs();
+		InterestingNews::delete_old_logs();
+		InstagramAttemptLog::delete_old_logs();
+		ClientResponseLog::delete_old_logs();
 
 		DeleteDuplicateImages::run();
 	}
@@ -361,7 +323,7 @@ class NewsApiCronEvent {
 	/**
 	 * Find important news
 	 *
-	 * @param  array $ids
+	 * @param  array  $ids
 	 * @param  bool  $force
 	 *
 	 * @return void
