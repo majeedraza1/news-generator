@@ -163,6 +163,7 @@ class AdminSettingController extends ApiController {
 			'keyword_item_per_sync'               => KeywordSetting::get_item_per_sync(),
 			'keyword_instruction_for_body'        => KeywordSetting::get_keyword_instruction_for_body(),
 			'keyword_instruction_for_title'       => KeywordSetting::get_keyword_instruction_for_title(),
+			'fields_to_sync'                      => OpenAIApiSetting::get_fields_to_sync(),
 		);
 
 		$news_sync_query_info = array();
@@ -172,9 +173,15 @@ class AdminSettingController extends ApiController {
 
 		$active_api_key = Setting::get_news_api_key();
 
+		$sync_fields = [];
+		foreach ( OpenAIApiSetting::default_fields_to_sync() as $value => $label ) {
+			$sync_fields[] = [ 'label' => $label, 'value' => $value ];
+		}
+
 		return $this->respondOK(
 			array(
 				'settings'                     => $settings,
+				'sync_fields'                  => $sync_fields,
 				'blacklist_words'              => ( new BlackListWords() )->get_options(),
 				'news_sync_fields'             => SyncSettings::news_sync_fields(),
 				'active_news_api_key'          => $active_api_key,
@@ -378,6 +385,9 @@ class AdminSettingController extends ApiController {
 
 		$external_link_enabled             = $request->get_param( 'external_link_enabled' );
 		$settings['external_link_enabled'] = OpenAIApiSetting::update_external_link_enabled( $external_link_enabled );
+
+		$fields_to_sync             = $request->get_param( 'fields_to_sync' );
+		$settings['fields_to_sync'] = OpenAIApiSetting::update_fields_to_sync( $fields_to_sync );
 
 		$google_vision_secret_key             = $request->get_param( 'google_vision_secret_key' );
 		$settings['google_vision_secret_key'] = GoogleVisionClient::update_google_vision_secret_key( $google_vision_secret_key );

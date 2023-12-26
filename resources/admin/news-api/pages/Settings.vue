@@ -320,6 +320,18 @@
                       15</p>
                   </td>
                 </tr>
+                <tr>
+                  <th scope="row"><label>Fields to sync</label></th>
+                  <td>
+                    <div class="flex flex-col space-y-2">
+                      <label v-for="_field in state.sync_fields">
+                        <input type="checkbox" v-model="state.fields_to_sync" :value="_field.value">
+                        {{ _field.label }}
+                      </label>
+                    </div>
+                    <p class="description">Choose which fields you want to sync from openAI.</p>
+                  </td>
+                </tr>
               </table>
             </ShaplaTab>
             <ShaplaTab name="OpenAI Instructions">
@@ -504,6 +516,8 @@ const state = reactive<{
   google_vision_test_url: string;
   important_news_for_instagram: string;
   instagram_new_news_interval: number;
+  fields_to_sync: string[];
+  sync_fields: { label: string; value: string }[];
 }>({
   blacklist_words: [],
   news_sync_query_info: [],
@@ -547,6 +561,8 @@ const state = reactive<{
   keyword_item_per_sync: 1,
   keyword_instruction_for_body: '',
   keyword_instruction_for_title: '',
+  fields_to_sync: [],
+  sync_fields: [],
 })
 
 const openai_news_sync_methods = [
@@ -675,6 +691,7 @@ const duplicateSyncSetting = (settings: NewsSyncSettingsInterface) => {
 function getSettings() {
   crud.getItems().then(data => {
     state.news_sync_query_info = data.news_sync_query_info as NewsSyncQueryInfoInterface[];
+    state.sync_fields = data.sync_fields as { label: string; value: string }[];
     state.news_sync_fields = data.news_sync_fields as ({
       label: string;
       value: string
@@ -718,6 +735,7 @@ function getSettings() {
     state.keyword_item_per_sync = settings.keyword_item_per_sync;
     state.keyword_instruction_for_body = settings.keyword_instruction_for_body;
     state.keyword_instruction_for_title = settings.keyword_instruction_for_title;
+    state.fields_to_sync = settings.fields_to_sync;
     state.primary_categories = _categories;
   })
 }
@@ -752,6 +770,7 @@ function saveSettings() {
     keyword_news_sync_interval: state.keyword_news_sync_interval,
     keyword_instruction_for_body: state.keyword_instruction_for_body,
     keyword_instruction_for_title: state.keyword_instruction_for_title,
+    fields_to_sync: state.fields_to_sync,
   };
   crud.createItem(data).then(() => {
     getSettings();

@@ -6,6 +6,7 @@ use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
 use StackonetNewsGenerator\OpenAIApi\Client;
 use StackonetNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
 use StackonetNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Setting;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 
 /**
@@ -138,6 +139,9 @@ class OpenAiSyncTwitterFields extends BackgroundProcessBase {
 	 * @return void
 	 */
 	public static function add_to_queue( News $news ) {
+		if ( ! Setting::should_sync_field( 'tweet' ) ) {
+			return;
+		}
 		$fields = array( 'tweet', 'send_to_sites' );
 		foreach ( $fields as $field ) {
 			static::init()->push_to_queue(

@@ -2,6 +2,7 @@
 
 namespace StackonetNewsGenerator\BackgroundProcess;
 
+use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
@@ -10,7 +11,6 @@ use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
 use StackonetNewsGenerator\OpenAIApi\News;
 use StackonetNewsGenerator\OpenAIApi\Setting;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
-use Stackonet\WP\Framework\Supports\Logger;
 
 /**
  * SyncNewsWithOpenAi class
@@ -141,9 +141,11 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 		} else {
 			$fields = array_keys( NewsCompletion::fields_to_actions() );
 			foreach ( $fields as $field ) {
-				$data['field']      = $field;
-				$data['created_at'] = current_time( 'mysql', true );
-				static::init()->push_to_queue( $data );
+				if ( Setting::should_sync_field( $field ) ) {
+					$data['field']      = $field;
+					$data['created_at'] = current_time( 'mysql', true );
+					static::init()->push_to_queue( $data );
+				}
 			}
 		}
 	}

@@ -717,7 +717,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_custom_keyword_instruction(): string {
-		$instruction  = 'Please generate blog post with SEO. ';
+		$instruction = 'Please generate blog post with SEO. ';
 		$instruction .= 'The keyword is "{{keyword}}" and we need to add the keyword in title, meta description and contents. ';
 		$instruction .= 'Please insert this keyword more than 5 times in the article with 2000 words.';
 
@@ -740,5 +740,74 @@ class Setting {
 		update_option( '_openai_api_instruction_options', $settings );
 
 		return $settings;
+	}
+
+	/**
+	 * Get sync fields
+	 *
+	 * @return array
+	 */
+	public static function get_fields_to_sync(): array {
+		$fields = get_option( '_openai_api_fields_to_sync' );
+		if ( is_array( $fields ) ) {
+			return $fields;
+		}
+
+		return array_keys( static::default_fields_to_sync() );
+	}
+
+	/**
+	 * Should sync field
+	 *
+	 * @param  string  $field  The field to be sync.
+	 *
+	 * @return bool
+	 */
+	public static function should_sync_field( string $field ): bool {
+		return in_array( $field, static::get_fields_to_sync(), true );
+	}
+
+	/**
+	 * Update field to sync
+	 *
+	 * @param  array|mixed  $fields  The fields to be synced.
+	 *
+	 * @return array
+	 */
+	public static function update_fields_to_sync( $fields ): array {
+		if ( is_array( $fields ) ) {
+			$available_fields = array_keys( static::default_fields_to_sync() );
+			$sanitized        = array();
+			foreach ( $fields as $field ) {
+				if ( in_array( $field, $available_fields, true ) ) {
+					$sanitized[] = $field;
+				}
+			}
+			update_option( '_openai_api_fields_to_sync', $sanitized );
+
+			return $sanitized;
+		}
+
+		return static::get_fields_to_sync();
+	}
+
+	/**
+	 * Fields to sync
+	 *
+	 * @return string[]
+	 */
+	public static function default_fields_to_sync(): array {
+		return array(
+			'image_id'        => esc_html__( 'Thumbnail Image', 'stackonet-news-generator' ),
+			'openai_category' => esc_html__( 'Category', 'stackonet-news-generator' ),
+			'tags'            => esc_html__( 'Tags', 'stackonet-news-generator' ),
+			'meta'            => esc_html__( 'Meta Description', 'stackonet-news-generator' ),
+			'focus_keyphrase' => esc_html__( 'Focus keyphrase', 'stackonet-news-generator' ),
+			'facebook'        => esc_html__( 'Facebook Content', 'stackonet-news-generator' ),
+			'tweet'           => esc_html__( 'Twitter Content', 'stackonet-news-generator' ),
+			'instagram'       => esc_html__( 'Instagram Content', 'stackonet-news-generator' ),
+			'news_faqs'       => esc_html__( 'FAQs', 'stackonet-news-generator' ),
+			'country_code'    => esc_html__( 'Country', 'stackonet-news-generator' ),
+		);
 	}
 }

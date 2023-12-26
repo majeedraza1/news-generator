@@ -5,6 +5,7 @@ namespace StackonetNewsGenerator\BackgroundProcess;
 use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
 use StackonetNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
 use StackonetNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Setting;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 
 /**
@@ -141,6 +142,9 @@ class OpenAiSyncInstagramFields extends BackgroundProcessBase {
 	 * @return void
 	 */
 	public static function add_to_queue( News $news ) {
+		if ( ! Setting::should_sync_field( 'instagram' ) ) {
+			return;
+		}
 		$fields = array(
 			'instagram_heading',
 			'instagram_subheading',
