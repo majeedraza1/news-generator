@@ -18,6 +18,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\ClientResponseLog;
 use StackonetNewsGenerator\EventRegistryNewsApi\NewsApiCronEvent;
 use StackonetNewsGenerator\EventRegistryNewsApi\NewsSource;
 use StackonetNewsGenerator\EventRegistryNewsApi\Rest\AdminNewsApiLogController;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\ExternalLink\ExternalLinkManager;
 use StackonetNewsGenerator\Modules\ImportExport\ImportExportManager;
 use StackonetNewsGenerator\Modules\Keyword\KeywordManager;
@@ -222,6 +223,7 @@ class Plugin {
 		add_action( 'admin_init', array( NewsToSiteLogStore::class, 'create_table' ) );
 		add_action( 'admin_init', array( InstagramAttemptLog::class, 'create_table' ) );
 		add_action( 'admin_init', array( ClientResponseLog::class, 'create_table' ) );
+		add_action( 'admin_init', array( SyncSettingsStore::class, 'create_table' ) );
 
 		$this->container['admin']                  = Admin::init();
 		$this->container['import_export_settings'] = ImportExportSettings::init();

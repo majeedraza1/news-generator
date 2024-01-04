@@ -11,6 +11,7 @@ use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Category;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
 use StackonetNewsGenerator\Modules\Site\SiteStore;
 use StackonetNewsGenerator\Modules\Site\Stores\NewsToSiteLogStore;
@@ -232,6 +233,7 @@ class OpenAiController extends ApiController {
 				'categories'                        => Category::get_categories(),
 				'default_category'                  => Category::get_default_category(),
 				'important_news_for_tweets_enabled' => Setting::is_important_news_for_tweets_enabled(),
+				'sync_settings_options'             => SyncSettingsStore::get_settings_as_select_options(),
 			)
 		);
 	}

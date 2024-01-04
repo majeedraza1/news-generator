@@ -8,6 +8,7 @@ use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\Keyword\OpenAiClient;
 use StackonetNewsGenerator\OpenAIApi\Client as OpenAIApiClient;
 use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
@@ -66,12 +67,14 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
-		/** @var Article $article */
-		$article = ArticleStore::find_by_id( 83 );
+		$settings = SyncSettings::get_settings( false );
+		foreach ( $settings as $setting ) {
+			SyncSettingsStore::create_or_update( $setting );
+		}
 		var_dump(
 			array(
-				'sync_setting' => $article->get_sync_settings(),
-				'news'         => $article,
+				'new' => SyncSettingsStore::get_settings_as_array(),
+				'old' => $settings,
 			)
 		);
 

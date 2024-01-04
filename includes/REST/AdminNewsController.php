@@ -3,15 +3,16 @@
 namespace StackonetNewsGenerator\REST;
 
 use DateTime;
+use Stackonet\WP\Framework\Supports\Validate;
+use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
 use StackonetNewsGenerator\OpenAIApi\News;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
-use Stackonet\WP\Framework\Supports\Validate;
-use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -30,54 +31,54 @@ class AdminNewsController extends ApiController {
 		register_rest_route(
 			$this->namespace,
 			'/admin/news',
-			[
-				[
+			array(
+				array(
 					'methods'  => WP_REST_Server::READABLE,
-					'callback' => [ $this, 'get_items' ],
+					'callback' => array( $this, 'get_items' ),
 					'args'     => $this->get_collection_params(),
-				],
-			]
+				),
+			)
 		);
 		register_rest_route(
 			$this->namespace,
 			'/admin/news/(?P<id>\d+)',
-			[
-				[
+			array(
+				array(
 					'methods'  => WP_REST_Server::READABLE,
-					'callback' => [ $this, 'get_item' ],
-				],
-			]
+					'callback' => array( $this, 'get_item' ),
+				),
+			)
 		);
 		register_rest_route(
 			$this->namespace,
 			'/admin/news/batch',
-			[
-				[
+			array(
+				array(
 					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => [ $this, 'batch_operation' ],
-					'permission_callback' => [ $this, 'is_editor' ],
-				],
-			]
+					'callback'            => array( $this, 'batch_operation' ),
+					'permission_callback' => array( $this, 'is_editor' ),
+				),
+			)
 		);
 		register_rest_route(
 			$this->namespace,
 			'/admin/news/(?P<id>\d+)/openai',
-			[
-				[
+			array(
+				array(
 					'methods'  => WP_REST_Server::CREATABLE,
-					'callback' => [ $this, 'recreate_item' ],
-				],
-			]
+					'callback' => array( $this, 'recreate_item' ),
+				),
+			)
 		);
 		register_rest_route(
 			$this->namespace,
 			'/admin/news/openai-recreate',
-			[
-				[
+			array(
+				array(
 					'methods'  => WP_REST_Server::CREATABLE,
-					'callback' => [ $this, 'recreate_items' ],
-				],
-			]
+					'callback' => array( $this, 'recreate_items' ),
+				),
+			)
 		);
 	}
 
@@ -94,12 +95,12 @@ class AdminNewsController extends ApiController {
 		$in_sync                = Validate::checked( $request->get_param( 'in_sync' ) );
 		$pending_openai_request = OpenAiReCreateNews::init()->get_pending_background_tasks();
 
-		$args = [
+		$args = array(
 			'country'  => $country,
 			'category' => $category,
 			'in_sync'  => $in_sync,
 			'search'   => $search,
-		];
+		);
 		if ( Validate::date( $date ) ) {
 			$date_time = DateTime::createFromFormat( 'Y-m-d', $date );
 
@@ -131,16 +132,16 @@ class AdminNewsController extends ApiController {
 		$total_items = $store->count_records( $args );
 		$pagination  = self::get_pagination_data( $total_items['all'], $per_page, $page );
 
-		$categories = ArticleStore::get_unique_primary_categories( $in_sync ? $pending_openai_request : [] );
+		$categories = ArticleStore::get_unique_primary_categories( $in_sync ? $pending_openai_request : array() );
 
 		return $this->respondOK(
-			[
+			array(
 				'items'                  => self::format_items_for_response( $results ),
 				'pagination'             => $pagination,
 				'categories'             => $categories,
-				'countries'              => [],
+				'countries'              => array(),
 				'pending_openai_request' => OpenAiReCreateNews::init()->get_pending_background_tasks(),
-			]
+			)
 		);
 	}
 
@@ -158,14 +159,14 @@ class AdminNewsController extends ApiController {
 	}
 
 	/**
-	 * @param array $items
+	 * @param  array  $items
 	 *
 	 * @return array
 	 */
 	public static function format_items_for_response( array $items ): array {
-		$response = [];
+		$response = array();
 		foreach ( $items as $item ) {
-			$response[] = [
+			$response[] = array(
 				'id'               => (int) $item['id'],
 				'title'            => $item['title'],
 				'source_title'     => $item['source_title'],
@@ -178,7 +179,7 @@ class AdminNewsController extends ApiController {
 				'body_words_count' => (int) $item['body_words_count'],
 				'news_filtering'   => Validate::checked( $item['news_filtering'] ),
 				'openai_error'     => (string) $item['openai_error'],
-			];
+			);
 		}
 
 		return $response;
@@ -214,9 +215,9 @@ class AdminNewsController extends ApiController {
 
 		if ( ! $force ) {
 			return $this->respondAccepted(
-				[
+				array(
 					'pending_tasks' => OpenAiReCreateNews::add_to_sync( $article_id ),
-				]
+				)
 			);
 		}
 
@@ -224,10 +225,10 @@ class AdminNewsController extends ApiController {
 		if ( is_wp_error( $news_array ) ) {
 			// Update article.
 			( new ArticleStore() )->update(
-				[
+				array(
 					'id'           => $article_id,
 					'openai_error' => $news_array->get_error_message(),
-				]
+				)
 			);
 
 			return $this->respondWithWpError( $news_array );
@@ -242,11 +243,11 @@ class AdminNewsController extends ApiController {
 		}
 
 		return $this->respondCreated(
-			[
+			array(
 				'id'             => $article_id,
 				'openai_news_id' => $ai_news_id,
 				'openai_news'    => $ai_news,
-			]
+			)
 		);
 	}
 
@@ -266,7 +267,7 @@ class AdminNewsController extends ApiController {
 	public function batch_operation( WP_REST_Request $request ) {
 		$action = $request->get_param( 'action' );
 		$ids    = $request->get_param( 'ids' );
-		$ids    = is_array( $ids ) ? array_map( 'intval', $ids ) : [];
+		$ids    = is_array( $ids ) ? array_map( 'intval', $ids ) : array();
 
 		if ( 'delete' === $action && count( $ids ) ) {
 			( new ArticleStore() )->batch_delete( $ids );

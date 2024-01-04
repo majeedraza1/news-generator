@@ -4,7 +4,6 @@ namespace StackonetNewsGenerator\OpenAIApi;
 
 use ArrayObject;
 use Stackonet\WP\Framework\Abstracts\Data;
-use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Category;

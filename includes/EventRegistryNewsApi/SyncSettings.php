@@ -2,20 +2,20 @@
 
 namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
-use StackonetNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
 use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\Sanitize;
 use Stackonet\WP\Framework\Supports\Validate;
+use StackonetNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
 
 class SyncSettings extends Data {
 	const OPTION_NAME = '_news_sync_settings';
-	const KEYWORD_LOCATION = [
+	const KEYWORD_LOCATION = array(
 		'title',
 		'body',
 		'title-or-body',
 		'title-and-body',
-	];
-	const CLIENT_FIELDS = [
+	);
+	const CLIENT_FIELDS = array(
 		'locationUri',
 		'categoryUri',
 		'conceptUri',
@@ -23,7 +23,7 @@ class SyncSettings extends Data {
 		'keyword',
 		'keywordLoc',
 		'lang',
-	];
+	);
 
 	/**
 	 * Get setting
@@ -50,8 +50,8 @@ class SyncSettings extends Data {
 	 */
 	public static function get_settings( bool $show_query_info = true ): array {
 		$options     = static::get_option();
-		$data        = [];
-		$uuids       = [];
+		$data        = array();
+		$uuids       = array();
 		$should_save = false;
 		foreach ( $options as $option ) {
 			$option = wp_parse_args( $option, static::get_defaults() );
@@ -75,15 +75,25 @@ class SyncSettings extends Data {
 		return $data;
 	}
 
+	/**
+	 * Get option
+	 *
+	 * @return array
+	 */
 	private static function get_option(): array {
 		$options = get_option( static::OPTION_NAME );
 		if ( is_array( $options ) ) {
 			return $options;
 		}
 
-		// Backward compatibility
+		$options = SyncSettingsStore::get_settings_as_array();
+		if ( count( $options ) ) {
+			return $options;
+		}
+
+		// Backward compatibility.
 		$options = (array) get_option( '_event_registry_news_api_settings' );
-		$options = isset( $options['news_sync'] ) && is_array( $options['news_sync'] ) ? $options['news_sync'] : [];
+		$options = isset( $options['news_sync'] ) && is_array( $options['news_sync'] ) ? $options['news_sync'] : array();
 
 		static::update_option( $options );
 
@@ -92,7 +102,9 @@ class SyncSettings extends Data {
 
 	public static function update_option( array $options ): array {
 		$sanitized_options = static::sanitize_multiple( $options );
-		update_option( static::OPTION_NAME, $sanitized_options );
+		foreach ( $sanitized_options as $sanitized_option ) {
+			SyncSettingsStore::create_or_update( $sanitized_option );
+		}
 
 		return $sanitized_options;
 	}
@@ -105,7 +117,7 @@ class SyncSettings extends Data {
 	 * @return array
 	 */
 	public static function sanitize_multiple( array $options ): array {
-		$settings = [];
+		$settings = array();
 		foreach ( $options as $sync_item ) {
 			if ( empty( $sync_item['primary_category'] ) ) {
 				continue;
@@ -142,9 +154,10 @@ class SyncSettings extends Data {
 
 		$id = wp_is_uuid( $sync_item['option_id'] ) ? $sync_item['option_id'] : wp_generate_uuid4();
 
-		$settings = [
+		$settings = array(
 			'option_id'                  => $id,
-			'fields'                     => [],
+			'title'                      => Sanitize::text( $sync_item['title'] ),
+			'fields'                     => array(),
 			'categoryUri'                => Sanitize::deep( $sync_item['categoryUri'] ),
 			'locationUri'                => Sanitize::deep( $sync_item['locationUri'] ),
 			'conceptUri'                 => Sanitize::deep( $sync_item['conceptUri'] ),
@@ -161,7 +174,7 @@ class SyncSettings extends Data {
 			'enable_news_filtering'      => Sanitize::checked( $sync_item['enable_news_filtering'] ),
 			'enable_live_news'           => Sanitize::checked( $sync_item['enable_live_news'] ),
 			'news_filtering_instruction' => Sanitize::text( $sync_item['news_filtering_instruction'] ),
-		];
+		);
 
 		foreach ( $settings as $key => $setting ) {
 			if ( in_array( $key, $fields, true ) & ! empty( $setting ) ) {
@@ -180,13 +193,14 @@ class SyncSettings extends Data {
 	public static function get_defaults(): array {
 		$fields = wp_list_pluck( static::news_sync_fields(), 'value' );
 
-		return [
+		return array(
 			'option_id'                  => '',
+			'title'                      => '',
 			'fields'                     => $fields,
-			'categories'                 => [],
-			'locations'                  => [],
-			'concepts'                   => [],
-			'sources'                    => [],
+			'categories'                 => array(),
+			'locations'                  => array(),
+			'concepts'                   => array(),
+			'sources'                    => array(),
 			'keyword'                    => '',
 			'keywordLoc'                 => '',
 			'categoryUri'                => '',
@@ -200,7 +214,7 @@ class SyncSettings extends Data {
 			'enable_live_news'           => false,
 			'enable_news_filtering'      => false,
 			'news_filtering_instruction' => OpenAIApiSetting::get_news_filtering_instruction(),
-		];
+		);
 	}
 
 	/**
@@ -209,36 +223,36 @@ class SyncSettings extends Data {
 	 * @return array[]
 	 */
 	public static function news_sync_fields(): array {
-		return [
-			[
+		return array(
+			array(
 				'value' => 'keyword',
 				'label' => 'Keyword',
-			],
-			[
+			),
+			array(
 				'value' => 'locationUri',
 				'label' => 'Location',
-			],
-			[
+			),
+			array(
 				'value' => 'categoryUri',
 				'label' => 'Category',
-			],
-			[
+			),
+			array(
 				'value' => 'conceptUri',
 				'label' => 'Concept',
-			],
-			[
+			),
+			array(
 				'value' => 'sourceUri',
 				'label' => 'Source',
-			],
-			[
+			),
+			array(
 				'value' => 'lang',
 				'label' => 'Language',
-			],
-			[
+			),
+			array(
 				'value' => 'enable_news_filtering',
 				'label' => 'Filtering',
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -262,7 +276,7 @@ class SyncSettings extends Data {
 	 * @return string
 	 */
 	public static function sync_time_option_name( array $options ): string {
-		$values = [];
+		$values = array();
 		foreach ( $options as $key => $value ) {
 			if ( in_array( $key, static::CLIENT_FIELDS, true ) && ! empty( $value ) ) {
 				$values[ $key ] = $value;
@@ -288,18 +302,18 @@ class SyncSettings extends Data {
 			'/article/getArticles',
 			$sanitized_args
 		);
-		$args = array_merge( [ 'url' => $url ], $args );
+		$args = array_merge( array( 'url' => $url ), $args );
 		list( $url2, $args2 ) = $client->get_url_and_arguments(
 			'POST',
 			'/article/getArticles',
 			$sanitized_args
 		);
-		$args2 = array_merge( [ 'url' => $url2 ], $args2 );
+		$args2 = array_merge( array( 'url' => $url2 ), $args2 );
 
-		return [
+		return array(
 			'get'  => $args,
 			'post' => $args2,
-		];
+		);
 	}
 
 	/**
@@ -349,7 +363,7 @@ class SyncSettings extends Data {
 	public function get_client_query_args(): array {
 		$options = $this->get_data();
 
-		return [
+		return array(
 			'locationUri'      => $options['locationUri'] ?? '',
 			'categoryUri'      => $options['categoryUri'] ?? '',
 			'conceptUri'       => $options['conceptUri'] ?? '',
@@ -359,6 +373,6 @@ class SyncSettings extends Data {
 			'keyword'          => $options['keyword'] ?? '',
 			'keywordLoc'       => $options['keywordLoc'] ?? '',
 			'articlesPage'     => 1,
-		];
+		);
 	}
 }

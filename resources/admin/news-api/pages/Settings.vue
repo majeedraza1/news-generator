@@ -162,7 +162,7 @@
               </div>
               <ShaplaToggles>
                 <ShaplaToggle v-for="(setting, index) in state.news_sync" :key="index"
-                              :name="`Setting ${index + 1}: ${setting.option_id}`"
+                              :name="`Setting ${index + 1}: ${setting.title}`"
                               :subtext="getSettingSubtext(setting)">
                   <div>
                     <div class="flex justify-between">
@@ -623,6 +623,7 @@ const createUUID = (): string => {
 function addSyncSetting() {
   state.news_sync.push({
     option_id: createUUID(),
+    title: '',
     fields: [],
     locations: [],
     categories: [],
@@ -683,7 +684,9 @@ const duplicateSyncSetting = (settings: NewsSyncSettingsInterface) => {
     title: 'Are you sure?'
   }).then(confirmed => {
     if (confirmed) {
-      state.news_sync.push(JSON.parse(JSON.stringify(settings)));
+      const _settings = JSON.parse(JSON.stringify(settings)) as NewsSyncSettingsInterface;
+      _settings.option_id = createUUID();
+      state.news_sync.push(_settings);
     }
   })
 }

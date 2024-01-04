@@ -46,6 +46,7 @@ interface NewsSyncQueryInfoInterface {
 
 interface NewsSyncSettingsInterface {
   option_id: string;
+  title: string;
   locations: LocationInterfaces[];
   categories: CategoryInterface[];
   concepts: ConceptInterfaces[];

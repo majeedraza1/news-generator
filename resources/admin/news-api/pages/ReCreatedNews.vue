@@ -82,7 +82,7 @@
                 {{ data.row.sync_setting.keyword }}
               </span>
               <a v-if="'newsapi.ai' === data.row.created_via" href="#" @click.prevent="() => showSyncSetting(data.row)">
-                {{ data.row.sync_setting_id }}
+                {{ state.syncSettingsOptions[data.row.sync_setting_id] ?? data.row.sync_setting_id }}
               </a>
             </div>
           </template>
@@ -219,6 +219,7 @@ const crud = new CrudOperation('openai/news', http);
 
 const state = reactive<{
   items: OpenAiNewsInterface[];
+  syncSettingsOptions: Record<string, string> | null;
   item: OpenAiNewsInterface;
   originalNews: ArticleInterface;
   showModal: boolean;
@@ -241,6 +242,7 @@ const state = reactive<{
   important_news_for_tweets_enabled: boolean;
 }>({
   items: [],
+  syncSettingsOptions: null,
   item: {
     id: 0
   },
@@ -307,6 +309,7 @@ const getNews = () => {
     state.pagination = data.pagination;
     state.statuses = data.statuses as StatusInterface[];
     state.categories = data.categories as Record<string, string>;
+    state.syncSettingsOptions = data.sync_settings_options as Record<string, string>;
     state.default_category = data.default_category as string;
     state.important_news_for_tweets_enabled = data.important_news_for_tweets_enabled as boolean;
   })
