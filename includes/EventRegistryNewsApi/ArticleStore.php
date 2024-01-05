@@ -351,6 +351,13 @@ class ArticleStore extends DataStoreBase {
 			foreach ( $new_ids as $id ) {
 				OpenAiReCreateNews::add_to_sync( $id );
 			}
+		} elseif ( $settings->use_actual_news() ) {
+			foreach ( $new_ids as $id ) {
+				$article = self::find_by_id( $id );
+				if ( $article instanceof Article ) {
+					$article->copy_to_news();
+				}
+			}
 		} else {
 			foreach ( $new_ids as $id ) {
 				OpenAiReCreateNews::add_to_sync( $id );

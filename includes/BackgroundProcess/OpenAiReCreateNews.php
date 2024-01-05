@@ -209,31 +209,23 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 				return false;
 			}
 		} else {
-			$article_data       = array(
-				'source_id'        => $article->get_id(),
-				'primary_category' => $article->get_primary_category_slug(),
-				'sync_status'      => 'in-progress',
-				'created_via'      => 'newsapi.ai',
-				'sync_setting_id'  => $sync_settings->get_option_id(),
-				'live_news'        => $sync_settings->is_live_news_enabled() ? 1 : 0,
-				'title'            => $article->get_title(),
-				'body'             => $article->get_body(),
-			);
-			$article_data['id'] = ( new NewsStore() )->create( $article_data );
-			$ai_news            = new News( $article_data );
-			$ai_news->set_id( $article_data['id'] );
-			$ai_news->set_object_read( true );
+			$ai_news_id = $article->copy_to_news();
+			$ai_news    = NewsStore::find_by_id( $ai_news_id );
 		}
 
 		if ( $ai_news instanceof News ) {
-			OpenAiSyncNews::add_to_sync(
-				array_merge(
-					$item,
-					array(
-						'news_id' => $ai_news->get_id(),
+			if ( $sync_settings->rewrite_metadata() ) {
+				OpenAiSyncNews::add_to_sync(
+					array_merge(
+						$item,
+						array(
+							'news_id' => $ai_news->get_id(),
+						)
 					)
-				)
-			);
+				);
+			} else {
+				$ai_news->send_to_sites();
+			}
 
 			return false;
 		}

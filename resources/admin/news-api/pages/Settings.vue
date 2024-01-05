@@ -640,6 +640,7 @@ function addSyncSetting(index: number) {
     copy_news_image: false,
     enable_news_filtering: false,
     rewrite_title_and_body: true,
+    rewrite_metadata: true,
     enable_live_news: false,
     news_filtering_instruction: '',
     query_info: null,

@@ -2,9 +2,9 @@
 
 namespace StackonetNewsGenerator\OpenAIApi\Stores;
 
+use Stackonet\WP\Framework\Abstracts\DataStoreBase;
 use StackonetNewsGenerator\OpenAIApi\Models\InstagramAttemptLog;
 use StackonetNewsGenerator\OpenAIApi\News;
-use Stackonet\WP\Framework\Abstracts\DataStoreBase;
 
 class NewsStore extends DataStoreBase {
 	protected $table = 'openai_news';
@@ -443,9 +443,9 @@ class NewsStore extends DataStoreBase {
 
 			update_option( $table . '_version', '1.0.0' );
 		}
-		if ( version_compare( $version, '1.0.0', '<' ) ) {
-			$wpdb->query("ALTER TABLE `{$table}` ADD COLUMN ");
-			update_option( $table . '_version', '1.0.0' );
+		if ( version_compare( $version, '1.1.0', '<' ) ) {
+			$wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `openai_skipped` TINYINT(1) NOT NULL DEFAULT 0 AFTER `sync_status`" );
+			update_option( $table . '_version', '1.1.0' );
 		}
 	}
 }

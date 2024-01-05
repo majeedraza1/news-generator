@@ -3,6 +3,7 @@
 namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use Stackonet\WP\Framework\Abstracts\Data;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 
 /**
  * Article model
@@ -136,5 +137,35 @@ class Article extends Data {
 	 */
 	public function update_openai_news_id( int $openai_news_id ) {
 		$this->update_field( 'openai_news_id', $openai_news_id );
+	}
+
+	/**
+	 * Copy article to news
+	 *
+	 * @return int
+	 */
+	public function copy_to_news(): int {
+		$news_id = $this->get_openai_news_id();
+		if ( ! $news_id ) {
+			$sync_settings = $this->get_sync_settings();
+			$article_data  = array(
+				'title'            => $this->get_title(),
+				'body'             => $this->get_body(),
+				'source_id'        => $this->get_id(),
+				'primary_category' => $this->get_primary_category_slug(),
+				'sync_status'      => 'in-progress',
+				'created_via'      => 'newsapi.ai',
+				'sync_setting_id'  => $sync_settings->get_option_id(),
+				'live_news'        => $sync_settings->is_live_news_enabled() ? 1 : 0,
+			);
+			if ( ! $sync_settings->rewrite_metadata() ) {
+				$article_data['sync_status']    = 'complete';
+				$article_data['openai_skipped'] = 1;
+			}
+			$news_id = ( new NewsStore() )->create( $article_data );
+			$this->update_openai_news_id( $news_id );
+		}
+
+		return $news_id;
 	}
 }

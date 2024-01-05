@@ -25,11 +25,12 @@ class SyncSettingsStore extends DatabaseModel {
 		$data                           = parent::to_array();
 		$data['title']                  = $this->get_title();
 		$data['option_id']              = $this->get_uuid();
-		$data['rewrite_title_and_body'] = $this->rewrite_title_and_body();
 		$data['copy_news_image']        = $this->should_copy_image();
 		$data['enable_category_check']  = $this->should_check_category();
 		$data['enable_live_news']       = $this->is_live_news_enabled();
 		$data['enable_news_filtering']  = $this->is_news_filtering_enabled();
+		$data['rewrite_title_and_body'] = $this->rewrite_title_and_body();
+		$data['rewrite_metadata']       = $this->rewrite_metadata();
 
 		return $data;
 	}
@@ -64,6 +65,24 @@ class SyncSettingsStore extends DatabaseModel {
 	 */
 	public function rewrite_title_and_body(): bool {
 		return Validate::checked( $this->get_prop( 'rewrite_title_and_body', true ) );
+	}
+
+	/**
+	 * If it should rewrite news title and body
+	 *
+	 * @return bool
+	 */
+	public function rewrite_metadata(): bool {
+		return Validate::checked( $this->get_prop( 'rewrite_metadata', true ) );
+	}
+
+	/**
+	 * If it should use actual news
+	 *
+	 * @return bool
+	 */
+	public function use_actual_news(): bool {
+		return ( false === $this->rewrite_title_and_body() && false === $this->rewrite_metadata() );
 	}
 
 	/**
@@ -105,7 +124,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Get settings
 	 *
-	 * @param  int $per_page  Number of items to return.
+	 * @param  int  $per_page  Number of items to return.
 	 *
 	 * @return array|SyncSettingsStore[]
 	 */
@@ -154,7 +173,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Create if not exists
 	 *
-	 * @param  array $data  List of data to create.
+	 * @param  array  $data  List of data to create.
 	 *
 	 * @return self|false
 	 */
@@ -187,7 +206,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Find single item by primary key
 	 *
-	 * @param  string $option_id  The uuid.
+	 * @param  string  $option_id  The uuid.
 	 *
 	 * @return false|static
 	 */
@@ -246,6 +265,11 @@ class SyncSettingsStore extends DatabaseModel {
 			dbDelta( $sql );
 
 			update_option( $table . '_version', '1.0.0' );
+		}
+		if ( version_compare( $version, '1.1.0', '<' ) ) {
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `rewrite_metadata` TINYINT(1) NOT NULL DEFAULT 1 AFTER `rewrite_title_and_body`" );
+
+			update_option( $table . '_version', '1.1.0' );
 		}
 
 		self::copy_settings();

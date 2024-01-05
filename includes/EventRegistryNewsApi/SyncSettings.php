@@ -174,6 +174,7 @@ class SyncSettings extends Data {
 			'enable_news_filtering'      => Sanitize::checked( $sync_item['enable_news_filtering'] ),
 			'enable_live_news'           => Sanitize::checked( $sync_item['enable_live_news'] ),
 			'rewrite_title_and_body'     => Sanitize::checked( $sync_item['rewrite_title_and_body'] ),
+			'rewrite_metadata'           => Sanitize::checked( $sync_item['rewrite_metadata'] ),
 			'news_filtering_instruction' => Sanitize::text( $sync_item['news_filtering_instruction'] ),
 		);
 
@@ -215,6 +216,7 @@ class SyncSettings extends Data {
 			'enable_live_news'           => false,
 			'enable_news_filtering'      => false,
 			'rewrite_title_and_body'     => true,
+			'rewrite_metadata'           => true,
 			'news_filtering_instruction' => OpenAIApiSetting::get_news_filtering_instruction(),
 		);
 	}
@@ -340,6 +342,24 @@ class SyncSettings extends Data {
 	 */
 	public function rewrite_title_and_body(): bool {
 		return Validate::checked( $this->get_prop( 'rewrite_title_and_body', true ) );
+	}
+
+	/**
+	 * If it should rewrite news title and body
+	 *
+	 * @return bool
+	 */
+	public function rewrite_metadata(): bool {
+		return Validate::checked( $this->get_prop( 'rewrite_metadata', true ) );
+	}
+
+	/**
+	 * If it should use actual news
+	 *
+	 * @return bool
+	 */
+	public function use_actual_news(): bool {
+		return ( false === $this->rewrite_title_and_body() && false === $this->rewrite_metadata() );
 	}
 
 	public function is_news_filtering_enabled(): bool {

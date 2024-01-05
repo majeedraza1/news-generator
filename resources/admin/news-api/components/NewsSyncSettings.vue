@@ -31,12 +31,19 @@
     <tr>
       <th scope="row"><label :for="`primary-category-${index}`">Rewrite news</label></th>
       <td>
-        <ShaplaCheckbox
-            v-model="state.setting.rewrite_title_and_body"
-            label="Rewrite news title and body from OpenAI"
-        />
-        <p class="description">Still other fields (e.g. meta description, facebook text, etc) will generate from
-          openAI.</p>
+        <div class="mb-2">
+          <ShaplaCheckbox
+              v-model="state.setting.rewrite_title_and_body"
+              label="Rewrite news title and body from OpenAI"
+          />
+        </div>
+        <div class="mb-2">
+          <ShaplaCheckbox
+              v-model="state.setting.rewrite_metadata"
+              label="Rewrite news metadata (e.g. meta description, facebook text, etc)"
+          />
+        </div>
+        <p class="description">If you uncheck both, NewsAPI news will be send to sites without rewriting from OpenAI</p>
       </td>
     </tr>
     <tr>
@@ -183,6 +190,7 @@
               v-model="state.setting.news_filtering_instruction"
               rows="4"
           />
+          <p class="description">Leave it empty to use global instruction.</p>
         </div>
       </td>
     </tr>
