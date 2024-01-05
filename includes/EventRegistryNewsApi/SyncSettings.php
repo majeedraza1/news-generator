@@ -173,6 +173,7 @@ class SyncSettings extends Data {
 			'copy_news_image'            => Sanitize::checked( $sync_item['copy_news_image'] ),
 			'enable_news_filtering'      => Sanitize::checked( $sync_item['enable_news_filtering'] ),
 			'enable_live_news'           => Sanitize::checked( $sync_item['enable_live_news'] ),
+			'rewrite_title_and_body'     => Sanitize::checked( $sync_item['rewrite_title_and_body'] ),
 			'news_filtering_instruction' => Sanitize::text( $sync_item['news_filtering_instruction'] ),
 		);
 
@@ -213,6 +214,7 @@ class SyncSettings extends Data {
 			'enable_category_check'      => true,
 			'enable_live_news'           => false,
 			'enable_news_filtering'      => false,
+			'rewrite_title_and_body'     => true,
 			'news_filtering_instruction' => OpenAIApiSetting::get_news_filtering_instruction(),
 		);
 	}
@@ -329,6 +331,15 @@ class SyncSettings extends Data {
 			gmdate( 'Y-m-d H:i:s', time() ),
 			WEEK_IN_SECONDS
 		);
+	}
+
+	/**
+	 * If it should rewrite news title and body
+	 *
+	 * @return bool
+	 */
+	public function rewrite_title_and_body(): bool {
+		return Validate::checked( $this->get_prop( 'rewrite_title_and_body', true ) );
 	}
 
 	public function is_news_filtering_enabled(): bool {

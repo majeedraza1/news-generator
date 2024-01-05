@@ -17,6 +17,26 @@ class ClientResponseLog extends DatabaseModel {
 	protected $table = 'event_registry_news_logs';
 
 	/**
+	 * Get sync settings options
+	 *
+	 * @var array
+	 */
+	protected static $sync_settings = array();
+
+	/**
+	 * Get sync settings
+	 *
+	 * @return array
+	 */
+	public static function get_sync_settings(): array {
+		if ( empty( static::$sync_settings ) ) {
+			static::$sync_settings = SyncSettingsStore::get_settings_as_select_options();
+		}
+
+		return static::$sync_settings;
+	}
+
+	/**
 	 * Array representation of the class
 	 *
 	 * @return array
@@ -28,6 +48,11 @@ class ClientResponseLog extends DatabaseModel {
 			if ( in_array( $key, $json_fields, true ) ) {
 				$data[ $key ] = json_decode( $value, true );
 			}
+		}
+
+		if ( ! empty( $data['sync_setting_id'] ) ) {
+			$sync_settings              = static::get_sync_settings();
+			$data['sync_setting_title'] = $sync_settings[ $data['sync_setting_id'] ] ?? '';
 		}
 
 		return $data;

@@ -29,6 +29,17 @@
       </td>
     </tr>
     <tr>
+      <th scope="row"><label :for="`primary-category-${index}`">Rewrite news</label></th>
+      <td>
+        <ShaplaCheckbox
+            v-model="state.setting.rewrite_title_and_body"
+            label="Rewrite news title and body from OpenAI"
+        />
+        <p class="description">Still other fields (e.g. meta description, facebook text, etc) will generate from
+          openAI.</p>
+      </td>
+    </tr>
+    <tr>
       <th scope="row"><label :for="`primary-category-${index}`">Live News</label></th>
       <td>
         <ShaplaCheckbox
@@ -41,13 +52,15 @@
     <tr>
       <th scope="row"><label :for="`sync-fields-${index}`">Sync Fields</label></th>
       <td>
-        <ShaplaSelect
-            :options="news_sync_fields"
-            v-model="state.setting.fields"
-            :searchable="true"
-            :clearable="false"
-            :multiple="true"
-        />
+        <div class="flex flex-wrap space-x-2">
+          <ShaplaCheckbox
+              v-for="_field in news_sync_fields"
+              :key="_field.value"
+              :value="_field.value"
+              :label="_field.label"
+              v-model="state.setting.fields"
+          />
+        </div>
       </td>
     </tr>
     <tr v-show="state.setting.fields.includes('keyword')">

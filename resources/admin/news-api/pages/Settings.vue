@@ -156,13 +156,13 @@
             </ShaplaTab>
             <ShaplaTab name="Sync settings">
               <div class="mb-4 flex justify-end">
-                <ShaplaButton theme="primary" size="small" @click.prevent="addSyncSetting">
+                <ShaplaButton theme="primary" size="small" @click.prevent="addSyncSetting(state.news_sync.length + 1)">
                   Add Sync Setting
                 </ShaplaButton>
               </div>
               <ShaplaToggles>
                 <ShaplaToggle v-for="(setting, index) in state.news_sync" :key="index"
-                              :name="`Setting ${index + 1}: ${setting.title}`"
+                              :name="setting.title"
                               :subtext="getSettingSubtext(setting)">
                   <div>
                     <div class="flex justify-between">
@@ -620,10 +620,10 @@ const createUUID = (): string => {
   });
 }
 
-function addSyncSetting() {
+function addSyncSetting(index: number) {
   state.news_sync.push({
     option_id: createUUID(),
-    title: '',
+    title: `Setting ${index}`,
     fields: [],
     locations: [],
     categories: [],
@@ -639,6 +639,7 @@ function addSyncSetting() {
     primary_category: '',
     copy_news_image: false,
     enable_news_filtering: false,
+    rewrite_title_and_body: true,
     enable_live_news: false,
     news_filtering_instruction: '',
     query_info: null,

@@ -10,6 +10,7 @@ use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
 use StackonetNewsGenerator\OpenAIApi\ApiConnection\OpenAiRestClient;
 use StackonetNewsGenerator\OpenAIApi\News;
 use StackonetNewsGenerator\OpenAIApi\Setting;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 
 /**
  * BackgroundSync
@@ -169,41 +170,59 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 			return false;
 		}
 
-		$ai_news = NewsCompletion::article_to_news( $article );
-		if ( is_wp_error( $ai_news ) ) {
-			Logger::log( 'Fail to sync news from OpenAI. #' . $article->get_id() );
-			Logger::log( $ai_news->get_error_message() );
+		$sync_settings = $article->get_sync_settings();
+		if ( $sync_settings->rewrite_title_and_body() ) {
+			$ai_news = NewsCompletion::article_to_news( $article );
+			if ( is_wp_error( $ai_news ) ) {
+				Logger::log( 'Fail to sync news from OpenAI. #' . $article->get_id() );
+				Logger::log( $ai_news->get_error_message() );
 
-			if ( 'exceeded_max_token' === $ai_news->get_error_code() ) {
-				$article->update_field( 'openai_error', $ai_news->get_error_message() );
+				if ( 'exceeded_max_token' === $ai_news->get_error_code() ) {
+					$article->update_field( 'openai_error', $ai_news->get_error_message() );
 
-				return false;
-			}
+					return false;
+				}
 
-			if ( 'Too Many Requests' === $ai_news->get_error_message() ) {
-				$this->handle_too_many_requests( $ai_news );
+				if ( 'Too Many Requests' === $ai_news->get_error_message() ) {
+					$this->handle_too_many_requests( $ai_news );
+
+					// Push the item to bottom of queue to try later.
+					static::init()->push_to_queue( $item );
+
+					return false;
+				}
+
+				$attempt = static::get_article_fail_attempt( $article );
+				if ( $attempt >= 2 ) {
+					$article->update_field( 'openai_error', $ai_news->get_error_message() );
+
+					Logger::log( '3 fail attempt to sync with OpenAI #' . $article->get_id() . '. Removing from sync list.' );
+
+					return false;
+				}
+
+				static::increase_article_fail_attempt( $article );
 
 				// Push the item to bottom of queue to try later.
 				static::init()->push_to_queue( $item );
 
 				return false;
 			}
-
-			$attempt = static::get_article_fail_attempt( $article );
-			if ( $attempt >= 2 ) {
-				$article->update_field( 'openai_error', $ai_news->get_error_message() );
-
-				Logger::log( '3 fail attempt to sync with OpenAI #' . $article->get_id() . '. Removing from sync list.' );
-
-				return false;
-			}
-
-			static::increase_article_fail_attempt( $article );
-
-			// Push the item to bottom of queue to try later.
-			static::init()->push_to_queue( $item );
-
-			return false;
+		} else {
+			$article_data       = array(
+				'source_id'        => $article->get_id(),
+				'primary_category' => $article->get_primary_category_slug(),
+				'sync_status'      => 'in-progress',
+				'created_via'      => 'newsapi.ai',
+				'sync_setting_id'  => $sync_settings->get_option_id(),
+				'live_news'        => $sync_settings->is_live_news_enabled() ? 1 : 0,
+				'title'            => $article->get_title(),
+				'body'             => $article->get_body(),
+			);
+			$article_data['id'] = ( new NewsStore() )->create( $article_data );
+			$ai_news            = new News( $article_data );
+			$ai_news->set_id( $article_data['id'] );
+			$ai_news->set_object_read( true );
 		}
 
 		if ( $ai_news instanceof News ) {
