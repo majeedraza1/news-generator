@@ -190,9 +190,11 @@ class OpenAiController extends ApiController {
 		}
 		$query->order_by( 'id', 'DESC' );
 
-		$items  = $query->get();
-		$counts = $store->count_records( $request->get_params() );
-		$count  = $counts[ $status ] ?? $counts['all'];
+		$items                     = $query->get();
+		$counts                    = $store->count_records( $request->get_params() );
+		$counts['openai-complete'] = $store->get_query_builder()->where( 'openai_skipped', 0 )->count();
+		$counts['skipped-openai']  = $store->get_query_builder()->where( 'openai_skipped', 1 )->count();
+		$count                     = $counts[ $status ] ?? $counts['all'];
 		if ( ! empty( $search ) ) {
 			$count = count( $items );
 		}
@@ -210,9 +212,6 @@ class OpenAiController extends ApiController {
 			}
 		}
 
-		$openai_complete_count = $store->get_query_builder()->where( 'openai_skipped', 0 )->count();
-		$openai_skipped_count  = $store->get_query_builder()->where( 'openai_skipped', 1 )->count();
-
 		$statuses = array(
 			array(
 				'key'    => 'complete',
@@ -223,7 +222,7 @@ class OpenAiController extends ApiController {
 			array(
 				'key'    => 'openai-complete',
 				'label'  => 'OpenAI Complete',
-				'count'  => $openai_complete_count,
+				'count'  => $counts['openai-complete'] ?? 0,
 				'active' => 'openai-complete' === $status,
 			),
 			array(
@@ -235,7 +234,7 @@ class OpenAiController extends ApiController {
 			array(
 				'key'    => 'skipped-openai',
 				'label'  => 'Skipped OpenAI',
-				'count'  => $openai_skipped_count,
+				'count'  => $counts['skipped-openai'] ?? 0,
 				'active' => 'skipped-openai' === $status,
 			),
 			array(
@@ -643,7 +642,7 @@ class OpenAiController extends ApiController {
 	/**
 	 * Prepares the collection item for the REST response.
 	 *
-	 * @param  mixed|Data $item  The collection item.
+	 * @param  mixed|Data  $item  The collection item.
 	 *
 	 * @return array|mixed Response object on success.
 	 */
