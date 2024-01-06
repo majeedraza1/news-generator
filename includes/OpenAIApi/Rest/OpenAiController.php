@@ -154,16 +154,25 @@ class OpenAiController extends ApiController {
 	public function get_items( $request ) {
 		$per_page  = (int) $request->get_param( 'per_page' );
 		$page      = (int) $request->get_param( 'page' );
-		$status    = $request->get_param( 'status' );
 		$search    = $request->get_param( 'search' );
 		$filter_by = $request->get_param( 'filter_by' );
+		$status    = $request->get_param( 'status' );
+
+		$status_openai_skipped  = 'skipped-openai' === $status;
+		$status_openai_complete = 'openai-complete' === $status;
 
 		$store = new NewsStore();
 
 		$query = $store->get_query_builder();
 		$query->limit( $per_page );
 		$query->page( $page );
-		if ( $status ) {
+		if ( $status_openai_complete ) {
+			$query->where( 'openai_skipped', 0 );
+		}
+		if ( $status_openai_skipped ) {
+			$query->where( 'openai_skipped', 1 );
+		}
+		if ( $status && ! in_array( $status, array( 'skipped-openai', 'openai-complete' ), true ) ) {
 			$query->where( 'sync_status', $status );
 		}
 		if ( 'use_for_instagram' === $filter_by ) {
@@ -201,22 +210,37 @@ class OpenAiController extends ApiController {
 			}
 		}
 
+		$openai_complete_count = $store->get_query_builder()->where( 'openai_skipped', 0 )->count();
+		$openai_skipped_count  = $store->get_query_builder()->where( 'openai_skipped', 1 )->count();
+
 		$statuses = array(
 			array(
 				'key'    => 'complete',
-				'label'  => 'Complete',
+				'label'  => 'All',
 				'count'  => $counts['complete'] ?? 0,
 				'active' => 'complete' === $status,
 			),
 			array(
+				'key'    => 'openai-complete',
+				'label'  => 'OpenAI Complete',
+				'count'  => $openai_complete_count,
+				'active' => 'openai-complete' === $status,
+			),
+			array(
 				'key'    => 'in-progress',
-				'label'  => 'In-Progress',
+				'label'  => 'OpenAI In-Progress',
 				'count'  => $counts['in-progress'] ?? 0,
 				'active' => 'in-progress' === $status,
 			),
 			array(
+				'key'    => 'skipped-openai',
+				'label'  => 'Skipped OpenAI',
+				'count'  => $openai_skipped_count,
+				'active' => 'skipped-openai' === $status,
+			),
+			array(
 				'key'    => 'fail',
-				'label'  => 'Fail',
+				'label'  => 'OpenAI Fail',
 				'count'  => $counts['fail'] ?? 0,
 				'active' => 'fail' === $status,
 			),
@@ -619,7 +643,7 @@ class OpenAiController extends ApiController {
 	/**
 	 * Prepares the collection item for the REST response.
 	 *
-	 * @param  mixed|Data  $item  The collection item.
+	 * @param  mixed|Data $item  The collection item.
 	 *
 	 * @return array|mixed Response object on success.
 	 */

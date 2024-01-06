@@ -42,7 +42,16 @@ class Article extends Data {
 	 * @return SyncSettings
 	 */
 	public function get_sync_settings(): SyncSettings {
-		return new SyncSettings( $this->get_sync_settings_raw() );
+		$settings  = $this->get_sync_settings_raw();
+		$option_id = $settings['option_id'];
+		if ( wp_is_uuid( $option_id ) ) {
+			$setting = SyncSettingsStore::find_by_uuid( $option_id );
+			if ( $setting instanceof SyncSettingsStore ) {
+				$settings = $setting->to_array();
+			}
+		}
+
+		return new SyncSettings( $settings );
 	}
 
 	/**
@@ -146,22 +155,23 @@ class Article extends Data {
 	 */
 	public function copy_to_news(): int {
 		$news_id = $this->get_openai_news_id();
-		if ( ! $news_id ) {
-			$sync_settings = $this->get_sync_settings();
-			$article_data  = array(
+		if ( $news_id ) {
+			return $news_id;
+		}
+		$sync_settings = $this->get_sync_settings();
+		if ( $sync_settings->use_actual_news() ) {
+			$article_data = array(
 				'title'            => $this->get_title(),
 				'body'             => $this->get_body(),
 				'source_id'        => $this->get_id(),
 				'primary_category' => $this->get_primary_category_slug(),
-				'sync_status'      => 'in-progress',
+				'sync_status'      => 'complete',
 				'created_via'      => 'newsapi.ai',
 				'sync_setting_id'  => $sync_settings->get_option_id(),
 				'live_news'        => $sync_settings->is_live_news_enabled() ? 1 : 0,
+				'openai_skipped'   => 1,
 			);
-			if ( ! $sync_settings->rewrite_metadata() ) {
-				$article_data['sync_status']    = 'complete';
-				$article_data['openai_skipped'] = 1;
-			}
+
 			$news_id = ( new NewsStore() )->create( $article_data );
 			$this->update_openai_news_id( $news_id );
 		}

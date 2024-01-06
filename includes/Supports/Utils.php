@@ -149,11 +149,38 @@ class Utils {
 	 * @return string
 	 */
 	public static function remove_emoji_multiline( string $string ): string {
-		$lines = [];
+		$lines = array();
 		foreach ( explode( PHP_EOL, $string ) as $line ) {
 			$lines[] = static::remove_emoji( $line );
 		}
 
 		return implode( PHP_EOL, $lines );
+	}
+
+	/**
+	 * Rest all data
+	 *
+	 * @return void
+	 */
+	public static function reset_all_data() {
+		global $wpdb;
+		foreach ( static::get_tables_list() as $table ) {
+			$wpdb->query( "TRUNCATE `{$wpdb->prefix}$table`" );
+		}
+	}
+
+	/**
+	 * Get tables list
+	 *
+	 * @return string[]
+	 */
+	public static function get_tables_list(): array {
+		return array(
+			'event_registry_news',
+			'openai_news_tags',
+			'openai_news',
+			'openai_news_to_site_logs',
+			'openai_news_sites',
+		);
 	}
 }

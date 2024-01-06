@@ -41,6 +41,7 @@ class Ajax {
 			self::$instance = new self();
 
 			add_action( 'wp_ajax_news_generator_test', array( self::$instance, 'do_ajax_testing' ) );
+			add_action( 'wp_ajax_news_generator_empty_tables', array( self::$instance, 'empty_tables' ) );
 			add_action( 'wp_ajax_test_google_vision', array( self::$instance, 'test_google_vision' ) );
 			add_action( 'wp_ajax_debug_interesting_news', array( self::$instance, 'debug_interesting_news' ) );
 			add_action( 'wp_ajax_debug_blacklist_item', array( self::$instance, 'debug_blacklist_item' ) );
@@ -79,6 +80,33 @@ class Ajax {
 		);
 
 		die();
+	}
+
+	/**
+	 * A AJAX method just to test some data
+	 */
+	public function empty_tables() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die(
+				esc_html__(
+					'Sorry. This link only for developer to do some testing.',
+					'stackonet-news-generator'
+				)
+			);
+		}
+
+		if ( 'production' === wp_get_environment_type() ) {
+			wp_die(
+				esc_html__(
+					'Sorry. You cannot empty tables on production site.',
+					'stackonet-news-generator'
+				)
+			);
+		}
+
+		Utils::reset_all_data();
+
+		wp_die( 'All done. You can close the tab or go back.' );
 	}
 
 	/**

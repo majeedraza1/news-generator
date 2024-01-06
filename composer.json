@@ -43,6 +43,7 @@
   },
   "scripts": {
     "make-pot": "wp i18n make-pot . languages/stackonet-news-generator.pot",
+    "empty-tables": "wp stackonet-news-generator empty_tables",
     "lint": "phpcs --standard=phpcs.xml",
     "format": "phpcbf --standard=phpcs.xml"
   },

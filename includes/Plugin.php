@@ -13,6 +13,7 @@ use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncTwitterFields;
 use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
 use StackonetNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
+use StackonetNewsGenerator\CLI\Command;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\ClientResponseLog;
 use StackonetNewsGenerator\EventRegistryNewsApi\NewsApiCronEvent;
@@ -118,6 +119,11 @@ class Plugin {
 			add_action( 'init', array( self::$instance, 'load_plugin_textdomain' ) );
 			register_activation_hook( $plugin_file, [ self::$instance, 'activation_includes' ] );
 			register_deactivation_hook( $plugin_file, [ self::$instance, 'deactivation_includes' ] );
+
+			// WP-CLI Commands.
+			if ( class_exists( \WP_CLI::class ) && class_exists( \WP_CLI_Command::class ) ) {
+				\WP_CLI::add_command( 'stackonet-news-generator', Command::class );
+			}
 		}
 
 		return self::$instance;
