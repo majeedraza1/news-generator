@@ -77,6 +77,15 @@ class SyncSettingsStore extends DatabaseModel {
 	}
 
 	/**
+	 * Re-Write full news
+	 *
+	 * @return bool
+	 */
+	public function rewrite_full_news(): bool {
+		return ( $this->rewrite_title_and_body() && $this->rewrite_metadata() );
+	}
+
+	/**
 	 * If it should use actual news
 	 *
 	 * @return bool

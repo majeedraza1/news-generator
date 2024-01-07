@@ -64,7 +64,7 @@ class News extends Data {
 		}
 
 		// String contains only single character.
-		if ( strlen( $string ) < 2 ) {
+		if ( mb_strlen( $string ) < 2 ) {
 			return '';
 		}
 

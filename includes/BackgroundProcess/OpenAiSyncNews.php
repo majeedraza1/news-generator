@@ -136,16 +136,12 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 		if ( in_array( $data['news_id'], $pending, true ) ) {
 			return;
 		}
-		if ( 'full_news' === Setting::news_sync_method() ) {
-			static::init()->push_to_queue( $data );
-		} else {
-			$fields = array_keys( NewsCompletion::fields_to_actions() );
-			foreach ( $fields as $field ) {
-				if ( Setting::should_sync_field( $field ) ) {
-					$data['field']      = $field;
-					$data['created_at'] = current_time( 'mysql', true );
-					static::init()->push_to_queue( $data );
-				}
+		$fields = array_keys( NewsCompletion::fields_to_actions() );
+		foreach ( $fields as $field ) {
+			if ( Setting::should_sync_field( $field ) ) {
+				$data['field']      = $field;
+				$data['created_at'] = current_time( 'mysql', true );
+				static::init()->push_to_queue( $data );
 			}
 		}
 	}

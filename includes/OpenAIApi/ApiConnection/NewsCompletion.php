@@ -24,9 +24,9 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Re-create news from OpenAI
 	 *
-	 * @param  Article $article  Article object.
-	 * @param  float   $start_time  Task start time.
-	 * @param  bool    $multistep  Should it sync multiple step.
+	 * @param  Article  $article  Article object.
+	 * @param  float  $start_time  Task start time.
+	 * @param  bool  $multistep  Should it sync multiple step.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -53,7 +53,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Create news title from a newsapi.ai news article
 	 *
-	 * @param  Article $article  The Article object.
+	 * @param  Article  $article  The Article object.
 	 *
 	 * @return News|WP_Error
 	 */
@@ -113,7 +113,7 @@ class NewsCompletion extends OpenAiRestClient {
 	 * Complete news sync
 	 *
 	 * @param  News  $news  The news object.
-	 * @param  float $start_time  Start time.
+	 * @param  float  $start_time  Start time.
 	 * @param  bool  $multistep  If it should sync multiple steps on same time.
 	 *
 	 * @return News|WP_Error
@@ -161,8 +161,8 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Generate a field value
 	 *
-	 * @param  News   $news  The news object.
-	 * @param  string $property_name  Property name.
+	 * @param  News  $news  The news object.
+	 * @param  string  $property_name  Property name.
 	 *
 	 * @return string|array| WP_Error
 	 */
@@ -198,7 +198,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  Article $article  The Article object.
+	 * @param  Article  $article  The Article object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -217,7 +217,7 @@ class NewsCompletion extends OpenAiRestClient {
 		}
 
 		$title = sanitize_text_field( $response );
-		if ( ! ( is_string( $title ) && strlen( $title ) > 10 ) ) {
+		if ( ! ( is_string( $title ) && mb_strlen( $title ) > 10 ) ) {
 			return new WP_Error( 'title_length_error', 'Generated title is too short.' );
 		}
 
@@ -235,9 +235,9 @@ class NewsCompletion extends OpenAiRestClient {
 	 * Recreate article data
 	 *
 	 * @param  array  $data  The data to be used for instruction.
-	 * @param  string $instruction  Instruction for OpenAI.
-	 * @param  string $group  Group.
-	 * @param  int    $object_id  News object id.
+	 * @param  string  $instruction  Instruction for OpenAI.
+	 * @param  string  $group  Group.
+	 * @param  int  $object_id  News object id.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -317,7 +317,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The news object.
+	 * @param  News  $news  The news object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -341,7 +341,7 @@ class NewsCompletion extends OpenAiRestClient {
 
 		$content = stripslashes( $response );
 
-		if ( strlen( $content ) < 100 ) {
+		if ( mb_strlen( $content ) < 100 ) {
 			return new WP_Error( 'rest_content_strlen_error', 'Generated content is too short.' );
 		}
 
@@ -357,7 +357,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -382,7 +382,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -411,7 +411,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -436,7 +436,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -548,7 +548,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Generate instagram hashtag
 	 *
-	 * @param  News $news
+	 * @param  News  $news
 	 *
 	 * @return string|WP_Error
 	 */
@@ -590,7 +590,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -614,7 +614,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -668,7 +668,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -704,7 +704,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -730,7 +730,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -755,7 +755,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return string|WP_Error
 	 */
@@ -806,7 +806,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Recreate from OpenAI Api
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -845,7 +845,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Generate image id.
 	 *
-	 * @param  News $news  The News object.
+	 * @param  News  $news  The News object.
 	 *
 	 * @return int
 	 */
@@ -867,7 +867,7 @@ class NewsCompletion extends OpenAiRestClient {
 	/**
 	 * Get placeholders
 	 *
-	 * @param  News $news  The news object.
+	 * @param  News  $news  The news object.
 	 *
 	 * @return array
 	 */

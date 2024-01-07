@@ -167,6 +167,8 @@ class Utils {
 		foreach ( static::get_tables_list() as $table ) {
 			$wpdb->query( "TRUNCATE `{$wpdb->prefix}$table`" );
 		}
+
+		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE ('%\_transient\_%')" );
 	}
 
 	/**
@@ -176,11 +178,19 @@ class Utils {
 	 */
 	public static function get_tables_list(): array {
 		return array(
-			'event_registry_news',
-			'openai_news_tags',
 			'openai_news',
-			'openai_news_to_site_logs',
+			'event_registry_news',
+			'event_registry_news_logs',
+			'news_sources',
+			'openai_response_log',
+			'event_registry_interesting_news',
+			'news_keywords',
+			'external_links',
+			'openai_instagram_fail_log',
 			'openai_news_sites',
+			'openai_news_tags',
+			'openai_news_to_site_logs',
+			'twitter_tweets',
 		);
 	}
 }

@@ -171,61 +171,60 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 		}
 
 		$sync_settings = $article->get_sync_settings();
-		if ( $sync_settings->rewrite_title_and_body() ) {
-			$ai_news = NewsCompletion::article_to_news( $article );
-			if ( is_wp_error( $ai_news ) ) {
-				Logger::log( 'Fail to sync news from OpenAI. #' . $article->get_id() );
-				Logger::log( $ai_news->get_error_message() );
+		if ( $sync_settings->use_actual_news() ) {
+			$ai_news_id = $article->copy_to_news();
+			$ai_news    = NewsStore::find_by_id( $ai_news_id );
+			$ai_news->send_to_sites();
 
-				if ( 'exceeded_max_token' === $ai_news->get_error_code() ) {
-					$article->update_field( 'openai_error', $ai_news->get_error_message() );
+			return false;
+		}
 
-					return false;
-				}
+		$ai_news = NewsCompletion::article_to_news( $article );
+		if ( is_wp_error( $ai_news ) ) {
+			Logger::log( 'Fail to sync news from OpenAI. #' . $article->get_id() );
+			Logger::log( $ai_news->get_error_message() );
 
-				if ( 'Too Many Requests' === $ai_news->get_error_message() ) {
-					$this->handle_too_many_requests( $ai_news );
+			if ( 'exceeded_max_token' === $ai_news->get_error_code() ) {
+				$article->update_field( 'openai_error', $ai_news->get_error_message() );
 
-					// Push the item to bottom of queue to try later.
-					static::init()->push_to_queue( $item );
+				return false;
+			}
 
-					return false;
-				}
-
-				$attempt = static::get_article_fail_attempt( $article );
-				if ( $attempt >= 2 ) {
-					$article->update_field( 'openai_error', $ai_news->get_error_message() );
-
-					Logger::log( '3 fail attempt to sync with OpenAI #' . $article->get_id() . '. Removing from sync list.' );
-
-					return false;
-				}
-
-				static::increase_article_fail_attempt( $article );
+			if ( 'Too Many Requests' === $ai_news->get_error_message() ) {
+				$this->handle_too_many_requests( $ai_news );
 
 				// Push the item to bottom of queue to try later.
 				static::init()->push_to_queue( $item );
 
 				return false;
 			}
-		} else {
-			$ai_news_id = $article->copy_to_news();
-			$ai_news    = NewsStore::find_by_id( $ai_news_id );
+
+			$attempt = static::get_article_fail_attempt( $article );
+			if ( $attempt >= 2 ) {
+				$article->update_field( 'openai_error', $ai_news->get_error_message() );
+
+				Logger::log( '3 fail attempt to sync with OpenAI #' . $article->get_id() . '. Removing from sync list.' );
+
+				return false;
+			}
+
+			static::increase_article_fail_attempt( $article );
+
+			// Push the item to bottom of queue to try later.
+			static::init()->push_to_queue( $item );
+
+			return false;
 		}
 
 		if ( $ai_news instanceof News ) {
-			if ( $sync_settings->rewrite_metadata() ) {
-				OpenAiSyncNews::add_to_sync(
-					array_merge(
-						$item,
-						array(
-							'news_id' => $ai_news->get_id(),
-						)
+			OpenAiSyncNews::add_to_sync(
+				array_merge(
+					$item,
+					array(
+						'news_id' => $ai_news->get_id(),
 					)
-				);
-			} else {
-				$ai_news->send_to_sites();
-			}
+				)
+			);
 
 			return false;
 		}

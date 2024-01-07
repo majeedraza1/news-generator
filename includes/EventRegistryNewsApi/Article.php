@@ -159,22 +159,27 @@ class Article extends Data {
 			return $news_id;
 		}
 		$sync_settings = $this->get_sync_settings();
-		if ( $sync_settings->use_actual_news() ) {
-			$article_data = array(
-				'title'            => $this->get_title(),
-				'body'             => $this->get_body(),
-				'source_id'        => $this->get_id(),
-				'primary_category' => $this->get_primary_category_slug(),
-				'sync_status'      => 'complete',
-				'created_via'      => 'newsapi.ai',
-				'sync_setting_id'  => $sync_settings->get_option_id(),
-				'live_news'        => $sync_settings->is_live_news_enabled() ? 1 : 0,
-				'openai_skipped'   => 1,
-			);
-
-			$news_id = ( new NewsStore() )->create( $article_data );
-			$this->update_openai_news_id( $news_id );
+		$article_data  = array(
+			'source_id'        => $this->get_id(),
+			'primary_category' => $this->get_primary_category_slug(),
+			'created_via'      => 'newsapi.ai',
+			'sync_setting_id'  => $sync_settings->get_option_id(),
+			'live_news'        => $sync_settings->is_live_news_enabled() ? 1 : 0,
+			'sync_status'      => 'in-progress',
+			'openai_skipped'   => 0,
+		);
+		if ( false === $sync_settings->rewrite_title_and_body() ) {
+			$article_data['openai_skipped'] = 1;
+			$article_data['title']          = $this->get_title();
+			$article_data['body']           = $this->get_body();
 		}
+		if ( false === $sync_settings->rewrite_metadata() ) {
+			$article_data['openai_skipped'] = 1;
+			$article_data['sync_status']    = 'complete';
+		}
+
+		$news_id = ( new NewsStore() )->create( $article_data );
+		$this->update_openai_news_id( $news_id );
 
 		return $news_id;
 	}

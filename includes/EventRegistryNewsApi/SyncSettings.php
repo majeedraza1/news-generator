@@ -362,6 +362,15 @@ class SyncSettings extends Data {
 		return ( false === $this->rewrite_title_and_body() && false === $this->rewrite_metadata() );
 	}
 
+	/**
+	 * Re-Write full news
+	 *
+	 * @return bool
+	 */
+	public function rewrite_full_news(): bool {
+		return ( $this->rewrite_title_and_body() && $this->rewrite_metadata() );
+	}
+
 	public function is_news_filtering_enabled(): bool {
 		return Validate::checked( $this->get_prop( 'enable_news_filtering' ) );
 	}
