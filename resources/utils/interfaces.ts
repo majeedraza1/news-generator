@@ -67,6 +67,7 @@ interface NewsSyncSettingsInterface {
   enable_live_news: boolean;
   news_filtering_instruction: string;
   query_info?: NewsSyncQueryInfoInterface;
+  to_sites?: string[];
   fields?: string[];
 }
 
@@ -144,6 +145,20 @@ interface ArticleInterface {
   sync_settings?: Record<string, any>;
 }
 
+interface SyncSettingsInterface {
+  title: string;
+  option_id: string;
+  copy_news_image: boolean;
+  enable_category_check: boolean;
+  enable_live_news: boolean;
+  enable_news_filtering: boolean;
+  rewrite_title_and_body: boolean;
+  rewrite_metadata: boolean;
+  to_sites: string[];
+
+  [key: string]: any;
+}
+
 interface SiteSettingInterface {
   id?: number;
   site_url: string;
@@ -154,7 +169,7 @@ interface SiteSettingInterface {
   auth_post_params?: string;
   auth_get_args?: string;
   last_sync_datetime?: string;
-  sync_settings?: Record<string, string>[];
+  sync_settings?: SyncSettingsInterface[];
   created_at?: string;
   updated_at?: string;
 }

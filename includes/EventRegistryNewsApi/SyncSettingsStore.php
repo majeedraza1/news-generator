@@ -4,6 +4,7 @@ namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 use Stackonet\WP\Framework\Supports\Validate;
+use StackonetNewsGenerator\Modules\Site\SiteStore;
 
 /**
  * SyncSettingsStore class
@@ -15,6 +16,13 @@ class SyncSettingsStore extends DatabaseModel {
 	 * @var string
 	 */
 	protected $table = 'event_registry_sync_settings';
+
+	/**
+	 * All site lists
+	 *
+	 * @var SiteStore[]
+	 */
+	protected static $sites = [];
 
 	/**
 	 * To array
@@ -31,6 +39,7 @@ class SyncSettingsStore extends DatabaseModel {
 		$data['enable_news_filtering']  = $this->is_news_filtering_enabled();
 		$data['rewrite_title_and_body'] = $this->rewrite_title_and_body();
 		$data['rewrite_metadata']       = $this->rewrite_metadata();
+		$data['to_sites']               = $this->to_sites();
 
 		return $data;
 	}
@@ -56,6 +65,64 @@ class SyncSettingsStore extends DatabaseModel {
 	 */
 	public function get_uuid(): string {
 		return (string) $this->get_prop( 'option_id' );
+	}
+
+	/**
+	 * Get primary category slug
+	 *
+	 * @return string
+	 */
+	public function get_primary_category(): string {
+		return $this->get_prop( 'primary_category' );
+	}
+
+	/**
+	 * Get primary concept
+	 *
+	 * @return string
+	 */
+	public function get_primary_concept(): string {
+		$concepts_uris = $this->get_prop( 'conceptUri' );
+		if ( is_array( $concepts_uris ) && count( $concepts_uris ) ) {
+			return $concepts_uris[0];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Get concept basename
+	 *
+	 * @return string
+	 */
+	public function get_primary_concept_basename(): string {
+		$placeholders = array( 'http://en.wikipedia.org/wiki/', 'https://en.wikipedia.org/wiki/' );
+
+		return str_replace( $placeholders, '', $this->get_primary_concept() );
+	}
+
+	/**
+	 * List of sites where it will be sent
+	 *
+	 * @return array
+	 */
+	public function to_sites(): array {
+		if ( empty( static::$sites ) ) {
+			static::$sites = SiteStore::find_multiple();
+		}
+		$to_sites = array();
+		foreach ( static::$sites as $site ) {
+			if ( $site instanceof SiteStore ) {
+				if ( in_array( $this->get_primary_category(), $site->get_sync_categories(), true ) ) {
+					$to_sites[ $site->get_id() ] = $site->get_site_url();
+				}
+				if ( in_array( $this->get_primary_concept_basename(), $site->get_sync_concepts(), true ) ) {
+					$to_sites[ $site->get_id() ] = $site->get_site_url();
+				}
+			}
+		}
+
+		return array_values( $to_sites );
 	}
 
 	/**

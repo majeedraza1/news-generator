@@ -9,7 +9,6 @@ use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
 use StackonetNewsGenerator\Modules\Keyword\OpenAiClient;
-use StackonetNewsGenerator\Modules\Site\SiteStore;
 use StackonetNewsGenerator\OpenAIApi\Client as OpenAIApiClient;
 use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
 use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
@@ -68,16 +67,9 @@ class Ajax {
 			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
 		}
 
-		$sites = SiteStore::find_single( 1 );
-		$news  = NewsStore::find_by_id( 16 );
+		$settings = SyncSettings::get_settings( false );
 		var_dump(
-			array(
-				'concepts'         => $sites->get_sync_concepts(),
-				'categories'       => $sites->get_sync_categories(),
-				'should_send_news' => $sites->should_send_news( $news ),
-				'sync'             => $sites->get_sync_settings(),
-				'sites'            => $sites,
-			)
+			$settings
 		);
 
 		die();

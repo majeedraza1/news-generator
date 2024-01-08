@@ -82,6 +82,7 @@ class NewsCompletion extends OpenAiRestClient {
 		$data = array(
 			'source_id'        => $article->get_id(),
 			'primary_category' => $article->get_primary_category_slug(),
+			'primary_concept'  => $article->get_concept_basename(),
 			'sync_status'      => 'in-progress',
 			'created_via'      => 'newsapi.ai',
 			'sync_setting_id'  => $sync_settings->get_option_id(),

@@ -194,6 +194,15 @@
         </div>
       </td>
     </tr>
+    <tr>
+      <th>Will be delivered to</th>
+      <td>
+        <template v-if="setting.to_sites">
+          <div v-for="site in setting.to_sites">{{ site }}</div>
+        </template>
+        <template v-else>None</template>
+      </td>
+    </tr>
   </table>
   <div class="flex space-x-2">
     <ShaplaButton v-if="setting.query_info" outline theme="default" size="small"

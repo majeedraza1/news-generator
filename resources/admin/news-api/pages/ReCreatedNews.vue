@@ -384,15 +384,14 @@ const columns = computed(() => {
 
   if (state.status === 'in-progress' || state.status === 'fail') {
     columns.push({label: 'Sync status', key: 'sync_status'});
-  }
-
-  if (state.status === 'complete') {
+  } else {
     columns.push({label: 'on Remote', key: 'remote_log'});
   }
 
   columns.push({label: 'For Instagram', key: 'important_for_instagram'});
   columns.push({label: 'For Twitter', key: 'important_for_tweet'});
   columns.push({label: 'Category', key: 'category'});
+  columns.push({label: 'Concept', key: 'primary_concept'});
   columns.push({label: 'Country', key: 'country'});
   columns.push({label: 'Source', key: 'created_via'});
   columns.push({label: 'Updated', key: 'updated'});

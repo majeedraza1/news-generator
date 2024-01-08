@@ -494,5 +494,9 @@ class NewsStore extends DataStoreBase {
 			$wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `openai_skipped` TINYINT(1) NOT NULL DEFAULT 0 AFTER `sync_status`" );
 			update_option( $table . '_version', '1.1.0' );
 		}
+		if ( version_compare( $version, '1.2.0', '<' ) ) {
+			$wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `primary_concept` varchar(255) NULL DEFAULT NULL AFTER `primary_category`" );
+			update_option( $table . '_version', '1.2.0' );
+		}
 	}
 }

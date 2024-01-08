@@ -106,6 +106,8 @@ const getSubtext = (sync_setting) => {
   let html = '';
   if (sync_setting.concept) {
     html += `Concept: ${sync_setting.concept}; `;
+  } else if (sync_setting.primaryCategory) {
+    html += `Category: ${sync_setting.primaryCategory}; `;
   }
   return html;
 }

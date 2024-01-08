@@ -604,6 +604,9 @@ function getSettingSubtext(setting: NewsSyncSettingsInterface) {
   if (setting.keyword && setting.keyword.length) {
     html += `Keyword: ${setting.keyword}; `;
   }
+  if (setting.to_sites) {
+    html += '<br><strong>Sites:</strong> ' + (setting.to_sites.length ? setting.to_sites.join(', ') : '-');
+  }
   return html;
 }
 

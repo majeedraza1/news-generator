@@ -111,6 +111,7 @@ class News extends Data {
 			'created_via'              => $this->get_created_via(),
 			'sync_status'              => $this->get_sync_status(),
 			'concept'                  => $this->get_prop( 'concept' ),
+			'primary_concept'          => $this->get_prop( 'primary_concept' ),
 			'sync_setting_id'          => $this->get_sync_setting_id(),
 			'sync_setting'             => $this->get_sync_setting(),
 			'live_news'                => $this->get_prop( 'live_news' ),

@@ -31,6 +31,15 @@ class SiteStore extends DatabaseModel {
 	protected $sync_categories;
 
 	/**
+	 * Get site url
+	 *
+	 * @return string
+	 */
+	public function get_site_url(): string {
+		return (string) $this->get_prop( 'site_url' );
+	}
+
+	/**
 	 * Get site sync settings
 	 *
 	 * @return array
@@ -91,7 +100,7 @@ class SiteStore extends DatabaseModel {
 	/**
 	 * If the news should send to site
 	 *
-	 * @param  News $news  The news object.
+	 * @param  News  $news  The news object.
 	 *
 	 * @return bool
 	 */
@@ -121,7 +130,7 @@ class SiteStore extends DatabaseModel {
 	/**
 	 * Find by URL
 	 *
-	 * @param  string $site_url  Site url.
+	 * @param  string  $site_url  Site url.
 	 *
 	 * @return array|false
 	 */

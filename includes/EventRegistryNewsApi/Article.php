@@ -124,6 +124,26 @@ class Article extends Data {
 	}
 
 	/**
+	 * Get concept
+	 *
+	 * @return string
+	 */
+	public function get_concept(): string {
+		return (string) $this->get_prop( 'concept' );
+	}
+
+	/**
+	 * Get concept basename
+	 *
+	 * @return string
+	 */
+	public function get_concept_basename(): string {
+		$placeholders = array( 'http://en.wikipedia.org/wiki/', 'https://en.wikipedia.org/wiki/' );
+
+		return str_replace( $placeholders, '', $this->get_concept() );
+	}
+
+	/**
 	 * Update a field
 	 *
 	 * @param  string  $column  The column to be updated.
@@ -162,6 +182,7 @@ class Article extends Data {
 		$article_data  = array(
 			'source_id'        => $this->get_id(),
 			'primary_category' => $this->get_primary_category_slug(),
+			'primary_concept'  => $this->get_concept_basename(),
 			'created_via'      => 'newsapi.ai',
 			'sync_setting_id'  => $sync_settings->get_option_id(),
 			'live_news'        => $sync_settings->is_live_news_enabled() ? 1 : 0,
