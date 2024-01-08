@@ -381,6 +381,53 @@ class NewsStore extends DataStoreBase {
 	}
 
 	/**
+	 * Count record from database
+	 *
+	 * @param  array  $args  The optional arguments.
+	 *
+	 * @return array {
+	 * Number of found records for each group.
+	 *
+	 * @type int $all The total number of records except trashed.
+	 * @type int $trash The total number of trashed records.
+	 * }
+	 */
+	public function count_records( array $args = array() ): array {
+		$cache_key = $this->get_cache_key_for_count_records( $args );
+		$counts    = $this->get_cache( $cache_key );
+
+		if ( false === $counts ) {
+			$counts = array();
+
+			$counts['openai-complete'] = $this->get_query_builder()
+			                                  ->where( 'sync_status', 'complete' )
+			                                  ->where( 'openai_skipped', 0 )
+			                                  ->count();
+
+			$counts['in-progress'] = $this->get_query_builder()
+			                              ->where( 'sync_status', 'in-progress' )
+			                              ->where( 'openai_skipped', 0 )
+			                              ->count();
+
+			$counts['fail'] = $this->get_query_builder()
+			                       ->where( 'sync_status', 'fail' )
+			                       ->where( 'openai_skipped', 0 )
+			                       ->count();
+
+			$counts['skipped-openai'] = $this->get_query_builder()
+			                                 ->where( 'sync_status', 'complete' )
+			                                 ->where( 'openai_skipped', 1 )
+			                                 ->count();
+			$counts['complete']       = $counts['openai-complete'] + $counts['skipped-openai'];
+
+			// Set cache for one day.
+			$this->set_cache( $cache_key, $counts, DAY_IN_SECONDS );
+		}
+
+		return $counts;
+	}
+
+	/**
 	 * Create table
 	 */
 	public static function create_table() {

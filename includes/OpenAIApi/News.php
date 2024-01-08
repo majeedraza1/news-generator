@@ -24,7 +24,7 @@ use StackonetNewsGenerator\Supports\Country;
 class News extends Data {
 
 	protected $source_news = null;
-	protected $tags        = array();
+	protected $tags = array();
 
 	/**
 	 * Get list of fields to sync with openai
@@ -40,7 +40,7 @@ class News extends Data {
 	/**
 	 * Sanitize tag
 	 *
-	 * @param  mixed $string  The string to be sanitized.
+	 * @param  mixed  $string  The string to be sanitized.
 	 *
 	 * @return string
 	 */
@@ -305,7 +305,7 @@ class News extends Data {
 	/**
 	 * Parse news tags from string
 	 *
-	 * @param  mixed|string $raw_tags  String containing raw tags.
+	 * @param  mixed|string  $raw_tags  String containing raw tags.
 	 *
 	 * @return array
 	 */
@@ -377,7 +377,7 @@ class News extends Data {
 	/**
 	 * Get image
 	 *
-	 * @param  string $size  The image size.
+	 * @param  string  $size  The image size.
 	 *
 	 * @return ArrayObject
 	 */
@@ -406,7 +406,7 @@ class News extends Data {
 	/**
 	 * Get image
 	 *
-	 * @param  string $size  The image size.
+	 * @param  string  $size  The image size.
 	 *
 	 * @return ArrayObject
 	 */
@@ -624,7 +624,7 @@ class News extends Data {
 	/**
 	 * Set source news
 	 *
-	 * @param  array $article  The source article.
+	 * @param  array  $article  The source article.
 	 *
 	 * @return void
 	 */
@@ -694,7 +694,7 @@ class News extends Data {
 		$done = 0;
 		foreach ( static::get_fields_sync_with_openai() as $column ) {
 			if ( ! empty( $this->get_prop( $column ) ) ) {
-				++$done;
+				++ $done;
 			}
 		}
 
@@ -704,7 +704,7 @@ class News extends Data {
 	/**
 	 * Send news to sites
 	 *
-	 * @param  bool $force  Should send immediately.
+	 * @param  bool  $force  Should send immediately.
 	 *
 	 * @return void
 	 */
@@ -726,59 +726,25 @@ class News extends Data {
 	 * @return array
 	 */
 	public function get_sites_list(): array {
-		$sites       = ( new SiteStore() )->find_multiple();
+		$sites       = SiteStore::find_multiple();
 		$sites_count = count( $sites );
 		if ( 1 === $sites_count ) {
 			return $sites;
 		}
-		$concept              = $this->get_concept();
-		$category_slug        = $this->get_primary_category_slug();
-		$openai_category_slug = $this->get_openai_category_slug();
-		$placeholders         = array(
-			'http://en.wikipedia.org/wiki/'  => '',
-			'https://en.wikipedia.org/wiki/' => '',
-		);
-		$concept              = str_replace( array_keys( $placeholders ), array_values( $placeholders ), $concept );
-		$sites_to_send        = array();
+
+		$sites_to_send = array();
 		foreach ( $sites as $site ) {
-			$sync_settings = maybe_unserialize( $site['sync_settings'] );
-			foreach ( $sync_settings as $sync_setting ) {
-				$sync_concept = $sync_setting['concept'] ?? '';
-				$sync_concept = str_replace(
-					array_keys( $placeholders ),
-					array_values( $placeholders ),
-					$sync_concept
-				);
-				if ( ! empty( $sync_concept ) && ! empty( $concept ) ) {
-					similar_text( $sync_concept, $concept, $percent );
-					if ( $percent >= 90 ) {
-						$sites_to_send[ $site['id'] ] = $site;
-					}
-				}
-				$sync_category = $sync_setting['primaryCategory'] ?? '';
-				if ( ! empty( $sync_category ) && ! empty( $category_slug ) ) {
-					similar_text( $sync_category, $category_slug, $percent );
-					if ( $percent >= 90 ) {
-						$sites_to_send[ $site['id'] ] = $site;
-					}
-				}
-				if ( ! empty( $sync_category ) && ! empty( $openai_category_slug ) ) {
-					similar_text( $sync_category, $openai_category_slug, $percent );
-					if ( $percent >= 90 ) {
-						$sites_to_send[ $site['id'] ] = $site;
-					}
-				}
-				if ( $this->is_manual() || 1 === $sites_count ) {
-					$sites_to_send[ $site['id'] ] = $site;
-				}
+			if ( $site instanceof SiteStore && $site->should_send_news( $this ) ) {
+				$sites_to_send[] = $site->to_array();
 			}
 		}
 
-		return array_values( $sites_to_send );
+		return $sites_to_send;
 	}
 
 	/**
 	 * Get concept
+	 * http://en.wikipedia.org/wiki/[ConceptName]
 	 *
 	 * @return string
 	 */
@@ -892,7 +858,7 @@ class News extends Data {
 	/**
 	 * Update field.
 	 *
-	 * @param  string $column  table column name.
+	 * @param  string  $column  table column name.
 	 * @param  mixed  $value  The value to be updated.
 	 *
 	 * @return void
@@ -908,7 +874,7 @@ class News extends Data {
 	/**
 	 * Update fields
 	 *
-	 * @param  array $data  The array of data to be updated.
+	 * @param  array  $data  The array of data to be updated.
 	 *
 	 * @return void
 	 */

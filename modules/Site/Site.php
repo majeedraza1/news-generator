@@ -37,10 +37,14 @@ class Site {
 	/**
 	 * The construct of the class
 	 *
-	 * @param  array  $data  Raw data to set
+	 * @param  array|SiteStore  $data  Raw data to set
 	 */
-	public function __construct( array $data = array() ) {
-		$this->data = wp_parse_args( $data, static::$defaults );
+	public function __construct( $data = array() ) {
+		if ( $data instanceof SiteStore ) {
+			$this->data = wp_parse_args( $data->to_array(), static::$defaults );
+		} elseif ( is_array( $data ) ) {
+			$this->data = wp_parse_args( $data, static::$defaults );
+		}
 	}
 
 	/**

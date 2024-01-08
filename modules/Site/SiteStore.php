@@ -2,15 +2,126 @@
 
 namespace StackonetNewsGenerator\Modules\Site;
 
-use Stackonet\WP\Framework\Abstracts\DataStoreBase;
+use Stackonet\WP\Framework\Abstracts\DatabaseModel;
+use StackonetNewsGenerator\OpenAIApi\News;
 
-class SiteStore extends DataStoreBase {
+/**
+ * SiteStore class
+ */
+class SiteStore extends DatabaseModel {
+	/**
+	 * Database table name
+	 *
+	 * @var string
+	 */
 	protected $table = 'openai_news_sites';
+
+	/**
+	 * Sync concept
+	 *
+	 * @var array
+	 */
+	protected $sync_concepts;
+
+	/**
+	 * Sync category
+	 *
+	 * @var array
+	 */
+	protected $sync_categories;
+
+	/**
+	 * Get site sync settings
+	 *
+	 * @return array
+	 */
+	public function get_sync_settings(): array {
+		$settings = $this->get_prop( 'sync_settings' );
+		if ( is_array( $settings ) ) {
+			return $settings;
+		}
+
+		return array();
+	}
+
+	/**
+	 * Get sync concept
+	 *
+	 * @return array
+	 */
+	public function get_sync_concepts(): array {
+		if ( ! is_array( $this->sync_concepts ) ) {
+			$this->sync_concepts = array();
+			$placeholders        = array(
+				'http://en.wikipedia.org/wiki/'  => '',
+				'https://en.wikipedia.org/wiki/' => '',
+			);
+			foreach ( $this->get_sync_settings() as $sync_setting ) {
+				if ( 'concept' === $sync_setting['sync_method'] ) {
+					$this->sync_concepts[] = str_replace(
+						array_keys( $placeholders ),
+						array_values( $placeholders ),
+						$sync_setting['concept']
+					);
+				}
+			}
+		}
+
+		return $this->sync_concepts;
+	}
+
+	/**
+	 * Get sync categories
+	 *
+	 * @return array
+	 */
+	public function get_sync_categories(): array {
+		if ( ! is_array( $this->sync_categories ) ) {
+			$this->sync_categories = array();
+			foreach ( $this->get_sync_settings() as $sync_setting ) {
+				if ( 'primaryCategory' === $sync_setting['sync_method'] ) {
+					$this->sync_categories[] = $sync_setting['primaryCategory'];
+				}
+			}
+		}
+
+		return $this->sync_categories;
+	}
+
+	/**
+	 * If the news should send to site
+	 *
+	 * @param  News $news  The news object.
+	 *
+	 * @return bool
+	 */
+	public function should_send_news( News $news ): bool {
+		$category_slug = $news->get_primary_category_slug();
+		if ( in_array( $category_slug, $this->get_sync_categories(), true ) ) {
+			return true;
+		}
+		$openai_category_slug = $news->get_openai_category_slug();
+		if ( in_array( $openai_category_slug, $this->get_sync_categories(), true ) ) {
+			return true;
+		}
+
+		$concept = $news->get_concept();
+		if ( mb_strlen( $concept ) ) {
+			$placeholders = array( 'http://en.wikipedia.org/wiki/', 'https://en.wikipedia.org/wiki/' );
+			$concept      = str_replace( $placeholders, '', $concept );
+
+			if ( in_array( $concept, $this->get_sync_concepts(), true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * Find by URL
 	 *
-	 * @param string $site_url Site url.
+	 * @param  string $site_url  Site url.
 	 *
 	 * @return array|false
 	 */
@@ -34,7 +145,7 @@ class SiteStore extends DataStoreBase {
 	 * @return void
 	 */
 	public static function send_general_data_to_sites() {
-		$sites = ( new static )->find_multiple( [ 'per_page' => 100 ] );
+		$sites = static::find_multiple( array( 'per_page' => 100 ) );
 		foreach ( $sites as $site ) {
 			( new Site( $site ) )->send_general_data();
 		}

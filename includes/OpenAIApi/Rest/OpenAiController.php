@@ -166,11 +166,13 @@ class OpenAiController extends ApiController {
 		$query = $store->get_query_builder();
 		$query->limit( $per_page );
 		$query->page( $page );
-		if ( $status_openai_complete ) {
-			$query->where( 'openai_skipped', 0 );
-		}
-		if ( $status_openai_skipped ) {
+		if ( 'skipped-openai' === $status ) {
 			$query->where( 'openai_skipped', 1 );
+		} elseif ( 'openai-complete' === $status ) {
+			$query->where( 'openai_skipped', 0 );
+			$query->where( 'sync_status', 'complete' );
+		} elseif ( 'complete' !== $status ) {
+			$query->where( 'openai_skipped', 0 );
 		}
 		if ( $status && ! in_array( $status, array( 'skipped-openai', 'openai-complete' ), true ) ) {
 			$query->where( 'sync_status', $status );
@@ -190,11 +192,9 @@ class OpenAiController extends ApiController {
 		}
 		$query->order_by( 'id', 'DESC' );
 
-		$items                     = $query->get();
-		$counts                    = $store->count_records( $request->get_params() );
-		$counts['openai-complete'] = $store->get_query_builder()->where( 'openai_skipped', 0 )->count();
-		$counts['skipped-openai']  = $store->get_query_builder()->where( 'openai_skipped', 1 )->count();
-		$count                     = $counts[ $status ] ?? $counts['all'];
+		$items  = $query->get();
+		$counts = $store->count_records( $request->get_params() );
+		$count  = $counts[ $status ] ?? $counts['all'];
 		if ( ! empty( $search ) ) {
 			$count = count( $items );
 		}
@@ -245,6 +245,8 @@ class OpenAiController extends ApiController {
 			),
 		);
 
+		// All = OpenAI complete & OpenAI skipped
+
 		return $this->respondOK(
 			array(
 				'items'                             => $items,
@@ -253,6 +255,7 @@ class OpenAiController extends ApiController {
 				'statuses'                          => $statuses,
 				'news_to_site_logs'                 => $logs,
 				'query_args'                        => $request->get_params(),
+				'sql'                               => $query->get_query_sql(),
 				'categories'                        => Category::get_categories(),
 				'default_category'                  => Category::get_default_category(),
 				'important_news_for_tweets_enabled' => Setting::is_important_news_for_tweets_enabled(),
