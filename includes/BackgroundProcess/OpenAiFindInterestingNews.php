@@ -4,7 +4,7 @@ namespace StackonetNewsGenerator\BackgroundProcess;
 
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
 
 /**
@@ -41,15 +41,11 @@ class OpenAiFindInterestingNews extends BackgroundProcessBase {
 	 *
 	 * @return void
 	 */
-	public static function add_to_sync( array $news_ids, array $sync_settings = array() ) {
-		if ( isset( $sync_settings['query_info'] ) ) {
-			unset( $sync_settings['query_info'] );
-		}
-		$settings = new SyncSettings( $sync_settings );
+	public static function add_to_sync( array $news_ids, ?SyncSettingsStore $sync_settings = null ) {
 		static::init()->push_to_queue(
 			array(
 				'ids'            => $news_ids,
-				'sync_option_id' => $settings->get_option_id(),
+				'sync_option_id' => $sync_settings instanceof SyncSettingsStore ? $sync_settings->get_option_id() : '',
 			)
 		);
 	}
@@ -77,9 +73,9 @@ class OpenAiFindInterestingNews extends BackgroundProcessBase {
 			return false;
 		}
 		$this->set_item_running( $sync_option_id, 'find_interesting_news', ( MINUTE_IN_SECONDS * 15 ) );
-		$sync_options = SyncSettings::get_setting( $sync_option_id );
-		if ( empty( $sync_options ) ) {
-			$sync_options = $item['sync_options'] ?? array();
+		$sync_options = SyncSettingsStore::find_by_uuid( $sync_option_id );
+		if ( ! $sync_options instanceof SyncSettingsStore ) {
+			return false;
 		}
 		$new_ids = isset( $item['ids'] ) && is_array( $item['ids'] ) ? array_map( 'intval', $item['ids'] ) : array();
 		if ( count( $new_ids ) ) {

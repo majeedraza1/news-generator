@@ -6,7 +6,7 @@ use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\RestClient;
 use StackonetNewsGenerator\EventRegistryNewsApi\Category;
 use StackonetNewsGenerator\EventRegistryNewsApi\Language;
-use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\Site\Stores\NewsToSiteLogStore;
 use StackonetNewsGenerator\OpenAIApi\News;
 use WP_Error;
@@ -254,7 +254,7 @@ class Site {
 	 * @return array
 	 */
 	public static function general_data(): array {
-		$settings   = SyncSettings::get_settings();
+		$settings   = SyncSettingsStore::get_settings_as_array();
 		$concepts   = array();
 		$sources    = array();
 		$locations  = array();

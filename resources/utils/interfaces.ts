@@ -61,8 +61,7 @@ interface NewsSyncSettingsInterface {
   last_sync?: string;
   primary_category?: string;
   copy_news_image?: boolean;
-  rewrite_title_and_body?: boolean;
-  rewrite_metadata?: boolean;
+  use_actual_news?: boolean;
   enable_news_filtering: boolean;
   enable_live_news: boolean;
   news_filtering_instruction: string;

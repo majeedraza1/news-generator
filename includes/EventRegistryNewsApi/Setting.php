@@ -256,7 +256,7 @@ class Setting {
 	 * @return array
 	 */
 	public static function get_news_sources(): array {
-		$settings = SyncSettings::get_settings();
+		$settings = SyncSettingsStore::get_settings_as_array();
 		$sources  = [];
 		foreach ( $settings as $setting ) {
 			if ( isset( $setting['sources'] ) && is_array( $setting['sources'] ) ) {

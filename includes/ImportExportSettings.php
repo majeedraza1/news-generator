@@ -2,14 +2,14 @@
 
 namespace StackonetNewsGenerator;
 
+use Stackonet\WP\Framework\Media\UploadedFile;
+use Stackonet\WP\Framework\Supports\RestClient;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Category;
 use StackonetNewsGenerator\EventRegistryNewsApi\Setting;
-use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
 use StackonetNewsGenerator\Providers\GoogleVisionClient;
-use Stackonet\WP\Framework\Media\UploadedFile;
-use Stackonet\WP\Framework\Supports\RestClient;
 
 /**
  * ImportExportSettings class
@@ -136,7 +136,7 @@ class ImportExportSettings {
 	 */
 	public static function get_settings_data(): array {
 		return array(
-			'news_sync'                           => SyncSettings::get_settings( false ),
+			'news_sync'                           => SyncSettingsStore::get_settings_as_array(),
 			'news_api'                            => Setting::get_news_api_keys(),
 			'newsapi_auto_sync_enabled'           => Setting::is_auto_sync_enabled(),
 			'news_duplicate_checking_enabled'     => Setting::is_duplicate_checking_enabled(),

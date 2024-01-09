@@ -7,7 +7,7 @@ use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Category;
-use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
 use StackonetNewsGenerator\Modules\Site\Site;
@@ -799,10 +799,10 @@ class News extends Data {
 	 */
 	public function get_sync_setting() {
 		if ( 'newsapi.ai' === $this->get_created_via() && $this->get_sync_setting_id() ) {
-			$settings = SyncSettings::get_setting( $this->get_sync_setting_id() );
-			if ( is_array( $settings ) ) {
+			$settings = SyncSettingsStore::find_by_uuid( $this->get_sync_setting_id() );
+			if ( $settings instanceof SyncSettingsStore ) {
 				$_setting = array();
-				foreach ( $settings as $key => $value ) {
+				foreach ( $settings->to_array() as $key => $value ) {
 					if (
 						in_array( $key, array( 'query_info', 'last_sync' ), true ) ||
 						( ! is_bool( $value ) && empty( $value ) )

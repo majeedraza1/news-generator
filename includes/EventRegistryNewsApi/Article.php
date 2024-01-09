@@ -129,7 +129,9 @@ class Article extends Data {
 	 * @return string
 	 */
 	public function get_concept(): string {
-		return (string) $this->get_prop( 'concept' );
+		$concept = $this->get_prop( 'concept' );
+
+		return (string) $concept;
 	}
 
 	/**
@@ -189,13 +191,10 @@ class Article extends Data {
 			'sync_status'      => 'in-progress',
 			'openai_skipped'   => 0,
 		);
-		if ( false === $sync_settings->rewrite_title_and_body() ) {
+		if ( $sync_settings->use_actual_news() ) {
 			$article_data['openai_skipped'] = 1;
 			$article_data['title']          = $this->get_title();
 			$article_data['body']           = $this->get_body();
-		}
-		if ( false === $sync_settings->rewrite_metadata() ) {
-			$article_data['openai_skipped'] = 1;
 			$article_data['sync_status']    = 'complete';
 		}
 

@@ -52,7 +52,7 @@ class ImportSampleData {
 		}
 		$content = json_decode( $content, true );
 
-		return SyncSettings::update_option( $content );
+		return SyncSettings::update_multiple( $content );
 	}
 
 	/**

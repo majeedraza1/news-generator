@@ -2,9 +2,10 @@
 
 namespace StackonetNewsGenerator\BackgroundProcess;
 
+use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
-use Stackonet\WP\Framework\Supports\Logger;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 
 /**
  * Class BackgroundSync
@@ -33,13 +34,13 @@ class SyncEventRegistryNews extends BackgroundProcessBase {
 	 */
 	public static function sync() {
 		$batch_id      = wp_generate_uuid4();
-		$sync_settings = SyncSettings::get_settings();
+		$sync_settings = SyncSettingsStore::get_settings_as_model();
 		$instance      = static::init();
 		foreach ( $sync_settings as $setting ) {
 			$instance->push_to_queue(
 				[
 					'batch_id'  => $batch_id,
-					'option_id' => $setting['option_id'],
+					'option_id' => $setting->get_uuid(),
 				]
 			);
 		}
@@ -74,8 +75,8 @@ class SyncEventRegistryNews extends BackgroundProcessBase {
 			return false;
 		}
 		$this->set_item_running( $option_id, 'event_registry_news' );
-		$option = SyncSettings::get_setting( $option_id );
-		if ( ! is_array( $option ) ) {
+		$option = SyncSettingsStore::find_by_uuid( $option_id );
+		if ( ! $option instanceof SyncSettingsStore ) {
 			Logger::log( sprintf( 'Sync settings is not available for option id #%s', $option_id ) );
 
 			return false;

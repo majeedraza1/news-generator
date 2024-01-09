@@ -11,6 +11,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\Category;
 use StackonetNewsGenerator\EventRegistryNewsApi\Client;
 use StackonetNewsGenerator\EventRegistryNewsApi\Setting;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\Keyword\Setting as KeywordSetting;
 use StackonetNewsGenerator\Modules\Site\SiteStore;
 use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
@@ -133,7 +134,7 @@ class AdminSettingController extends ApiController {
 	 * @inheritDoc
 	 */
 	public function get_items( $request ) {
-		$news_sync_settings = SyncSettings::get_settings();
+		$news_sync_settings = SyncSettingsStore::get_settings_as_array();
 		$settings           = array(
 			'news_sync'                           => $news_sync_settings,
 			'news_api'                            => Setting::get_news_api_keys(),
@@ -322,7 +323,7 @@ class AdminSettingController extends ApiController {
 
 		$news_sync             = $request->get_param( 'news_sync' );
 		$news_sync             = is_array( $news_sync ) ? $news_sync : array();
-		$settings['news_sync'] = SyncSettings::update_option( $news_sync );
+		$settings['news_sync'] = SyncSettings::update_multiple( $news_sync );
 
 		$openai_api             = $request->get_param( 'openai_api' );
 		$openai_api             = is_array( $openai_api ) ? $openai_api : array();
@@ -419,8 +420,8 @@ class AdminSettingController extends ApiController {
 	 */
 	public function sync_news( WP_REST_Request $request ) {
 		$option_id = $request->get_param( 'option_id' );
-		$setting   = SyncSettings::get_setting( $option_id );
-		if ( ! is_array( $setting ) ) {
+		$setting   = SyncSettingsStore::find_by_uuid( $option_id );
+		if ( ! $setting instanceof SyncSettingsStore ) {
 			return $this->respondNotFound();
 		}
 
@@ -432,7 +433,7 @@ class AdminSettingController extends ApiController {
 		return $this->respondOK(
 			array(
 				'settings'             => array(
-					'news_sync' => SyncSettings::get_settings(),
+					'news_sync' => SyncSettingsStore::get_settings_as_array(),
 					'news_api'  => Setting::get_news_api_keys(),
 				),
 				'active_news_api_key'  => Setting::get_news_api_key(),

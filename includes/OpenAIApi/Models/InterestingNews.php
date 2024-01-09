@@ -4,7 +4,7 @@ namespace StackonetNewsGenerator\OpenAIApi\Models;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\OpenAIApi\Client;
 use StackonetNewsGenerator\OpenAIApi\Setting;
 use WP_Error;
@@ -55,13 +55,16 @@ class InterestingNews extends DatabaseModel {
 	 *
 	 * @return InterestingNews|WP_Error
 	 */
-	public static function generate_list_via_openai( array $articles, array $sync_option, bool $force = false ) {
-		$sync_setting = new SyncSettings( $sync_option );
-		$existing     = static::find_by_setting_id( $sync_setting->get_option_id() );
+	public static function generate_list_via_openai(
+		array $articles,
+		SyncSettingsStore $sync_setting,
+		bool $force = false
+	) {
+		$existing = static::find_by_setting_id( $sync_setting->get_option_id() );
 		if ( $existing instanceof self ) {
 			return new WP_Error( 'already_synced', 'Settings already synced.' );
 		}
-		$instruction = $sync_setting->get_prop( 'news_filtering_instruction' );
+		$instruction = $sync_setting->get_news_filtering_instruction();
 		if ( empty( $instruction ) ) {
 			$instruction = Setting::get_news_filtering_instruction();
 		}

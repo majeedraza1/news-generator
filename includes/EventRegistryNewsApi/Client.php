@@ -136,7 +136,8 @@ class Client extends RestClient {
 	 * @type object[] $results Array of article object.
 	 * }
 	 */
-	public function get_articles( array $args = [], bool $force = false ) {
+	public function get_articles( SyncSettingsStore $setting, bool $force = false ) {
+		$args           = $setting->get_client_query_args();
 		$sanitized_args = $this->get_articles_sanitized_args( $args );
 		$transient_name = 'news_api_articles_' . md5( wp_json_encode( $sanitized_args ) );
 		$articles       = get_transient( $transient_name );
@@ -147,7 +148,7 @@ class Client extends RestClient {
 			if ( ! is_wp_error( $articles ) ) {
 				if ( is_array( $articles ) && isset( $articles['articles'] ) ) {
 					set_transient( $transient_name, $articles['articles'], MINUTE_IN_SECONDS * 15 );
-					SyncSettings::update_sync_time( $args );
+					$setting->update_sync_datetime();
 
 					return $articles['articles'];
 				}

@@ -291,9 +291,8 @@ class ArticleStore extends DataStoreBase {
 	 *
 	 * @return array|WP_Error
 	 */
-	public static function sync_news( array $options, bool $force = true ) {
-		$settings = new SyncSettings( $options );
-		$news     = ( new Client() )->get_articles( $settings->get_client_query_args(), $force );
+	public static function sync_news( SyncSettingsStore $settings, bool $force = true ) {
+		$news = ( new Client() )->get_articles( $settings, $force );
 		if ( is_wp_error( $news ) ) {
 			return $news;
 		}
@@ -327,7 +326,7 @@ class ArticleStore extends DataStoreBase {
 				continue;
 			}
 
-			$article = $store::format_api_data_for_database( $result, $options, $settings->should_copy_image() );
+			$article = $store::format_api_data_for_database( $result, $settings );
 
 			if ( Setting::sync_image_copy_setting_from_source() ) {
 				$source = NewsSource::find_by_uri( $article['source_uri'] );
@@ -345,7 +344,7 @@ class ArticleStore extends DataStoreBase {
 
 		if ( $settings->is_news_filtering_enabled() ) {
 			if ( count( $new_ids ) ) {
-				OpenAiFindInterestingNews::add_to_sync( $new_ids, $options );
+				OpenAiFindInterestingNews::add_to_sync( $new_ids, $settings );
 			}
 		} elseif ( $settings->is_live_news_enabled() ) {
 			foreach ( $new_ids as $id ) {
@@ -411,14 +410,10 @@ class ArticleStore extends DataStoreBase {
 	 *
 	 * @return array
 	 */
-	public static function format_api_data_for_database(
-		array $data,
-		array $sync_settings,
-		bool $copy_news_image
-	): array {
-		$slug                  = sanitize_title_with_dashes( $data['title'], '', 'save' );
-		$slug                  = mb_substr( $slug, 0, 250 );
-		$enable_news_filtering = isset( $sync_settings['enable_news_filtering'] ) && Validate::checked( $sync_settings['enable_news_filtering'] );
+	public static function format_api_data_for_database( array $data, SyncSettingsStore $settings ): array {
+		$sync_settings = $settings->to_array();
+		$slug          = sanitize_title_with_dashes( $data['title'], '', 'save' );
+		$slug          = mb_substr( $slug, 0, 250 );
 
 		$category         = is_array( $sync_settings['categoryUri'] ) && count( $sync_settings['categoryUri'] ) ?
 			$sync_settings['categoryUri'][0] : $sync_settings['categoryUri'];
@@ -426,8 +421,6 @@ class ArticleStore extends DataStoreBase {
 			$sync_settings['primary_category'];
 		$location         = is_array( $sync_settings['locationUri'] ) && count( $sync_settings['locationUri'] ) ?
 			$sync_settings['locationUri'][0] : $sync_settings['locationUri'];
-		$concept          = is_array( $sync_settings['conceptUri'] ) && count( $sync_settings['conceptUri'] ) ?
-			$sync_settings['conceptUri'][0] : $sync_settings['conceptUri'];
 
 		return array(
 			'uri'               => $data['uri'],
@@ -443,16 +436,16 @@ class ArticleStore extends DataStoreBase {
 			'source_uri'        => $data['source']['uri'] ?? '',
 			'links'             => static::sanitize_links( $data['links'] ?? '' ),
 			'source_data_type'  => $data['source']['dataType'] ?? '',
-			'image'             => $copy_news_image ? $data['image'] : '',
+			'image'             => $settings->should_copy_image() ? $data['image'] : '',
 			'event_uri'         => $data['eventUri'],
 			'sim'               => (float) $data['sim'],
 			'sentiment'         => (float) $data['sentiment'],
 			'category'          => $category,
 			'primary_category'  => $primary_category,
 			'location'          => $location,
-			'concept'           => $concept,
+			'concept'           => $settings->get_primary_concept(),
 			'news_datetime'     => gmdate( 'Y-m-d H:i:s', strtotime( $data['dateTimePub'] ) ),
-			'news_filtering'    => $enable_news_filtering ? 1 : 0,
+			'news_filtering'    => $settings->is_news_filtering_enabled() ? 1 : 0,
 			'sync_settings'     => static::sanitize_sync_settings( $sync_settings ),
 		);
 	}

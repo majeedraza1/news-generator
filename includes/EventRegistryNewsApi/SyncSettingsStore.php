@@ -3,6 +3,7 @@
 namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
+use Stackonet\WP\Framework\Supports\Sanitize;
 use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\Modules\Site\SiteStore;
 
@@ -10,6 +11,36 @@ use StackonetNewsGenerator\Modules\Site\SiteStore;
  * SyncSettingsStore class
  */
 class SyncSettingsStore extends DatabaseModel {
+	/**
+	 * Option name
+	 *
+	 * @deprecated
+	 */
+	const OPTION_NAME = '_news_sync_settings';
+
+	/**
+	 * Keyword location
+	 */
+	const KEYWORD_LOCATION = array(
+		'title',
+		'body',
+		'title-or-body',
+		'title-and-body',
+	);
+
+	/**
+	 * Client fields
+	 */
+	const CLIENT_FIELDS = array(
+		'locationUri',
+		'categoryUri',
+		'conceptUri',
+		'sourceUri',
+		'keyword',
+		'keywordLoc',
+		'lang',
+	);
+
 	/**
 	 * The table name
 	 *
@@ -22,7 +53,7 @@ class SyncSettingsStore extends DatabaseModel {
 	 *
 	 * @var SiteStore[]
 	 */
-	protected static $sites = [];
+	protected static $sites = array();
 
 	/**
 	 * To array
@@ -37,9 +68,12 @@ class SyncSettingsStore extends DatabaseModel {
 		$data['enable_category_check']  = $this->should_check_category();
 		$data['enable_live_news']       = $this->is_live_news_enabled();
 		$data['enable_news_filtering']  = $this->is_news_filtering_enabled();
-		$data['rewrite_title_and_body'] = $this->rewrite_title_and_body();
-		$data['rewrite_metadata']       = $this->rewrite_metadata();
+		$data['use_actual_news']        = $this->use_actual_news();
+		$data['rewrite_title_and_body'] = ! $this->use_actual_news();
+		$data['rewrite_metadata']       = ! $this->use_actual_news();
 		$data['to_sites']               = $this->to_sites();
+		$data['last_sync']              = $this->get_sync_datetime();
+		$data['query_info']             = $this->get_client_query_info();
 
 		return $data;
 	}
@@ -63,8 +97,41 @@ class SyncSettingsStore extends DatabaseModel {
 	 *
 	 * @return string
 	 */
+	public function get_option_id(): string {
+		return (string) $this->get_prop( 'option_id' );
+	}
+
+	/**
+	 * Get setting UUID
+	 *
+	 * @return string
+	 */
 	public function get_uuid(): string {
 		return (string) $this->get_prop( 'option_id' );
+	}
+
+	/**
+	 * Get sync datetime
+	 *
+	 * @return string
+	 */
+	public function get_sync_datetime(): string {
+		$synced_at = $this->get_prop( 'synced_at' );
+		if ( ! empty( $synced_at ) ) {
+			return mysql_to_rfc3339( $synced_at );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Update sync datetime
+	 *
+	 * @return void
+	 */
+	public function update_sync_datetime() {
+		$this->set_prop( 'synced_at', gmdate( 'Y-m-d H:i:s', time() ) );
+		$this->update();
 	}
 
 	/**
@@ -135,30 +202,12 @@ class SyncSettingsStore extends DatabaseModel {
 	}
 
 	/**
-	 * If it should rewrite news title and body
-	 *
-	 * @return bool
-	 */
-	public function rewrite_metadata(): bool {
-		return Validate::checked( $this->get_prop( 'rewrite_metadata', true ) );
-	}
-
-	/**
-	 * Re-Write full news
-	 *
-	 * @return bool
-	 */
-	public function rewrite_full_news(): bool {
-		return ( $this->rewrite_title_and_body() && $this->rewrite_metadata() );
-	}
-
-	/**
 	 * If it should use actual news
 	 *
 	 * @return bool
 	 */
 	public function use_actual_news(): bool {
-		return ( false === $this->rewrite_title_and_body() && false === $this->rewrite_metadata() );
+		return Validate::checked( $this->get_prop( 'use_actual_news' ) );
 	}
 
 	/**
@@ -198,13 +247,75 @@ class SyncSettingsStore extends DatabaseModel {
 	}
 
 	/**
+	 * Get news filtering instruction
+	 *
+	 * @return string
+	 */
+	public function get_news_filtering_instruction(): string {
+		$instruction = $this->get_prop( 'news_filtering_instruction' );
+
+		return (string) $instruction;
+	}
+
+	/**
+	 * Get query arguments
+	 *
+	 * @return array
+	 */
+	public function get_client_query_args(): array {
+		$options = $this->get_data();
+
+		return array(
+			'locationUri'      => $options['locationUri'] ?? '',
+			'categoryUri'      => $options['categoryUri'] ?? '',
+			'conceptUri'       => $options['conceptUri'] ?? '',
+			'sourceUri'        => $options['sourceUri'] ?? '',
+			'lang'             => $options['lang'] ?? '',
+			'primary_category' => $options['primary_category'] ?? '',
+			'keyword'          => $options['keyword'] ?? '',
+			'keywordLoc'       => $options['keywordLoc'] ?? '',
+			'articlesPage'     => 1,
+		);
+	}
+
+	/**
+	 * Get NewsAPI HTTP query info
+	 *
+	 * @param  array  $setting
+	 *
+	 * @return array
+	 */
+	public function get_client_query_info(): array {
+		$client = new Client();
+		$client->add_headers( 'Content-Type', 'application/json' );
+		$sanitized_args = $client->get_articles_sanitized_args( $this->get_data(), true );
+		list( $url, $args ) = $client->get_url_and_arguments(
+			'GET',
+			'/article/getArticles',
+			$sanitized_args
+		);
+		$args = array_merge( array( 'url' => $url ), $args );
+		list( $url2, $args2 ) = $client->get_url_and_arguments(
+			'POST',
+			'/article/getArticles',
+			$sanitized_args
+		);
+		$args2 = array_merge( array( 'url' => $url2 ), $args2 );
+
+		return array(
+			'get'  => $args,
+			'post' => $args2,
+		);
+	}
+
+	/**
 	 * Get settings
 	 *
 	 * @param  int  $per_page  Number of items to return.
 	 *
 	 * @return array|SyncSettingsStore[]
 	 */
-	public static function get_settings( int $per_page = 100 ): array {
+	public static function get_settings_as_model( int $per_page = 100 ): array {
 		return static::find_multiple(
 			array(
 				'per_page' => $per_page,
@@ -225,7 +336,7 @@ class SyncSettingsStore extends DatabaseModel {
 	 */
 	public static function get_settings_as_array(): array {
 		$data = array();
-		foreach ( static::get_settings() as $setting ) {
+		foreach ( static::get_settings_as_model() as $setting ) {
 			$data[] = $setting->to_array();
 		}
 
@@ -239,7 +350,7 @@ class SyncSettingsStore extends DatabaseModel {
 	 */
 	public static function get_settings_as_select_options(): array {
 		$data = array();
-		foreach ( static::get_settings() as $setting ) {
+		foreach ( static::get_settings_as_model() as $setting ) {
 			$data[ $setting->get_uuid() ] = $setting->get_title();
 		}
 
@@ -347,8 +458,20 @@ class SyncSettingsStore extends DatabaseModel {
 
 			update_option( $table . '_version', '1.1.0' );
 		}
+		if ( version_compare( $version, '1.2.0', '<' ) ) {
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `synced_at` DATETIME NULL DEFAULT NULL AFTER `updated_at`" );
 
-		self::copy_settings();
+			update_option( $table . '_version', '1.2.0' );
+		}
+		if ( version_compare( $version, '1.4.0', '<' ) ) {
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `use_actual_news` TINYINT(1) NOT NULL DEFAULT 0 AFTER `copy_news_image`" );
+			$wpdb->query( "ALTER TABLE `$table` DROP `rewrite_title_and_body`;" );
+			$wpdb->query( "ALTER TABLE `$table` DROP `rewrite_metadata`;" );
+
+			update_option( $table . '_version', '1.4.0' );
+		}
+
+		static::copy_settings();
 	}
 
 	/**
@@ -357,15 +480,178 @@ class SyncSettingsStore extends DatabaseModel {
 	 * @return void
 	 */
 	public static function copy_settings() {
-		$settings = get_option( SyncSettings::OPTION_NAME );
+		$settings = get_option( static::OPTION_NAME );
 		if ( false !== $settings ) {
-			$settings = SyncSettings::get_settings( false );
 			if ( count( $settings ) ) {
 				foreach ( $settings as $setting ) {
 					self::create_or_update( $setting );
 				}
 			}
-			delete_option( SyncSettings::OPTION_NAME );
+			delete_option( static::OPTION_NAME );
 		}
+	}
+
+	/**
+	 * Update multiple records
+	 *
+	 * @param  array[]  $data  List of settings.
+	 *
+	 * @return array
+	 */
+	public static function update_multiple( array $data ): array {
+		$sanitized_options = static::sanitize_multiple( $data );
+		foreach ( $sanitized_options as $sanitized_option ) {
+			static::create_or_update( $sanitized_option );
+		}
+
+		return $sanitized_options;
+	}
+
+	/**
+	 * Sanitize multiple value
+	 *
+	 * @param  array  $options
+	 *
+	 * @return array
+	 */
+	public static function sanitize_multiple( array $options ): array {
+		$settings = array();
+		foreach ( $options as $sync_item ) {
+			if ( empty( $sync_item['primary_category'] ) ) {
+				continue;
+			}
+
+			$settings[] = static::sanitize( $sync_item );
+		}
+
+		return $settings;
+	}
+
+	/**
+	 * Sanitize settings
+	 *
+	 * @param  array  $value
+	 *
+	 * @return array
+	 */
+	public static function sanitize( array $value ): array {
+		$sync_item = wp_parse_args( $value, static::get_defaults() );
+		$fields    = wp_list_pluck( static::news_sync_fields(), 'value' );
+
+		/**
+		 * To fix bug sourceUri is not saving
+		 */
+		$sources   = Sanitize::deep( $sync_item['sources'] );
+		$sourceUri = Sanitize::deep( $sync_item['sourceUri'] );
+		if ( empty( $sourceUri ) && ! empty( $sources ) && is_array( $sources ) ) {
+			$sourceUri = wp_list_pluck( $sources, 'uri' );
+		}
+
+		$keywordLoc = in_array( $sync_item['keywordLoc'], static::KEYWORD_LOCATION, true ) ?
+			$sync_item['keywordLoc'] : '';
+
+		$id = wp_is_uuid( $sync_item['option_id'] ) ? $sync_item['option_id'] : wp_generate_uuid4();
+
+		$settings = array(
+			'option_id'                  => $id,
+			'title'                      => Sanitize::text( $sync_item['title'] ),
+			'fields'                     => array(),
+			'categoryUri'                => Sanitize::deep( $sync_item['categoryUri'] ),
+			'locationUri'                => Sanitize::deep( $sync_item['locationUri'] ),
+			'conceptUri'                 => Sanitize::deep( $sync_item['conceptUri'] ),
+			'sourceUri'                  => $sourceUri,
+			'lang'                       => Sanitize::deep( $sync_item['lang'] ),
+			'categories'                 => Sanitize::deep( $sync_item['categories'] ),
+			'locations'                  => Sanitize::deep( $sync_item['locations'] ),
+			'concepts'                   => Sanitize::deep( $sync_item['concepts'] ),
+			'sources'                    => $sources,
+			'primary_category'           => Sanitize::text( $sync_item['primary_category'] ),
+			'keyword'                    => Sanitize::text( $sync_item['keyword'] ),
+			'keywordLoc'                 => $keywordLoc,
+			'copy_news_image'            => Sanitize::checked( $sync_item['copy_news_image'] ),
+			'enable_news_filtering'      => Sanitize::checked( $sync_item['enable_news_filtering'] ),
+			'enable_live_news'           => Sanitize::checked( $sync_item['enable_live_news'] ),
+			'use_actual_news'            => Sanitize::checked( $sync_item['use_actual_news'] ),
+			'news_filtering_instruction' => Sanitize::text( $sync_item['news_filtering_instruction'] ),
+		);
+
+		foreach ( $settings as $key => $setting ) {
+			if ( in_array( $key, $fields, true ) & ! empty( $setting ) ) {
+				$settings['fields'][] = $key;
+			}
+		}
+
+		return $settings;
+	}
+
+	/**
+	 * Get default values
+	 *
+	 * @return array
+	 */
+	public static function get_defaults(): array {
+		$fields = wp_list_pluck( static::news_sync_fields(), 'value' );
+
+		return array(
+			'option_id'                  => '',
+			'title'                      => '',
+			'fields'                     => $fields,
+			'categories'                 => array(),
+			'locations'                  => array(),
+			'concepts'                   => array(),
+			'sources'                    => array(),
+			'keyword'                    => '',
+			'keywordLoc'                 => '',
+			'categoryUri'                => '',
+			'locationUri'                => '',
+			'conceptUri'                 => '',
+			'sourceUri'                  => '',
+			'lang'                       => '',
+			'primary_category'           => '',
+			'copy_news_image'            => true,
+			'enable_category_check'      => true,
+			'enable_live_news'           => false,
+			'enable_news_filtering'      => false,
+			'use_actual_news'            => false,
+			'news_filtering_instruction' => '',
+		);
+	}
+
+	/**
+	 * The field to sync
+	 *
+	 * @return array[]
+	 */
+	public static function news_sync_fields(): array {
+		return array(
+			array(
+				'value' => 'keyword',
+				'label' => 'Keyword',
+			),
+			array(
+				'value' => 'locationUri',
+				'label' => 'Location',
+			),
+			array(
+				'value' => 'categoryUri',
+				'label' => 'Category',
+			),
+			array(
+				'value' => 'conceptUri',
+				'label' => 'Concept',
+			),
+			array(
+				'value' => 'sourceUri',
+				'label' => 'Source',
+			),
+			array(
+				'value' => 'lang',
+				'label' => 'Language',
+			),
+			array(
+				'value' => 'enable_news_filtering',
+				'label' => 'Filtering',
+			),
+		);
 	}
 }

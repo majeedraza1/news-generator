@@ -33,17 +33,11 @@
       <td>
         <div class="mb-2">
           <ShaplaCheckbox
-              v-model="state.setting.rewrite_title_and_body"
-              label="Rewrite news title and body from OpenAI"
+              v-model="state.setting.use_actual_news"
+              label="Use actual news"
           />
         </div>
-        <div class="mb-2">
-          <ShaplaCheckbox
-              v-model="state.setting.rewrite_metadata"
-              label="Rewrite news metadata (e.g. meta description, facebook text, etc)"
-          />
-        </div>
-        <p class="description">If you uncheck both, NewsAPI news will be send to sites without rewriting from OpenAI</p>
+        <p class="description">If you check this, NewsAPI news will be send to sites without rewriting from OpenAI</p>
       </td>
     </tr>
     <tr>
