@@ -6,7 +6,7 @@ use DateTime;
 use Stackonet\WP\Framework\Supports\Validate;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
-use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
@@ -93,7 +93,7 @@ class AdminNewsController extends ApiController {
 		$category               = $request->get_param( 'category' );
 		$search                 = $request->get_param( 'search' );
 		$in_sync                = Validate::checked( $request->get_param( 'in_sync' ) );
-		$pending_openai_request = OpenAiReCreateNews::init()->get_pending_background_tasks();
+		$pending_openai_request = OpenAiReCreateNewsTitle::init()->get_pending_background_tasks();
 
 		$args = array(
 			'country'  => $country,
@@ -140,7 +140,7 @@ class AdminNewsController extends ApiController {
 				'pagination'             => $pagination,
 				'categories'             => $categories,
 				'countries'              => array(),
-				'pending_openai_request' => OpenAiReCreateNews::init()->get_pending_background_tasks(),
+				'pending_openai_request' => OpenAiReCreateNewsTitle::init()->get_pending_background_tasks(),
 			)
 		);
 	}
@@ -216,7 +216,7 @@ class AdminNewsController extends ApiController {
 		if ( ! $force ) {
 			return $this->respondAccepted(
 				array(
-					'pending_tasks' => OpenAiReCreateNews::add_to_sync( $article_id ),
+					'pending_tasks' => OpenAiReCreateNewsTitle::add_to_sync( $article_id ),
 				)
 			);
 		}
@@ -257,7 +257,7 @@ class AdminNewsController extends ApiController {
 
 		if ( count( $ids ) ) {
 			foreach ( $ids as $id ) {
-				OpenAiReCreateNews::add_to_sync( $id, true );
+				OpenAiReCreateNewsTitle::add_to_sync( $id, true );
 			}
 		}
 

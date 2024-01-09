@@ -3,7 +3,7 @@
 namespace StackonetNewsGenerator\REST;
 
 use Stackonet\WP\Framework\Supports\Validate;
-use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateOldNews;
 use StackonetNewsGenerator\BackgroundProcess\SyncEventRegistryNews;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
@@ -465,7 +465,7 @@ class AdminSettingController extends ApiController {
 			}
 
 			foreach ( $items as $_item ) {
-				OpenAiReCreateNews::add_to_sync( (int) $_item['id'] );
+				OpenAiReCreateNewsTitle::add_to_sync( (int) $_item['id'] );
 			}
 		} else {
 			OpenAiReCreateOldNews::init()->push_to_queue( array( 'limit' => 100 ) );

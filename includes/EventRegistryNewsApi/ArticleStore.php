@@ -7,7 +7,7 @@ use DateTimeZone;
 use Stackonet\WP\Framework\Abstracts\DataStoreBase;
 use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
-use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Setting as EventRegistryNewsApiSettings;
 use WP_Error;
 
@@ -124,7 +124,7 @@ class ArticleStore extends DataStoreBase {
 	}
 
 	public static function find_title_by_date( array $article ): array {
-		$include_ids  = OpenAiReCreateNews::init()->get_pending_background_tasks();
+		$include_ids  = OpenAiReCreateNewsTitle::init()->get_pending_background_tasks();
 		$hour_count   = EventRegistryNewsApiSettings::get_num_of_hours_for_similarity();
 		$end_datetime = DateTime::createFromFormat(
 			'Y-m-d H:i:s',
@@ -171,7 +171,7 @@ class ArticleStore extends DataStoreBase {
 	 * @return array
 	 */
 	public static function get_unsync_items( int $limit = 100 ): array {
-		$pending_tasks = OpenAiReCreateNews::init()->get_pending_background_tasks();
+		$pending_tasks = OpenAiReCreateNewsTitle::init()->get_pending_background_tasks();
 		$query         = ( new static() )->get_query_builder();
 		$query->where( 'openai_news_id', 0 );
 		if ( count( $pending_tasks ) ) {
@@ -348,7 +348,7 @@ class ArticleStore extends DataStoreBase {
 			}
 		} elseif ( $settings->is_live_news_enabled() ) {
 			foreach ( $new_ids as $id ) {
-				OpenAiReCreateNews::add_to_sync( $id );
+				OpenAiReCreateNewsTitle::add_to_sync( $id );
 			}
 		} elseif ( $settings->use_actual_news() ) {
 			foreach ( $new_ids as $id ) {
@@ -359,7 +359,7 @@ class ArticleStore extends DataStoreBase {
 			}
 		} else {
 			foreach ( $new_ids as $id ) {
-				OpenAiReCreateNews::add_to_sync( $id );
+				OpenAiReCreateNewsTitle::add_to_sync( $id );
 			}
 		}
 
@@ -611,7 +611,7 @@ class ArticleStore extends DataStoreBase {
 			}
 
 			if ( $args['in_sync'] ) {
-				$ids = OpenAiReCreateNews::init()->get_pending_background_tasks();
+				$ids = OpenAiReCreateNewsTitle::init()->get_pending_background_tasks();
 				$ids = array_map( 'intval', $ids );
 				$sql .= ' AND id IN(' . implode( ',', $ids ) . ')';
 			}

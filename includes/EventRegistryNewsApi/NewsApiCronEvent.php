@@ -4,7 +4,8 @@ namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
-use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsBody;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncTwitterFields;
@@ -239,9 +240,15 @@ class NewsApiCronEvent {
 
 			return;
 		}
-		$step3 = OpenAiReCreateNews::init();
+		$step3 = OpenAiReCreateNewsTitle::init();
 		if ( $step3->has_pending_items() ) {
 			$step3->dispatch();
+
+			return;
+		}
+		$step3b = OpenAiReCreateNewsBody::init();
+		if ( $step3b->has_pending_items() ) {
+			$step3b->dispatch();
 
 			return;
 		}

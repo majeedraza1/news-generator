@@ -150,7 +150,7 @@ abstract class BackgroundProcessBase extends BackgroundProcessWithUiHelper {
 			$this->handle_too_many_requests( $error );
 
 			// Push the item to bottom of queue to try later.
-			OpenAiReCreateNews::init()->push_to_queue( $item );
+			OpenAiReCreateNewsTitle::init()->push_to_queue( $item );
 
 			return false;
 		}
@@ -173,7 +173,7 @@ abstract class BackgroundProcessBase extends BackgroundProcessWithUiHelper {
 		static::increase_article_fail_attempt( $article );
 
 		// Push the item to bottom of queue to try later.
-		OpenAiReCreateNews::init()->push_to_queue( $item );
+		OpenAiReCreateNewsTitle::init()->push_to_queue( $item );
 
 		return false;
 	}

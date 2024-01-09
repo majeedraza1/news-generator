@@ -6,7 +6,8 @@ use StackonetNewsGenerator\Admin\Admin;
 use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
 use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
-use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsBody;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateOldNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncNews;
@@ -284,7 +285,8 @@ class Plugin {
 	public function background_tasks() {
 		$this->container['bg_step1']  = SyncEventRegistryNews::init();
 		$this->container['bg_step2']  = OpenAiFindInterestingNews::init();
-		$this->container['bg_step3']  = OpenAiReCreateNews::init();
+		$this->container['bg_step3']  = OpenAiReCreateNewsTitle::init();
+		$this->container['bg_step3a'] = OpenAiReCreateNewsBody::init();
 		$this->container['bg_step3b'] = OpenAiSyncTwitterFields::init();
 		$this->container['bg_step4']  = OpenAiSyncNews::init();
 		$this->container['bg_step4b'] = ProcessNewsTag::init();

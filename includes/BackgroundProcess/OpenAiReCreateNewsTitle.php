@@ -15,7 +15,7 @@ use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 /**
  * BackgroundSync
  */
-class OpenAiReCreateNews extends BackgroundProcessBase {
+class OpenAiReCreateNewsTitle extends BackgroundProcessBase {
 
 	/**
 	 * The instance of the class
@@ -32,7 +32,7 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 	 */
 	protected $action = 'sync_openai_api';
 
-	protected $admin_notice_heading = 'A background task is running to create {{total_items}} news with OpenAI api.';
+	protected $admin_notice_heading = 'A background task is running to create {{total_items}} news titles with OpenAI api.';
 
 	/**
 	 * Add to sync
@@ -158,12 +158,9 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 
 		// Check if already news exists.
 		if ( $article->get_openai_news_id() ) {
-			OpenAiSyncNews::add_to_sync(
-				array_merge(
-					$item,
-					array(
-						'news_id' => $article->get_openai_news_id(),
-					)
+			OpenAiReCreateNewsBody::init()->push_to_queue(
+				array(
+					'news_id' => $article->get_openai_news_id(),
 				)
 			);
 
@@ -217,12 +214,9 @@ class OpenAiReCreateNews extends BackgroundProcessBase {
 		}
 
 		if ( $ai_news instanceof News ) {
-			OpenAiSyncNews::add_to_sync(
-				array_merge(
-					$item,
-					array(
-						'news_id' => $ai_news->get_id(),
-					)
+			OpenAiReCreateNewsBody::init()->push_to_queue(
+				array(
+					'news_id' => $ai_news->get_id(),
 				)
 			);
 

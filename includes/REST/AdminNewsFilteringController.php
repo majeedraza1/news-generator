@@ -2,7 +2,7 @@
 
 namespace StackonetNewsGenerator\REST;
 
-use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
@@ -155,7 +155,7 @@ class AdminNewsFilteringController extends ApiController {
 		}
 
 		foreach ( $item->get_suggested_news_ids() as $id ) {
-			OpenAiReCreateNews::add_to_sync( $id );
+			OpenAiReCreateNewsTitle::add_to_sync( $id );
 		}
 
 		return $this->respondAccepted();

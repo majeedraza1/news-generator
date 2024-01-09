@@ -108,14 +108,14 @@ class OpenAiFindInterestingNews extends BackgroundProcessBase {
 			}
 			$total_suggested = count( $suggested_news );
 
-			$pending_tasks = OpenAiReCreateNews::init()->get_pending_background_tasks();
+			$pending_tasks = OpenAiReCreateNewsTitle::init()->get_pending_background_tasks();
 			foreach ( $suggested_news as $id ) {
 				$article = ArticleStore::find_by_id( $id );
 				if ( ! $article instanceof Article ) {
 					continue;
 				}
 				if ( ! in_array( $id, $pending_tasks, true ) ) {
-					OpenAiReCreateNews::init()->push_to_queue(
+					OpenAiReCreateNewsTitle::init()->push_to_queue(
 						array(
 							'news_id'     => $id,
 							'created_via' => 'interesting-news',

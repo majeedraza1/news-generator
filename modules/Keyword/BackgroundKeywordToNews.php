@@ -3,7 +3,7 @@
 namespace StackonetNewsGenerator\Modules\Keyword;
 
 use StackonetNewsGenerator\BackgroundProcess\BackgroundProcessWithUiHelper;
-use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
@@ -150,7 +150,7 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 				)
 			);
 
-			OpenAiReCreateNews::init()->push_to_queue( array( 'news_id' => $article_id ) );
+			OpenAiReCreateNewsTitle::init()->push_to_queue( array( 'news_id' => $article_id ) );
 		}
 
 		return $id;

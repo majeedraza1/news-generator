@@ -57,7 +57,7 @@ class OpenAiReCreateOldNews extends BackgroundProcessBase {
 		$found_items = count( $items );
 		if ( $found_items > 0 ) {
 			foreach ( $items as $_item ) {
-				OpenAiReCreateNews::add_to_sync( (int) $_item['id'] );
+				OpenAiReCreateNewsTitle::add_to_sync( (int) $_item['id'] );
 			}
 		}
 		if ( $found_items >= $limit ) {

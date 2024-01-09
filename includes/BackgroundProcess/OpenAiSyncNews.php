@@ -32,7 +32,7 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 	 */
 	protected $action = 'sync_openai_news';
 
-	protected $admin_notice_heading = 'A background task is running to complete syncing for {{total_items}} news with OpenAI api.';
+	protected $admin_notice_heading = 'A background task is running to complete syncing for {{total_items}} news fields with OpenAI api.';
 
 	/**
 	 * Only one instance of the class can be loaded
@@ -64,13 +64,16 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 		}
 
 		if ( $this->is_item_running( $news_id, $field ) ) {
+			Logger::log( sprintf( 'Another task is already running. News %s; Field: %s', $news_id, $field ) );
+
 			return false;
 		}
 		$this->set_item_running( $news_id, $field );
 
 		$news = NewsStore::find_by_id( $news_id );
 		if ( ! $news instanceof News ) {
-			Logger::log( 'No news found for the id #' . $news_id );
+			Logger::log( $news );
+			Logger::log( sprintf( 'No news found for the id #%s; Field: %s', $news_id, $field ) );
 
 			return false;
 		}
@@ -80,6 +83,7 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 		if ( $article instanceof Article ) {
 			if ( $article->get_openai_news_id() !== $news->get_id() ) {
 				NewsStore::delete_duplicate_news( $article->get_openai_news_id(), $article->get_id() );
+				Logger::log( sprintf( 'Duplicate news detected. News: #%s; Field: %s', $news_id, $field ) );
 
 				return false;
 			}
@@ -95,6 +99,8 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 			if ( 'body' !== $item['field'] && ( empty( $news->get_content() ) || empty( $news->get_title() ) ) ) {
 				$body = NewsCompletion::generate_body( $news );
 				if ( is_wp_error( $body ) ) {
+					Logger::log( $body );
+
 					return false;
 				}
 
@@ -138,6 +144,10 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 		}
 		$fields = array_keys( NewsCompletion::fields_to_actions() );
 		foreach ( $fields as $field ) {
+			// News body is being handled with another task.
+			if ( 'body' === $field ) {
+				continue;
+			}
 			if ( Setting::should_sync_field( $field ) ) {
 				$data['field']      = $field;
 				$data['created_at'] = current_time( 'mysql', true );

@@ -5,7 +5,7 @@ namespace StackonetNewsGenerator\OpenAIApi\Rest;
 use Stackonet\WP\Framework\Abstracts\Data;
 use Stackonet\WP\Framework\Supports\Validate;
 use Stackonet\WP\Framework\Traits\ApiPermissionChecker;
-use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
 use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
@@ -345,7 +345,7 @@ class OpenAiController extends ApiController {
 		);
 
 		if ( Validate::checked( $request->get_param( 'sync_with_openai' ) ) ) {
-			OpenAiReCreateNews::init()->push_to_queue( array( 'news_id' => $article_id ) );
+			OpenAiReCreateNewsTitle::init()->push_to_queue( array( 'news_id' => $article_id ) );
 		}
 
 		$news = ( new NewsStore() )->find_single( $id );

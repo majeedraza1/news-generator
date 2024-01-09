@@ -4,7 +4,7 @@ namespace StackonetNewsGenerator;
 
 use Stackonet\WP\Framework\Supports\Filesystem;
 use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
-use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
@@ -168,7 +168,7 @@ class Ajax {
 				foreach ( $items as $item ) {
 					$article = new Article( $item );
 					if ( ! $article->get_openai_news_id() ) {
-						OpenAiReCreateNews::init()->push_to_queue(
+						OpenAiReCreateNewsTitle::init()->push_to_queue(
 							array(
 								'news_id'     => $article->get_id(),
 								'created_via' => 'interesting-news',
