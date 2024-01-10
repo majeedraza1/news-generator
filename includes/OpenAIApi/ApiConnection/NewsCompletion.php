@@ -2,6 +2,7 @@
 
 namespace StackonetNewsGenerator\OpenAIApi\ApiConnection;
 
+use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
 use StackonetNewsGenerator\BackgroundProcess\ProcessNewsTag;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
@@ -170,28 +171,53 @@ class NewsCompletion extends OpenAiRestClient {
 	public static function generate_field_value( News $news, string $property_name ) {
 		$fields   = self::fields_to_actions();
 		$callback = $fields[ $property_name ] ?? false;
+		if ( 'production' !== wp_get_environment_type() ) {
+			Logger::log( sprintf( 'News: %s; Generating property: %s', $news->get_id(), $property_name ) );
+		}
 		if ( ! is_callable( $callback ) ) {
+			Logger::log(
+				sprintf(
+					'News: %s; No callable method found for property %s.',
+					$news->get_id(),
+					$property_name
+				)
+			);
+
 			return new WP_Error(
 				'no_callable',
 				sprintf( 'No callable method found for property %s.', $property_name )
 			);
 		}
-		if ( 'body' !== $property_name && ( empty( $news->get_title() ) || empty( $news->get_content() ) ) ) {
-			return new WP_Error(
-				'title_or_content_empty',
-				sprintf( 'News title or content is empty to generate property %s.', $property_name )
-			);
-		}
 		$existing_data = $news->get_prop( $property_name );
-		if ( ! ( is_null( $existing_data ) || in_array( $existing_data, array( 0, '0' ), true ) ) ) {
+		if ( ! empty( $existing_data ) ) {
+			Logger::log(
+				sprintf(
+					'News: %s; Data already exists for property %s.',
+					$news->get_id(),
+					$property_name
+				)
+			);
+
 			return $news;
 		}
 
 		$value = call_user_func( $callback, $news );
 		if ( is_wp_error( $value ) ) {
+			Logger::log( $value );
+
 			return $value;
 		}
+		if ( 'production' !== wp_get_environment_type() ) {
+			Logger::log(
+				array(
+					'message' => 'Generated news property.',
+					'field'   => $property_name,
+					'value'   => $value,
+				)
+			);
+		}
 		$news->set_prop( $property_name, $value );
+		$news->update_field( $property_name, $value );
 
 		return $news;
 	}
@@ -222,10 +248,10 @@ class NewsCompletion extends OpenAiRestClient {
 			return new WP_Error( 'title_length_error', 'Generated title is too short.' );
 		}
 
-		if ( str_word_count( $title ) > 30 ) {
+		if ( Utils::str_word_count_utf8( $title ) > 30 ) {
 			return new WP_Error(
 				'title_length_error',
-				sprintf( 'Generated title is too long (%s words): %s', str_word_count( $title ), $title )
+				sprintf( 'Generated title is too long (%s words): %s', Utils::str_word_count_utf8( $title ), $title )
 			);
 		}
 

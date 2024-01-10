@@ -7,6 +7,7 @@ use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\Supports\Utils;
 
 /**
  * BackgroundKeywordToNews
@@ -58,7 +59,7 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 				return false;
 			}
 			$body = OpenAiClient::sanitize_openai_response( $news_body, true );
-			if ( str_word_count( $body ) > 100 ) {
+			if ( Utils::str_word_count_utf8( $body ) > 100 ) {
 				$keyword->set_prop( 'body', $body );
 				$keyword->update();
 			}
@@ -72,7 +73,7 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 				return false;
 			}
 			$news_title = OpenAiClient::sanitize_openai_response( $news_title, false );
-			if ( str_word_count( $news_title ) > 3 ) {
+			if ( Utils::str_word_count_utf8( $news_title ) > 3 ) {
 				$keyword->set_prop( 'title', $news_title );
 				$keyword->update();
 			}
@@ -96,14 +97,14 @@ class BackgroundKeywordToNews extends BackgroundProcessWithUiHelper {
 	 * @return int|\WP_Error
 	 */
 	public static function create_news( Keyword $keyword ) {
-		$title_words_count = str_word_count( $keyword->get_title() );
+		$title_words_count = Utils::str_word_count_utf8( $keyword->get_title() );
 		if ( $title_words_count < 3 ) {
 			return new \WP_Error(
 				'news_title_length_error',
 				'News title is too short. Add least 3 words required.'
 			);
 		}
-		$body_words_count = str_word_count( $keyword->get_body() );
+		$body_words_count = Utils::str_word_count_utf8( $keyword->get_body() );
 		if ( $body_words_count < 100 ) {
 			return new \WP_Error(
 				'news_content_length_error',

@@ -28,6 +28,13 @@ class InterestingNews extends DatabaseModel {
 	protected $news = array();
 
 	/**
+	 * Setting array where key is setting uuid and value is label
+	 *
+	 * @var array
+	 */
+	protected static $settings_array = array();
+
+	/**
 	 * Find by setting id.
 	 *
 	 * @param  string  $setting_id  Setting id.
@@ -257,8 +264,26 @@ class InterestingNews extends DatabaseModel {
 		$data['openai_api_instruction'] = nl2br( $data['openai_api_instruction'] );
 		$data['openai_api_response']    = nl2br( $data['openai_api_response'] );
 		$data['sync_settings']          = $this->get_sync_settings();
+		$data['setting_title']          = $this->get_setting_title();
 
 		return $data;
+	}
+
+	/**
+	 * Get setting title
+	 *
+	 * @return string
+	 */
+	public function get_setting_title(): string {
+		if ( empty( static::$settings_array ) ) {
+			static::$settings_array = SyncSettingsStore::get_settings_as_select_options();
+		}
+		$setting_id = $this->get_prop( 'setting_id' );
+		if ( isset( static::$settings_array[ $setting_id ] ) ) {
+			return static::$settings_array[ $setting_id ];
+		}
+
+		return '';
 	}
 
 	public function get_sync_settings(): array {

@@ -8,13 +8,13 @@ use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
-use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\Keyword\OpenAiClient;
 use StackonetNewsGenerator\OpenAIApi\Client as OpenAIApiClient;
 use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
 use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
 use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
 use StackonetNewsGenerator\OpenAIApi\News;
+use StackonetNewsGenerator\OpenAIApi\Setting;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use StackonetNewsGenerator\Providers\GoogleVisionClient;
 use StackonetNewsGenerator\Supports\Utils;
@@ -65,12 +65,14 @@ class Ajax {
 	 */
 	public function do_ajax_testing() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Sorry. This link only for developer to do some testing.', 'stackonet-news-generator' ) );
+			wp_die( esc_html__( 'Sorry. This link only for developer to do some testing.',
+				'stackonet-news-generator' ) );
 		}
 
-		$settings = SyncSettingsStore::get_settings_as_array();
 		var_dump(
-			$settings
+			array(
+				Setting::get_fields_to_sync()
+			)
 		);
 
 		die();

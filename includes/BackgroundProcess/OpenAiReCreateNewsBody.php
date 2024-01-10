@@ -60,7 +60,7 @@ class OpenAiReCreateNewsBody extends BackgroundProcessBase {
 			return $item;
 		}
 		if ( $this->is_item_running( $news_id, 'news_body' ) ) {
-			return false;
+			return $item;
 		}
 		$this->set_item_running( $news_id, 'news_body' );
 
@@ -80,6 +80,11 @@ class OpenAiReCreateNewsBody extends BackgroundProcessBase {
 
 		$news->set_prop( 'body', $body );
 		$news->apply_changes();
+		if ( empty( $news->get_content() ) ) {
+			Logger::log( 'Could not generate news content. News: ' . $news->get_id() );
+
+			return $item;
+		}
 
 		OpenAiSyncNews::add_to_sync(
 			array(
@@ -88,5 +93,24 @@ class OpenAiReCreateNewsBody extends BackgroundProcessBase {
 		);
 
 		return false;
+	}
+
+	/**
+	 * Add to sync
+	 *
+	 * @param  int  $news_id  News id.
+	 *
+	 * @return void
+	 */
+	public static function add_to_sync( int $news_id ) {
+		$pending = static::init()->get_pending_items();
+		if ( count( $pending ) > 0 ) {
+			$pending_news_ids = wp_list_pluck( $pending, 'news_id' );
+			if ( in_array( $news_id, $pending_news_ids, true ) ) {
+				return;
+			}
+		}
+
+		static::init()->push_to_queue( array( 'news_id' => $news_id ) );
 	}
 }

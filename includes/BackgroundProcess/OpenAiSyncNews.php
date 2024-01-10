@@ -4,7 +4,6 @@ namespace StackonetNewsGenerator\BackgroundProcess;
 
 use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
-use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
 use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
 use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
@@ -32,6 +31,11 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 	 */
 	protected $action = 'sync_openai_news';
 
+	/**
+	 * Admin notice heading
+	 *
+	 * @var string
+	 */
 	protected $admin_notice_heading = 'A background task is running to complete syncing for {{total_items}} news fields with OpenAI api.';
 
 	/**
@@ -55,9 +59,8 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 	 * @return array|false
 	 */
 	public function task( $item ) {
-		$start_time = microtime( true );
-		$news_id    = isset( $item['news_id'] ) ? intval( $item['news_id'] ) : 0;
-		$field      = isset( $item['field'] ) ? sanitize_text_field( $item['field'] ) : '';
+		$news_id = isset( $item['news_id'] ) ? intval( $item['news_id'] ) : 0;
+		$field   = isset( $item['field'] ) ? sanitize_text_field( $item['field'] ) : '';
 
 		if ( ! $this->can_send_more_openai_request() ) {
 			return $item;
@@ -66,27 +69,22 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 		if ( $this->is_item_running( $news_id, $field ) ) {
 			Logger::log( sprintf( 'Another task is already running. News %s; Field: %s', $news_id, $field ) );
 
-			return false;
+			return $item;
 		}
 		$this->set_item_running( $news_id, $field );
 
 		$news = NewsStore::find_by_id( $news_id );
 		if ( ! $news instanceof News ) {
-			Logger::log( $news );
 			Logger::log( sprintf( 'No news found for the id #%s; Field: %s', $news_id, $field ) );
 
 			return false;
 		}
 
-		// Delete in case of duplicate creation.
-		$article = ArticleStore::find_by_id( $news->get_source_id() );
-		if ( $article instanceof Article ) {
-			if ( $article->get_openai_news_id() !== $news->get_id() ) {
-				NewsStore::delete_duplicate_news( $article->get_openai_news_id(), $article->get_id() );
-				Logger::log( sprintf( 'Duplicate news detected. News: #%s; Field: %s', $news_id, $field ) );
+		if ( empty( $news->get_title() ) || empty( $news->get_content() ) ) {
+			Logger::log( sprintf( 'News title or content is empty. News %s', $news->get_id() ) );
+			static::init()->push_to_queue( $item );
 
-				return false;
-			}
+			return false;
 		}
 
 		if ( $news->is_sync_complete() ) {
@@ -95,33 +93,15 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 			return false;
 		}
 
-		if ( isset( $item['field'] ) ) {
-			if ( 'body' !== $item['field'] && ( empty( $news->get_content() ) || empty( $news->get_title() ) ) ) {
-				$body = NewsCompletion::generate_body( $news );
-				if ( is_wp_error( $body ) ) {
-					Logger::log( $body );
-
-					return false;
-				}
-
-				$news->set_prop( 'body', $body );
-				$news->apply_changes();
-			}
-			$ai_news = NewsCompletion::generate_field_value( $news, $item['field'] );
-		} else {
-			$ai_news = NewsCompletion::news_completions( $news, $start_time, true );
-		}
+		$ai_news = NewsCompletion::generate_field_value( $news, $item['field'] );
 		if ( is_wp_error( $ai_news ) ) {
 			$article = new Article( $news->get_source_news() );
+			Logger::log( sprintf( 'News #%s; Field: %s; Error: %s', $news_id, $field, $ai_news->get_error_message() ) );
 
 			return $this->process_wp_error_response( $ai_news, $article, $news, $item );
 		}
 
 		$ai_news->recalculate_sync_status();
-
-		if ( ! isset( $item['field'] ) && $ai_news->is_in_progress() ) {
-			return $item;
-		}
 
 		if ( $ai_news->is_sync_complete() ) {
 			$this->do_on_sync_complete( $item, $ai_news );
@@ -164,7 +144,7 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 	public function get_pending_background_tasks(): array {
 		$items = $this->get_pending_items();
 
-		$data = [];
+		$data = array();
 		foreach ( $items as $value ) {
 			$data[] = $value['news_id'];
 		}
@@ -193,10 +173,10 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 		// Update sync statistic.
 		$statistic = ApiResponseLog::get_completion_time_and_requests_count( $ai_news->get_source_id() );
 		$ai_news->update_fields(
-			[
+			array(
 				'total_time'              => $statistic['total_time'],
 				'total_request_to_openai' => $statistic['total_requests'],
-			]
+			)
 		);
 
 		// Send news to sites.

@@ -12,11 +12,11 @@ use StackonetNewsGenerator\Modules\Keyword\Models\Keyword;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
 use StackonetNewsGenerator\Modules\Site\Site;
 use StackonetNewsGenerator\Modules\Site\SiteStore;
-use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
 use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsTagStore;
 use StackonetNewsGenerator\Supports\Country;
+use StackonetNewsGenerator\Supports\Utils;
 
 /**
  * News model
@@ -32,9 +32,9 @@ class News extends Data {
 	 * @return string[]
 	 */
 	public static function get_fields_sync_with_openai(): array {
-		$fields = array_keys( NewsCompletion::fields_to_actions() );
+		$fields = Setting::get_fields_to_sync();
 
-		return array_merge( array( 'title' ), $fields );
+		return array_merge( array( 'title', 'body' ), $fields );
 	}
 
 	/**
@@ -69,7 +69,7 @@ class News extends Data {
 		}
 
 		// String contains more than five words.
-		if ( str_word_count( $string ) > 5 ) {
+		if ( Utils::str_word_count_utf8( $string ) > 5 ) {
 			return '';
 		}
 

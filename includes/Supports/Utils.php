@@ -33,6 +33,19 @@ class Utils {
 		return intval( $memory_limit ) * 1024 * 1024;
 	}
 
+	/**
+	 * Str word count for UTF-8
+	 *
+	 * @param string $str Get word count in a string.
+	 *
+	 * @return int
+	 */
+	public static function str_word_count_utf8( string $str ): int {
+		$a = preg_split( '/\W+/u', $str, - 1, PREG_SPLIT_NO_EMPTY );
+
+		return count( $a );
+	}
+
 	public static function bytes_to_human_size( $size, $unit = '' ) {
 		if ( ( ! $unit && $size >= 1 << 30 ) || 'GB' == $unit ) {
 			return number_format( $size / ( 1 << 30 ), 0 ) . 'GB';

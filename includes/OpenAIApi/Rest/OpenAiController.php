@@ -21,6 +21,7 @@ use StackonetNewsGenerator\OpenAIApi\Setting;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsTagStore;
 use StackonetNewsGenerator\REST\ApiController;
+use StackonetNewsGenerator\Supports\Utils;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -266,7 +267,7 @@ class OpenAiController extends ApiController {
 
 	public function create_news( WP_REST_Request $request ) {
 		$news_title        = $request->get_param( 'news_title' );
-		$title_words_count = str_word_count( $news_title );
+		$title_words_count = Utils::str_word_count_utf8( $news_title );
 		if ( $title_words_count < 3 ) {
 			return $this->respondUnprocessableEntity(
 				'news_title_length_error',
@@ -274,7 +275,7 @@ class OpenAiController extends ApiController {
 			);
 		}
 		$news_content     = $request->get_param( 'news_content' );
-		$body_words_count = str_word_count( $news_content );
+		$body_words_count = Utils::str_word_count_utf8( $news_content );
 		if ( $body_words_count < 100 ) {
 			return $this->respondUnprocessableEntity(
 				'news_content_length_error',

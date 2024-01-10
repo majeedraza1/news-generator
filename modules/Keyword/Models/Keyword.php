@@ -3,6 +3,7 @@
 namespace StackonetNewsGenerator\Modules\Keyword\Models;
 
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
+use StackonetNewsGenerator\Supports\Utils;
 
 /**
  * Class Keyword
@@ -55,7 +56,7 @@ class Keyword extends DatabaseModel {
 			return false;
 		}
 
-		$words = str_word_count( $title );
+		$words = Utils::str_word_count_utf8( $title );
 		if ( $words < 3 ) {
 			return false;
 		}
@@ -83,7 +84,7 @@ class Keyword extends DatabaseModel {
 			return false;
 		}
 
-		$words = str_word_count( $body );
+		$words = Utils::str_word_count_utf8( $body );
 		if ( $words < 100 ) {
 			return false;
 		}

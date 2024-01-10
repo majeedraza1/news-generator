@@ -135,7 +135,7 @@ const state = reactive<{
 })
 
 const columns = [
-	{label: 'Setting ID', key: 'setting_id'},
+	{label: 'Setting', key: 'setting_title'},
 	{label: 'Created', key: 'created_at'},
 	{label: 'Category', key: 'primary_category'},
 	{label: 'Total News in Batch', key: 'raw_news_ids', numeric: true},

@@ -9,6 +9,7 @@ use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Setting as EventRegistryNewsApiSettings;
+use StackonetNewsGenerator\Supports\Utils;
 use WP_Error;
 
 /**
@@ -430,8 +431,8 @@ class ArticleStore extends DataStoreBase {
 			'title'             => $data['title'],
 			'slug'              => $slug,
 			'body'              => $data['body'],
-			'title_words_count' => str_word_count( $data['title'] ),
-			'body_words_count'  => str_word_count( $data['body'] ),
+			'title_words_count' => Utils::str_word_count_utf8( $data['title'] ),
+			'body_words_count'  => Utils::str_word_count_utf8( $data['body'] ),
 			'source_title'      => $data['source']['title'] ?? '',
 			'source_uri'        => $data['source']['uri'] ?? '',
 			'links'             => static::sanitize_links( $data['links'] ?? '' ),
@@ -483,7 +484,7 @@ class ArticleStore extends DataStoreBase {
 
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM `{$table}` WHERE WHERE `openai_news_id` = 0 AND created_at <= %s",
+				"DELETE FROM `{$table}` WHERE `openai_news_id` = 0 AND created_at <= %s",
 				gmdate( 'Y-m-d H:i:s', $time )
 			)
 		);

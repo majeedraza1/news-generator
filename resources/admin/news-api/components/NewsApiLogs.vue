@@ -98,9 +98,9 @@ const state = reactive<{
 });
 
 const columns = [
+  {label: 'Setting', key: 'sync_setting_title'},
   {label: 'New News', key: 'new_records_ids'},
   {label: 'Already Recorded', key: 'existing_records_ids'},
-  {label: 'Setting', key: 'sync_setting_title'},
   {label: 'Datetime', key: 'created_at'},
 ];
 

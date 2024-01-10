@@ -6,11 +6,11 @@
       <ShaplaTab selected name="NewsApi Logs">
         <NewsApiLogs/>
       </ShaplaTab>
-      <ShaplaTab name="OpenAI Logs">
-        <OpenAiLogs/>
-      </ShaplaTab>
       <ShaplaTab name="News Filtering">
         <NewsFiltering/>
+      </ShaplaTab>
+      <ShaplaTab name="OpenAI Logs">
+        <OpenAiLogs/>
       </ShaplaTab>
       <ShaplaTab name="Instagram Logs">
         <InstagramAttemptLog/>

@@ -23,7 +23,7 @@ class Setting {
 	/**
 	 * Use linkedin data for instagram
 	 *
-	 * @param  mixed $value  The value to be updated.
+	 * @param  mixed  $value  The value to be updated.
 	 *
 	 * @return bool
 	 */
@@ -49,7 +49,7 @@ class Setting {
 	/**
 	 * Update news sync method
 	 *
-	 * @param  mixed $sync_method  News sync method.
+	 * @param  mixed  $sync_method  News sync method.
 	 *
 	 * @return string
 	 */
@@ -75,7 +75,7 @@ class Setting {
 	/**
 	 * Get minimum news count for important tweets
 	 *
-	 * @param  int|mixed $value  The value to be updated.
+	 * @param  int|mixed  $value  The value to be updated.
 	 *
 	 * @return int
 	 */
@@ -100,7 +100,7 @@ class Setting {
 	/**
 	 * Update important news for tweet is enabled
 	 *
-	 * @param  mixed $value  The value to be set.
+	 * @param  mixed  $value  The value to be set.
 	 *
 	 * @return bool
 	 */
@@ -147,7 +147,7 @@ class Setting {
 	/**
 	 * If auto syncing enabled
 	 *
-	 * @param  mixed $value  The value to be saved.
+	 * @param  mixed  $value  The value to be saved.
 	 *
 	 * @return bool
 	 */
@@ -161,7 +161,7 @@ class Setting {
 	/**
 	 * Update option for setting auto sync
 	 *
-	 * @param  mixed $value  Value to be saved.
+	 * @param  mixed  $value  Value to be saved.
 	 *
 	 * @return bool
 	 */
@@ -175,7 +175,7 @@ class Setting {
 	/**
 	 * Update option for setting auto sync
 	 *
-	 * @param  mixed $value  Value to be saved.
+	 * @param  mixed  $value  Value to be saved.
 	 *
 	 * @return bool
 	 */
@@ -189,7 +189,7 @@ class Setting {
 	/**
 	 * Update options
 	 *
-	 * @param  array $options  Options to update.
+	 * @param  array  $options  Options to update.
 	 *
 	 * @return array
 	 */
@@ -203,7 +203,7 @@ class Setting {
 	/**
 	 * Sanitize options
 	 *
-	 * @param  array $options  Options to sanitize.
+	 * @param  array  $options  Options to sanitize.
 	 *
 	 * @return array
 	 */
@@ -296,8 +296,8 @@ class Setting {
 	/**
 	 * Generate count option name.
 	 *
-	 * @param  string $api_key  The api key.
-	 * @param  string $date  Date string af format 'ymd'
+	 * @param  string  $api_key  The api key.
+	 * @param  string  $date  Date string af format 'ymd'
 	 *
 	 * @return string
 	 */
@@ -383,7 +383,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_title_instruction(): string {
-		$instruction  = 'Can you please rewrite "{{title}}" in Human tone?' . PHP_EOL;
+		$instruction = 'Can you please rewrite "{{title}}" in Human tone?' . PHP_EOL;
 		$instruction .= 'Please make sure that the title should be SEO based.' . PHP_EOL;
 		$instruction .= 'Please hide news agency name or any promotion in between the title.';
 
@@ -393,8 +393,8 @@ class Setting {
 	/**
 	 * Get options
 	 *
-	 * @param  string      $key  Option name.
-	 * @param  string|null $default  Default value.
+	 * @param  string  $key  Option name.
+	 * @param  string|null  $default  Default value.
 	 *
 	 * @return string|null
 	 */
@@ -415,7 +415,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_content_instruction(): string {
-		$instruction  = 'Can you please rewrite an article in Human tone about with the title “{{title}}“' . PHP_EOL;
+		$instruction = 'Can you please rewrite an article in Human tone about with the title “{{title}}“' . PHP_EOL;
 		$instruction .= '{{content}}' . PHP_EOL . PHP_EOL;
 		$instruction .= 'Please make sure that the article should be SEO based.' . PHP_EOL;
 		$instruction .= 'Please use your own words and sentences to rephrase the content while maintaining the original ideas the article.' . PHP_EOL;
@@ -432,7 +432,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_meta_instruction(): string {
-		$instruction  = 'Can you please write a meta description between 150 and 160 characters limit for the article?' . PHP_EOL;
+		$instruction = 'Can you please write a meta description between 150 and 160 characters limit for the article?' . PHP_EOL;
 		$instruction .= ' {{content}}';
 
 		return static::get_instruction_options( 'meta', $instruction );
@@ -444,7 +444,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_twitter_instruction(): string {
-		$instruction  = 'Can you please write a Twitter tweet for the article.' . PHP_EOL;
+		$instruction = 'Can you please write a Twitter tweet for the article.' . PHP_EOL;
 		$instruction .= ' {{content}}' . PHP_EOL . PHP_EOL;
 		$instruction .= 'The tweet should be between 200 and 250 characters limit.';
 
@@ -457,7 +457,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_facebook_instruction(): string {
-		$instruction  = 'Can you please write a Facebook post for the article with the hashtags?' . PHP_EOL;
+		$instruction = 'Can you please write a Facebook post for the article with the hashtags?' . PHP_EOL;
 		$instruction .= ' {{content}}';
 
 		return static::get_instruction_options( 'facebook', $instruction );
@@ -548,7 +548,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_tag_instruction(): string {
-		$instruction  = 'Can you please write few tags for the article?' . PHP_EOL;
+		$instruction = 'Can you please write few tags for the article?' . PHP_EOL;
 		$instruction .= ' {{content}}';
 
 		return static::get_instruction_options( 'tag', $instruction );
@@ -560,7 +560,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_tag_meta_instruction(): string {
-		$instruction  = 'Can you write a meta description to improve SEO score for \'{{tag_name}}\' that group multiple news?';
+		$instruction = 'Can you write a meta description to improve SEO score for \'{{tag_name}}\' that group multiple news?';
 		$instruction .= ' Limit meta description between 120 and 150 characters including whitespace.';
 
 		return static::get_instruction_options( 'tag_meta', $instruction );
@@ -572,7 +572,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_news_faq_instruction(): string {
-		$instruction  = 'Title: {{title}}' . PHP_EOL;
+		$instruction = 'Title: {{title}}' . PHP_EOL;
 		$instruction .= 'News Article: {{content}}' . PHP_EOL;
 		$instruction .= PHP_EOL;
 		$instruction .= 'Based on this above details, Can you write FAQ section?' . PHP_EOL;
@@ -587,7 +587,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_tumblr_instruction(): string {
-		$instruction  = 'Can you please write a tumblr post for the article?' . PHP_EOL;
+		$instruction = 'Can you please write a tumblr post for the article?' . PHP_EOL;
 		$instruction .= ' {{content}}';
 
 		return static::get_instruction_options( 'tumblr', $instruction );
@@ -599,7 +599,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_linkedin_instruction(): string {
-		$instruction  = 'Can you please write a linkedin post for the news article?' . PHP_EOL;
+		$instruction = 'Can you please write a linkedin post for the news article?' . PHP_EOL;
 		$instruction .= ' {{content}}';
 
 		return static::get_instruction_options( 'linkedin', $instruction );
@@ -611,7 +611,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_medium_instruction(): string {
-		$instruction  = 'Can you please write a medium post for the article?' . PHP_EOL;
+		$instruction = 'Can you please write a medium post for the article?' . PHP_EOL;
 		$instruction .= ' {{content}}';
 
 		return static::get_instruction_options( 'medium', $instruction );
@@ -623,7 +623,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_news_filtering_instruction(): string {
-		$instruction  = '{{news_titles_list}}' . PHP_EOL;
+		$instruction = '{{news_titles_list}}' . PHP_EOL;
 		$instruction .= PHP_EOL;
 		$instruction .= 'Based on the above news titles, could you select three articles that the audience would find interesting?' . PHP_EOL;
 		$instruction .= 'Please reply with only the titles enclosed in square brackets. We don\'t need any descriptions. Thank you!';
@@ -632,7 +632,7 @@ class Setting {
 	}
 
 	public static function get_focus_keyphrase_instruction(): string {
-		$instruction  = 'Title: {{title}}' . PHP_EOL;
+		$instruction = 'Title: {{title}}' . PHP_EOL;
 		$instruction .= 'News Article: {{content}}' . PHP_EOL;
 		$instruction .= PHP_EOL;
 		$instruction .= 'Based on this above details, Can you write focus keyphrase/keywords?' . PHP_EOL;
@@ -644,7 +644,7 @@ class Setting {
 	}
 
 	public static function get_category_filter_instruction(): string {
-		$instruction  = 'Title: {{title}}' . PHP_EOL;
+		$instruction = 'Title: {{title}}' . PHP_EOL;
 		$instruction .= 'News Article: {{content}}' . PHP_EOL;
 		$instruction .= 'Categories List:' . PHP_EOL;
 		$instruction .= '{{category_list}}' . PHP_EOL . PHP_EOL;
@@ -655,7 +655,7 @@ class Setting {
 	}
 
 	public static function get_news_country_instruction(): string {
-		$instruction  = 'Title: {{title}}' . PHP_EOL;
+		$instruction = 'Title: {{title}}' . PHP_EOL;
 		$instruction .= 'News Article: {{content}}' . PHP_EOL . PHP_EOL;
 		$instruction .= 'based on the above news, ';
 		$instruction .= 'can you tell me if the country name is there on title? Reply with Yes or No.' . PHP_EOL;
@@ -670,7 +670,7 @@ class Setting {
 	}
 
 	public static function get_interesting_tweets_instruction(): string {
-		$instruction  = 'Here is a list of tweets from famous person' . PHP_EOL;
+		$instruction = 'Here is a list of tweets from famous person' . PHP_EOL;
 		$instruction .= '{{list_of_tweets}}' . PHP_EOL . PHP_EOL;
 		$instruction .= 'based on the above tweets, ';
 		$instruction .= 'can you tell me which tweets can be used to write news article?' . PHP_EOL;
@@ -680,7 +680,7 @@ class Setting {
 	}
 
 	public static function get_important_news_for_tweet_instruction(): string {
-		$instruction  = '{{news_titles_list}}' . PHP_EOL;
+		$instruction = '{{news_titles_list}}' . PHP_EOL;
 		$instruction .= PHP_EOL;
 		$instruction .= 'Based on the above news titles, could you select four articles that the audience would find interesting?' . PHP_EOL;
 		$instruction .= 'Please reply with only the titles enclosed in square brackets. We don\'t need any descriptions. Thank you!';
@@ -689,7 +689,7 @@ class Setting {
 	}
 
 	public static function get_important_news_for_instagram_instruction(): string {
-		$instruction  = '{{news_titles_list}}' . PHP_EOL;
+		$instruction = '{{news_titles_list}}' . PHP_EOL;
 		$instruction .= PHP_EOL;
 		$instruction .= 'Based on the above news titles, could you select four articles that the audience would find interesting?' . PHP_EOL;
 		$instruction .= 'Please reply with only the titles enclosed in square brackets. We don\'t need any descriptions. Thank you!';
@@ -703,7 +703,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_remove_blacklist_phrase_instruction(): string {
-		$instruction  = '{{content}}' . PHP_EOL;
+		$instruction = '{{content}}' . PHP_EOL;
 		$instruction .= PHP_EOL;
 		$instruction .= 'I suspect you added some phrase that I don\'t want. Please recheck your response and remove any description/instruction.' . PHP_EOL;
 		$instruction .= 'We don\'t need any descriptions. Thank you!';
@@ -717,7 +717,7 @@ class Setting {
 	 * @return string
 	 */
 	public static function get_custom_keyword_instruction(): string {
-		$instruction  = 'Please generate blog post with SEO. ';
+		$instruction = 'Please generate blog post with SEO. ';
 		$instruction .= 'The keyword is "{{keyword}}" and we need to add the keyword in title, meta description and contents. ';
 		$instruction .= 'Please insert this keyword more than 5 times in the article with 2000 words.';
 
@@ -727,7 +727,7 @@ class Setting {
 	/**
 	 * Update instruction options
 	 *
-	 * @param  array $options  The options to be updated.
+	 * @param  array  $options  The options to be updated.
 	 *
 	 * @return array
 	 */
@@ -759,20 +759,18 @@ class Setting {
 	/**
 	 * Should sync field
 	 *
-	 * @param  string $field  The field to be sync.
+	 * @param  string  $field  The field to be sync.
 	 *
 	 * @return bool
 	 */
 	public static function should_sync_field( string $field ): bool {
-		$fields = array_unique( array_merge( array( 'body' ), static::get_fields_to_sync() ) );
-
-		return in_array( $field, $fields, true );
+		return in_array( $field, static::get_fields_to_sync(), true );
 	}
 
 	/**
 	 * Update field to sync
 	 *
-	 * @param  array|mixed $fields  The fields to be synced.
+	 * @param  array|mixed  $fields  The fields to be synced.
 	 *
 	 * @return array
 	 */

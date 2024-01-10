@@ -39,10 +39,10 @@ abstract class BackgroundProcessBase extends BackgroundProcessWithUiHelper {
 	public function item_running_cache_name( $item_unique_id, string $group = 'any' ): string {
 		return $this->action . '_running_' . md5(
 			wp_json_encode(
-				[
+				array(
 					'unique_id' => $item_unique_id,
 					'group'     => $group,
-				]
+				)
 			)
 		);
 	}

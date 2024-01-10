@@ -6,6 +6,7 @@ use Stackonet\WP\Framework\Supports\RestClient;
 use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
 use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
 use StackonetNewsGenerator\OpenAIApi\Setting;
+use StackonetNewsGenerator\Supports\Utils;
 use WP_Error;
 
 /**
@@ -185,7 +186,7 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Use completions api
 	 *
-	 * @param  string $instruction  Instruction.
+	 * @param  string  $instruction  Instruction.
 	 * @param  array  $extra_args  Extra arguments.
 	 *
 	 * @return string|WP_Error
@@ -206,7 +207,7 @@ class OpenAiRestClient extends RestClient {
 			return new WP_Error( 'empty_instruction', 'Instruction cannot be empty.' );
 		}
 
-		$total_words = str_word_count( $instruction );
+		$total_words = Utils::str_word_count_utf8( $instruction );
 		$percentage  = intval( $args['percentage'] ) + 5;
 		if ( ! static::is_valid_for_max_token( $total_words, $percentage ) ) {
 			return new WP_Error(
@@ -280,7 +281,7 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Filter api response
 	 *
-	 * @param  mixed $response  Raw response.
+	 * @param  mixed  $response  Raw response.
 	 * @param  bool  $check_blacklist  If it needs to check blacklist words/phrase.
 	 *
 	 * @return string|WP_Error
@@ -309,8 +310,8 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Is it valid for maximum token
 	 *
-	 * @param  int $total_words  Total number of words.
-	 * @param  int $percentage  Acceptable percentage.
+	 * @param  int  $total_words  Total number of words.
+	 * @param  int  $percentage  Acceptable percentage.
 	 *
 	 * @return bool
 	 */
@@ -352,7 +353,7 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Increase daily token and token per minute count
 	 *
-	 * @param  int $token_used  Total token used.
+	 * @param  int  $token_used  Total token used.
 	 *
 	 * @return void
 	 */
@@ -369,7 +370,7 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Update average request time
 	 *
-	 * @param  float $new_time_in_seconds  New time in seconds.
+	 * @param  float  $new_time_in_seconds  New time in seconds.
 	 *
 	 * @return void
 	 */
@@ -388,8 +389,8 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Internal helper function to sanitize a string from user input or from the db
 	 *
-	 * @param  string|mixed $string  String to sanitize.
-	 * @param  bool         $keep_newlines  Optional. Whether to keep newlines. Default: false.
+	 * @param  string|mixed  $string  String to sanitize.
+	 * @param  bool  $keep_newlines  Optional. Whether to keep newlines. Default: false.
 	 *
 	 * @return string Sanitized string.
 	 */

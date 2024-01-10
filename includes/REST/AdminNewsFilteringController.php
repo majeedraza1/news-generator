@@ -36,43 +36,43 @@ class AdminNewsFilteringController extends ApiController {
 		register_rest_route(
 			$this->namespace,
 			'/admin/news-filtering',
-			[
-				[
+			array(
+				array(
 					'methods'  => WP_REST_Server::READABLE,
-					'callback' => [ $this, 'get_items' ],
+					'callback' => array( $this, 'get_items' ),
 					'args'     => $this->get_collection_params(),
-				],
-			]
+				),
+			)
 		);
 		register_rest_route(
 			$this->namespace,
 			'/admin/news-filtering/(?P<id>\d+)',
-			[
-				[
+			array(
+				array(
 					'methods'  => WP_REST_Server::READABLE,
-					'callback' => [ $this, 'get_item' ],
-				],
-			]
+					'callback' => array( $this, 'get_item' ),
+				),
+			)
 		);
 		register_rest_route(
 			$this->namespace,
 			'/admin/news-filtering/(?P<id>\d+)/recalculate',
-			[
-				[
+			array(
+				array(
 					'methods'  => WP_REST_Server::CREATABLE,
-					'callback' => [ $this, 'recalculate_item' ],
-				],
-			]
+					'callback' => array( $this, 'recalculate_item' ),
+				),
+			)
 		);
 		register_rest_route(
 			$this->namespace,
 			'/admin/news-filtering/(?P<id>\d+)/recreate',
-			[
-				[
+			array(
+				array(
 					'methods'  => WP_REST_Server::CREATABLE,
-					'callback' => [ $this, 'recreate_item' ],
-				],
-			]
+					'callback' => array( $this, 'recreate_item' ),
+				),
+			)
 		);
 	}
 
@@ -83,20 +83,20 @@ class AdminNewsFilteringController extends ApiController {
 		$per_page = (int) $request->get_param( 'per_page' );
 		$page     = (int) $request->get_param( 'page' );
 
-		$args = [
+		$args = array(
 			'page'     => $page,
 			'per_page' => $per_page,
-		];
+		);
 
 		$items       = InterestingNews::find_multiple( $args );
 		$total_items = InterestingNews::count_records( $args );
 		$pagination  = self::get_pagination_data( $total_items['all'], $per_page, $page );
 
 		return $this->respondOK(
-			[
+			array(
 				'items'      => $items,
 				'pagination' => $pagination,
-			]
+			)
 		);
 	}
 
@@ -110,19 +110,23 @@ class AdminNewsFilteringController extends ApiController {
 			return $this->respondNotFound();
 		}
 		$source_news = $item->get_source_news();
-		$openai_news = [];
+		$openai_news = array();
 		if ( count( $item->get_openai_news_ids() ) ) {
-			$openai_news = ( new NewsStore() )->find_multiple( [
-				'id__in' => $item->get_openai_news_ids(),
-				'count'  => count( $item->get_openai_news_ids() )
-			] );
+			$openai_news = ( new NewsStore() )->find_multiple(
+				array(
+					'id__in' => $item->get_openai_news_ids(),
+					'count'  => count( $item->get_openai_news_ids() ),
+				)
+			);
 		}
 
-		return $this->respondOK( [
-			'item'        => $item,
-			'source_news' => $source_news,
-			'openai_news' => $openai_news,
-		] );
+		return $this->respondOK(
+			array(
+				'item'        => $item,
+				'source_news' => $source_news,
+				'openai_news' => $openai_news,
+			)
+		);
 	}
 
 	/**
@@ -138,10 +142,12 @@ class AdminNewsFilteringController extends ApiController {
 		$item->recalculate_suggested_news_ids();
 		$item->recalculate_openai_news_ids();
 
-		return $this->respondOK( [
-			'item'        => $item,
-			'source_news' => $item->get_source_news(),
-		] );
+		return $this->respondOK(
+			array(
+				'item'        => $item,
+				'source_news' => $item->get_source_news(),
+			)
+		);
 	}
 
 	/**
