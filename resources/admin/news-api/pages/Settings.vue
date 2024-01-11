@@ -675,11 +675,7 @@ function removeApiKey(index) {
 }
 
 function removeSyncSetting(index) {
-  Dialog.confirm('Are you sure to delete?').then(confirmed => {
-    if (confirmed) {
-      state.news_sync.splice(index, 1);
-    }
-  })
+  state.news_sync.splice(index, 1);
 }
 
 const duplicateSyncSetting = (settings: NewsSyncSettingsInterface) => {

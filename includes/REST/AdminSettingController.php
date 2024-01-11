@@ -110,6 +110,17 @@ class AdminSettingController extends ApiController {
 		);
 		register_rest_route(
 			$this->namespace,
+			'/settings/sync/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_sync_setting' ),
+					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+				),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
 			'/settings/sync-all',
 			array(
 				array(
@@ -493,5 +504,24 @@ class AdminSettingController extends ApiController {
 		);
 
 		return $this->respondCreated( $request );
+	}
+
+	/**
+	 * Delete sync setting
+	 *
+	 * @param  WP_REST_Request  $request  The request details.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function delete_sync_setting( WP_REST_Request $request ): WP_REST_Response {
+		$id      = (int) $request->get_param( 'id' );
+		$setting = SyncSettingsStore::find_single( $id );
+		if ( ! $setting instanceof SyncSettingsStore ) {
+			$this->respondNotFound();
+		}
+
+		$setting->delete();
+
+		return $this->respondOK();
 	}
 }

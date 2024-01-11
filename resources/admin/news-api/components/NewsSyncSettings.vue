@@ -340,6 +340,7 @@ import {
 import LocationBox from "./LocationBox.vue";
 import {
   Dialog,
+  Notify,
   ShaplaButton,
   ShaplaCheckbox,
   ShaplaColumn,
@@ -347,10 +348,11 @@ import {
   ShaplaInput,
   ShaplaModal,
   ShaplaRadio,
-  ShaplaSelect
+  ShaplaSelect, Spinner
 } from "@shapla/vue-components";
 import CategoryBox from "./CategoryBox.vue";
 import http from "../../../utils/axios";
+import axios from "../../../utils/axios";
 import ConceptBox from "./ConceptBox.vue";
 import SourceBox from "./SourceBox.vue";
 
@@ -390,7 +392,17 @@ const state = reactive<{
 const emit = defineEmits(['remove', 'change:setting']);
 
 const removeSyncSetting = () => {
-  emit('remove', props.setting, props.index);
+  Dialog.confirm('Are you sure to delete?').then((confirmed) => {
+    if (confirmed) {
+      Spinner.show();
+      axios.delete(`settings/sync/${props.setting.id}`).then(() => {
+        emit('remove', props.setting, props.index);
+        Notify.success('Setting has been deleted.', 'Success!');
+      }).finally(() => {
+        Spinner.hide();
+      })
+    }
+  })
 }
 
 const searchLocation = (event: InputEvent) => {
