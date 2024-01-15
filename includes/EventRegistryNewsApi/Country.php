@@ -12,8 +12,13 @@ class Country {
 		return array_keys( self::countries() );
 	}
 
+	/**
+	 * List of countries
+	 *
+	 * @return string[]
+	 */
 	public static function countries(): array {
-		return [
+		return array(
 			'ae' => 'United Arab Emirates',
 			'ar' => 'Argentina',
 			'at' => 'Austria',
@@ -68,13 +73,30 @@ class Country {
 			'us' => 'United States',
 			've' => 'Venezuela',
 			'za' => 'South Africa',
-		];
+		);
+	}
+
+	/**
+	 * Get countries for select options
+	 *
+	 * @return array
+	 */
+	public static function countries_for_select_options(): array {
+		$countries = array();
+		foreach ( static::countries() as $code => $name ) {
+			$countries[] = array(
+				'label' => $name,
+				'value' => $code,
+			);
+		}
+
+		return $countries;
 	}
 
 	/**
 	 * Check if country exists
 	 *
-	 * @param string|null $country_code
+	 * @param  string|null $country_code
 	 *
 	 * @return bool
 	 */

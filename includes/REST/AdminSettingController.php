@@ -332,10 +332,6 @@ class AdminSettingController extends ApiController {
 
 		update_option( '_event_registry_news_api_settings', $settings, true );
 
-		$news_sync             = $request->get_param( 'news_sync' );
-		$news_sync             = is_array( $news_sync ) ? $news_sync : array();
-		$settings['news_sync'] = SyncSettings::update_multiple( $news_sync );
-
 		$openai_api             = $request->get_param( 'openai_api' );
 		$openai_api             = is_array( $openai_api ) ? $openai_api : array();
 		$settings['openai_api'] = OpenAIApiSetting::update_options( $openai_api );

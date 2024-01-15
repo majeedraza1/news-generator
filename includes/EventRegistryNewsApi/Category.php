@@ -36,7 +36,7 @@ class Category {
 	/**
 	 * Check if country exists
 	 *
-	 * @param string $category
+	 * @param  string  $category
 	 *
 	 * @return bool
 	 */
@@ -56,7 +56,7 @@ class Category {
 	/**
 	 * Update categories
 	 *
-	 * @param array $value The categories to be updated.
+	 * @param  array  $value  The categories to be updated.
 	 *
 	 * @return array
 	 */
@@ -97,5 +97,22 @@ class Category {
 
 	public static function get_slug_by_title( string $title ) {
 		return array_search( $title, static::get_categories() );
+	}
+
+	/**
+	 * Get countries for select options
+	 *
+	 * @return array
+	 */
+	public static function categories_for_select_options(): array {
+		$countries = array();
+		foreach ( static::get_categories() as $slug => $name ) {
+			$countries[] = array(
+				'label' => $name,
+				'value' => $slug,
+			);
+		}
+
+		return $countries;
 	}
 }

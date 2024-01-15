@@ -251,6 +251,11 @@ interface NewsApiResponseLogInterface {
   updated_at: string;
 }
 
+interface SelectOptionsInterface {
+  label: string;
+  value: string;
+}
+
 export type {
   LocationInterfaces,
   ConceptInterfaces,
@@ -271,5 +276,6 @@ export type {
   InstagramAttemptLogInterface,
   KeywordInterface,
   ExistingKeywordInterface,
-  NewsApiResponseLogInterface
+  NewsApiResponseLogInterface,
+  SelectOptionsInterface
 }

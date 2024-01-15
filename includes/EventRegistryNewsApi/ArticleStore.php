@@ -303,9 +303,10 @@ class ArticleStore extends DataStoreBase {
 
 		$store = new static();
 
-		$existing_news_ids = array();
-		$new_ids           = array();
-		$articles          = array();
+		$existing_news_ids      = array();
+		$new_ids                = array();
+		$articles               = array();
+		$total_omitted_articles = 0;
 		foreach ( $news['results'] as $index => $result ) {
 			$slug = sanitize_title_with_dashes( $result['title'], '', 'save' );
 			$slug = mb_substr( $slug, 0, 250 );
@@ -314,7 +315,13 @@ class ArticleStore extends DataStoreBase {
 			if ( $existing_news ) {
 				$article_id          = $existing_news['id'] ?? 0;
 				$existing_news_ids[] = $article_id;
-				$articles[]          = array_merge( $result, [ 'id' => $article_id, 'type' => 'existing' ] );
+				$articles[]          = array_merge(
+					$result,
+					array(
+						'id'   => $article_id,
+						'type' => 'existing',
+					)
+				);
 				continue;
 			}
 
@@ -323,7 +330,14 @@ class ArticleStore extends DataStoreBase {
 			$not_before  = time() - ( $max_minutes * MINUTE_IN_SECONDS );
 
 			if ( $news_time < $not_before ) {
-				$articles[] = array_merge( $result, [ 'id' => 0, 'type' => 'very-old' ] );
+				$articles[]             = array_merge(
+					$result,
+					array(
+						'id'   => 0,
+						'type' => 'very-old',
+					)
+				);
+				$total_omitted_articles += 1;
 				continue;
 			}
 
@@ -339,7 +353,13 @@ class ArticleStore extends DataStoreBase {
 			$id = $store->create( $article );
 			if ( $id ) {
 				$new_ids[]  = $id;
-				$articles[] = array_merge( $result, [ 'id' => $id, 'type' => 'new' ] );
+				$articles[] = array_merge(
+					$result,
+					array(
+						'id'   => $id,
+						'type' => 'new',
+					)
+				);
 			}
 		}
 
@@ -373,6 +393,12 @@ class ArticleStore extends DataStoreBase {
 				'total_pages'          => $news['pages'],
 			)
 		);
+
+		$settings->set_total_found_items( count( $articles ) );
+		$settings->set_total_existing_items( count( $existing_news_ids ) );
+		$settings->set_total_new_items( count( $new_ids ) );
+		$settings->set_total_omitted_items( $total_omitted_articles );
+		$settings->update();
 
 		return array(
 			'existing_records_ids' => $existing_news_ids,

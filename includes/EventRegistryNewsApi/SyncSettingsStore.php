@@ -72,8 +72,8 @@ class SyncSettingsStore extends DatabaseModel {
 		$data['rewrite_title_and_body'] = ! $this->use_actual_news();
 		$data['rewrite_metadata']       = ! $this->use_actual_news();
 		$data['to_sites']               = $this->to_sites();
-		$data['last_sync']              = $this->get_sync_datetime();
 		$data['query_info']             = $this->get_client_query_info();
+		$data['synced_at']              = $this->get_sync_datetime();
 
 		return $data;
 	}
@@ -281,26 +281,26 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Get NewsAPI HTTP query info
 	 *
-	 * @param  array  $setting
+	 * @param  array $setting
 	 *
 	 * @return array
 	 */
 	public function get_client_query_info(): array {
 		$client = new Client();
 		$client->add_headers( 'Content-Type', 'application/json' );
-		$sanitized_args = $client->get_articles_sanitized_args( $this->get_data(), true );
-		list( $url, $args ) = $client->get_url_and_arguments(
+		$sanitized_args       = $client->get_articles_sanitized_args( $this->get_data(), true );
+		list( $url, $args )   = $client->get_url_and_arguments(
 			'GET',
 			'/article/getArticles',
 			$sanitized_args
 		);
-		$args = array_merge( array( 'url' => $url ), $args );
+		$args                 = array_merge( array( 'url' => $url ), $args );
 		list( $url2, $args2 ) = $client->get_url_and_arguments(
 			'POST',
 			'/article/getArticles',
 			$sanitized_args
 		);
-		$args2 = array_merge( array( 'url' => $url2 ), $args2 );
+		$args2                = array_merge( array( 'url' => $url2 ), $args2 );
 
 		return array(
 			'get'  => $args,
@@ -311,7 +311,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Get settings
 	 *
-	 * @param  int  $per_page  Number of items to return.
+	 * @param  int $per_page  Number of items to return.
 	 *
 	 * @return array|SyncSettingsStore[]
 	 */
@@ -360,20 +360,15 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Create if not exists
 	 *
-	 * @param  array  $data  List of data to create.
+	 * @param  array $data  List of data to create.
 	 *
 	 * @return self|false
 	 */
 	public static function create_or_update( array $data ) {
 		$item = static::find_by_uuid( $data['option_id'] ?? '' );
-		if ( $item ) {
-			foreach ( $data as $key => $value ) {
-				$item->set_prop( $key, $value );
-			}
-			if ( count( $item->get_changes() ) ) {
-				$item->apply_changes();
-				$item->update();
-			}
+		if ( $item instanceof static ) {
+			$data['id'] = $item->get_id();
+			static::update( $data );
 
 			return $item;
 		}
@@ -393,7 +388,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Find single item by primary key
 	 *
-	 * @param  string  $option_id  The uuid.
+	 * @param  string $option_id  The uuid.
 	 *
 	 * @return false|static
 	 */
@@ -471,7 +466,60 @@ class SyncSettingsStore extends DatabaseModel {
 			update_option( $table . '_version', '1.4.0' );
 		}
 
+		if ( version_compare( $version, '1.4.1', '<' ) ) {
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `total_new_items` INT(4) UNSIGNED NOT NULL DEFAULT 0 AFTER `synced_at`" );
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `total_omitted_items` INT(4) UNSIGNED NOT NULL DEFAULT 0 AFTER `synced_at`" );
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `total_existing_items` INT(4) UNSIGNED NOT NULL DEFAULT 0 AFTER `synced_at`" );
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `total_found_items` INT(4) UNSIGNED NOT NULL DEFAULT 0 AFTER `synced_at`" );
+
+			update_option( $table . '_version', '1.4.1' );
+		}
+
 		static::copy_settings();
+	}
+
+	/**
+	 * Set total new items
+	 *
+	 * @param  int $total_items  Total items.
+	 *
+	 * @return void
+	 */
+	public function set_total_new_items( int $total_items ) {
+		$this->set_prop( 'total_new_items', $total_items );
+	}
+
+	/**
+	 * Set total existing items
+	 *
+	 * @param  int $total_existing_items  Total items.
+	 *
+	 * @return void
+	 */
+	public function set_total_existing_items( int $total_existing_items ) {
+		$this->set_prop( 'total_existing_items', $total_existing_items );
+	}
+
+	/**
+	 * Set total found items
+	 *
+	 * @param  int $total_found_items  Total items.
+	 *
+	 * @return void
+	 */
+	public function set_total_found_items( int $total_found_items ) {
+		$this->set_prop( 'total_found_items', $total_found_items );
+	}
+
+	/**
+	 * Set total found items
+	 *
+	 * @param  int $total_omitted_items  Total items.
+	 *
+	 * @return void
+	 */
+	public function set_total_omitted_items( int $total_omitted_items ) {
+		$this->set_prop( 'total_omitted_items', $total_omitted_items );
 	}
 
 	/**
@@ -494,7 +542,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Update multiple records
 	 *
-	 * @param  array[]  $data  List of settings.
+	 * @param  array[] $data  List of settings.
 	 *
 	 * @return array
 	 */
@@ -510,7 +558,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Sanitize multiple value
 	 *
-	 * @param  array  $options
+	 * @param  array $options
 	 *
 	 * @return array
 	 */
@@ -530,36 +578,46 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Sanitize settings
 	 *
-	 * @param  array  $value
+	 * @param  array $value
 	 *
 	 * @return array
 	 */
 	public static function sanitize( array $value ): array {
-		$sync_item = wp_parse_args( $value, static::get_defaults() );
-		$fields    = wp_list_pluck( static::news_sync_fields(), 'value' );
+		$sync_item       = wp_parse_args( $value, static::get_defaults() );
+		$syncable_fields = wp_list_pluck( static::news_sync_fields(), 'value' );
 
 		/**
 		 * To fix bug sourceUri is not saving
 		 */
-		$sources   = Sanitize::deep( $sync_item['sources'] );
-		$sourceUri = Sanitize::deep( $sync_item['sourceUri'] );
-		if ( empty( $sourceUri ) && ! empty( $sources ) && is_array( $sources ) ) {
-			$sourceUri = wp_list_pluck( $sources, 'uri' );
+		$sources    = Sanitize::deep( $sync_item['sources'] );
+		$source_uri = Sanitize::deep( $sync_item['sourceUri'] );
+		if ( empty( $source_uri ) && ! empty( $sources ) && is_array( $sources ) ) {
+			$source_uri = wp_list_pluck( $sources, 'uri' );
 		}
 
-		$keywordLoc = in_array( $sync_item['keywordLoc'], static::KEYWORD_LOCATION, true ) ?
+		$keyword_loc = in_array( $sync_item['keywordLoc'], static::KEYWORD_LOCATION, true ) ?
 			$sync_item['keywordLoc'] : '';
 
 		$id = wp_is_uuid( $sync_item['option_id'] ) ? $sync_item['option_id'] : wp_generate_uuid4();
 
+		$fields = array();
+		if ( is_array( $sync_item['fields'] ) ) {
+			foreach ( $sync_item['fields'] as $field ) {
+				if ( in_array( $field, $syncable_fields, true ) ) {
+					$fields[] = $field;
+				}
+			}
+		}
+
 		$settings = array(
+			'id'                         => isset( $sync_item['id'] ) ? intval( $sync_item['id'] ) : 0,
 			'option_id'                  => $id,
 			'title'                      => Sanitize::text( $sync_item['title'] ),
-			'fields'                     => array(),
+			'fields'                     => $fields,
 			'categoryUri'                => Sanitize::deep( $sync_item['categoryUri'] ),
 			'locationUri'                => Sanitize::deep( $sync_item['locationUri'] ),
 			'conceptUri'                 => Sanitize::deep( $sync_item['conceptUri'] ),
-			'sourceUri'                  => $sourceUri,
+			'sourceUri'                  => $source_uri,
 			'lang'                       => Sanitize::deep( $sync_item['lang'] ),
 			'categories'                 => Sanitize::deep( $sync_item['categories'] ),
 			'locations'                  => Sanitize::deep( $sync_item['locations'] ),
@@ -567,7 +625,7 @@ class SyncSettingsStore extends DatabaseModel {
 			'sources'                    => $sources,
 			'primary_category'           => Sanitize::text( $sync_item['primary_category'] ),
 			'keyword'                    => Sanitize::text( $sync_item['keyword'] ),
-			'keywordLoc'                 => $keywordLoc,
+			'keywordLoc'                 => $keyword_loc,
 			'copy_news_image'            => Sanitize::checked( $sync_item['copy_news_image'] ),
 			'enable_news_filtering'      => Sanitize::checked( $sync_item['enable_news_filtering'] ),
 			'enable_live_news'           => Sanitize::checked( $sync_item['enable_live_news'] ),
@@ -575,9 +633,12 @@ class SyncSettingsStore extends DatabaseModel {
 			'news_filtering_instruction' => Sanitize::text( $sync_item['news_filtering_instruction'] ),
 		);
 
-		foreach ( $settings as $key => $setting ) {
-			if ( in_array( $key, $fields, true ) & ! empty( $setting ) ) {
-				$settings['fields'][] = $key;
+		foreach ( static::reset_fields_to_default() as $main_field => $fields_to_reset ) {
+			if ( in_array( $main_field, $fields, true ) ) {
+				continue;
+			}
+			foreach ( $fields_to_reset as $setting_key => $setting_value ) {
+				$settings[ $setting_key ] = $setting_value;
 			}
 		}
 
@@ -614,6 +675,42 @@ class SyncSettingsStore extends DatabaseModel {
 			'enable_news_filtering'      => false,
 			'use_actual_news'            => false,
 			'news_filtering_instruction' => '',
+		);
+	}
+
+	/**
+	 * Fields to reset default
+	 *
+	 * @return array
+	 */
+	public static function reset_fields_to_default(): array {
+		return array(
+			'keyword'               => array(
+				'keyword'    => '',
+				'keywordLoc' => '',
+			),
+			'locationUri'           => array(
+				'locations'   => array(),
+				'locationUri' => '',
+			),
+			'categoryUri'           => array(
+				'categories'  => array(),
+				'categoryUri' => '',
+			),
+			'conceptUri'            => array(
+				'concepts'   => array(),
+				'conceptUri' => '',
+			),
+			'sourceUri'             => array(
+				'sources'   => array(),
+				'sourceUri' => '',
+			),
+			'lang'                  => array(
+				'lang' => '',
+			),
+			'enable_news_filtering' => array(
+				'news_filtering_instruction' => '',
+			),
 		);
 	}
 

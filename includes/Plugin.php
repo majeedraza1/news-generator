@@ -20,6 +20,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\ClientResponseLog;
 use StackonetNewsGenerator\EventRegistryNewsApi\NewsApiCronEvent;
 use StackonetNewsGenerator\EventRegistryNewsApi\NewsSource;
 use StackonetNewsGenerator\EventRegistryNewsApi\Rest\AdminNewsApiLogController;
+use StackonetNewsGenerator\EventRegistryNewsApi\Rest\AdminSyncSettingController;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\ExternalLink\ExternalLinkManager;
 use StackonetNewsGenerator\Modules\ImportExport\ImportExportManager;
@@ -242,18 +243,19 @@ class Plugin {
 	 * @return void
 	 */
 	public function frontend_includes() {
-		$this->container['rest_settings']          = AdminSettingController::init();
-		$this->container['rest_admin_news']        = AdminNewsController::init();
-		$this->container['rest_openapi']           = OpenAiController::init();
-		$this->container['rest_openapi_blacklist'] = OpenAiBlacklistController::init();
-		$this->container['rest_openapi_site']      = AdminSiteController::init();
-		$this->container['rest_remote_site']       = SiteController::init();
-		$this->container['rest_news_source']       = AdminNewsSourceController::init();
-		$this->container['rest_news_filtering']    = AdminNewsFilteringController::init();
-		$this->container['rest_api_log']           = ApiResponseLogController::init();
-		$this->container['rest_instagram_log']     = AdminInstagramAttemptLogController::init();
-		$this->container['rest_news_to_site_logs'] = AdminNewsToSiteLogController::init();
-		$this->container['rest_newsapi_logs']      = AdminNewsApiLogController::init();
+		$this->container['rest_settings']              = AdminSettingController::init();
+		$this->container['rest_admin_news']            = AdminNewsController::init();
+		$this->container['rest_openapi']               = OpenAiController::init();
+		$this->container['rest_openapi_blacklist']     = OpenAiBlacklistController::init();
+		$this->container['rest_openapi_site']          = AdminSiteController::init();
+		$this->container['rest_remote_site']           = SiteController::init();
+		$this->container['rest_news_source']           = AdminNewsSourceController::init();
+		$this->container['rest_news_filtering']        = AdminNewsFilteringController::init();
+		$this->container['rest_api_log']               = ApiResponseLogController::init();
+		$this->container['rest_instagram_log']         = AdminInstagramAttemptLogController::init();
+		$this->container['rest_news_to_site_logs']     = AdminNewsToSiteLogController::init();
+		$this->container['rest_newsapi_logs']          = AdminNewsApiLogController::init();
+		$this->container['rest_newsapi_sync_settings'] = AdminSyncSettingController::init();
 	}
 
 	/**

@@ -92,4 +92,21 @@ class Language {
 	public static function exists( ?string $code ): bool {
 		return array_key_exists( strtolower( $code ), self::languages() );
 	}
+
+	/**
+	 * Get countries for select options
+	 *
+	 * @return array
+	 */
+	public static function languages_for_select_options(): array {
+		$countries = array();
+		foreach ( static::languages() as $code => $name ) {
+			$countries[] = array(
+				'label' => $name,
+				'value' => $code,
+			);
+		}
+
+		return $countries;
+	}
 }

@@ -198,12 +198,6 @@
       </td>
     </tr>
   </table>
-  <div class="flex space-x-2">
-    <ShaplaButton v-if="setting.query_info" outline theme="default" size="small"
-                  @click.prevent="state.openQueryInfoModal= true">Query Info
-    </ShaplaButton>
-    <ShaplaButton outline theme="error" size="small" @click.prevent="removeSyncSetting">Remove</ShaplaButton>
-  </div>
   <ShaplaModal :active="state.openQueryInfoModal" @close="state.openQueryInfoModal = false" :show-card-footer="false"
                title="Query Info">
     <div v-if="setting.query_info && Object.keys(setting.query_info).length">
@@ -390,20 +384,6 @@ const state = reactive<{
   sources: [],
 })
 const emit = defineEmits(['remove', 'change:setting']);
-
-const removeSyncSetting = () => {
-  Dialog.confirm('Are you sure to delete?').then((confirmed) => {
-    if (confirmed) {
-      Spinner.show();
-      axios.delete(`settings/sync/${props.setting.id}`).then(() => {
-        emit('remove', props.setting, props.index);
-        Notify.success('Setting has been deleted.', 'Success!');
-      }).finally(() => {
-        Spinner.hide();
-      })
-    }
-  })
-}
 
 const searchLocation = (event: InputEvent) => {
   const value = (event.target as HTMLInputElement).value;

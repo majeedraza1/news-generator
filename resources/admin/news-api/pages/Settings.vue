@@ -27,173 +27,133 @@
             </tr>
           </table>
         </ShaplaTab>
-        <ShaplaTab name="News API">
-          <ShaplaTabs alignment="center" tab-style="rounded">
-            <ShaplaTab selected name="General Settings">
-              <table class="form-table">
-                <tr>
-                  <th scope="row"><label>News API Keys</label></th>
-                  <td>
-                    <ShaplaToggles>
-                      <ShaplaToggle v-for="(api_key, index) in state.news_api" :key="index"
-                                    :name="`Key ${index + 1}`"
-                                    :subtext="getSubtext(api_key)">
-                        <table class="form-table">
-                          <tr>
-                            <th scope="row"><label :for="`api_key-${index}`">Key</label>
-                            </th>
-                            <td><input type="text" :id="`api_key-${index}`"
-                                       v-model="api_key.api_key"
-                                       class="regular-text"></td>
-                          </tr>
-                          <tr>
-                            <th scope="row"><label :for="`limit_per_day-${index}`">Limit
-                              (per
-                              day)</label>
-                            </th>
-                            <td>
-                              <input type="text" :id="`limit_per_day-${index}`"
-                                     class="regular-text"
-                                     v-model="api_key.limit_per_day">
-                            </td>
-                          </tr>
-                        </table>
-                        <p>
-                          <shapla-button outline theme="error" size="small"
-                                         @click.prevent="removeApiKey(index)">Remove
-                          </shapla-button>
-                        </p>
-                      </ShaplaToggle>
-                    </ShaplaToggles>
+        <ShaplaTab name="News API Settings">
+          <table class="form-table">
+            <tr>
+              <th scope="row"><label>News API Keys</label></th>
+              <td>
+                <ShaplaToggles>
+                  <ShaplaToggle v-for="(api_key, index) in state.news_api" :key="index"
+                                :name="`Key ${index + 1}`"
+                                :subtext="getSubtext(api_key)">
+                    <table class="form-table">
+                      <tr>
+                        <th scope="row"><label :for="`api_key-${index}`">Key</label>
+                        </th>
+                        <td><input type="text" :id="`api_key-${index}`"
+                                   v-model="api_key.api_key"
+                                   class="regular-text"></td>
+                      </tr>
+                      <tr>
+                        <th scope="row"><label :for="`limit_per_day-${index}`">Limit
+                          (per
+                          day)</label>
+                        </th>
+                        <td>
+                          <input type="text" :id="`limit_per_day-${index}`"
+                                 class="regular-text"
+                                 v-model="api_key.limit_per_day">
+                        </td>
+                      </tr>
+                    </table>
                     <p>
-                      <shapla-button outline theme="primary" size="small"
-                                     @click.prevent="addNewKey">Add
-                        New Key
+                      <shapla-button outline theme="error" size="small"
+                                     @click.prevent="removeApiKey(index)">Remove
                       </shapla-button>
                     </p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row"><label>Enable Automatic News Sync</label></th>
-                  <td>
-                    <ShaplaSwitch
-                        v-model="state.newsapi_auto_sync_enabled"
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <label for="">News Sync Interval</label>
-                  </th>
-                  <td>
-                    <input type="number" v-model="state.news_sync_interval" min="15" max="360"
-                           step="5"/>
-                    <p class="description">News sync interval in minutes. Minimum value is
-                      15(minutes) and maximum value is 360(minutes).</p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <label for="">News not before (in minutes)</label>
-                  </th>
-                  <td>
-                    <input type="number" v-model="state.news_not_before_in_minutes" min="15"/>
-                    <p class="description">If you set 45, it means that news more than 45 minutes ago
-                      should not sync. Minimum value 15.</p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row"><label>Enable duplicate news checking</label></th>
-                  <td>
-                    <ShaplaSwitch
-                        v-model="state.news_duplicate_checking_enabled"
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row"><label>Remove news images containing text</label></th>
-                  <td>
-                    <ShaplaSwitch
-                        v-model="state.should_remove_image_with_text"
-                    />
-                    <p>Make sure Google Vision key are set properly.</p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row"><label>Sync image copy setting from source</label></th>
-                  <td>
-                    <ShaplaSwitch
-                        v-model="state.sync_image_copy_setting_from_source"
-                    />
-                    <p>Uncheck this to use google vision api to add/remove image.</p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <label for="">Min similarity (in percent)</label>
-                  </th>
-                  <td>
-                    <input type="number" v-model="state.similarity_in_percent" min="30" max="90"/>
-                    <p class="description">Set minimum similarity in percentage. Min value is 30,
-                      max value
-                      is 90. Recommended value is 60.</p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <label for="">Days to check similarity</label>
-                  </th>
-                  <td>
-                    <input type="number" v-model="state.num_of_days_for_similarity" min="1"
-                           max="7"/>
-                    <p class="description">Number of hours to check similar news. Minimum value is
-                      1,
-                      maximum
-                      value is 168. Recommended value is 72.</p>
-                  </td>
-                </tr>
-              </table>
-            </ShaplaTab>
-            <ShaplaTab name="Sync settings">
-              <div class="mb-4 flex justify-end">
-                <ShaplaButton theme="primary" size="small" @click.prevent="addSyncSetting(state.news_sync.length + 1)">
-                  Add Sync Setting
-                </ShaplaButton>
-              </div>
-              <ShaplaToggles>
-                <ShaplaToggle v-for="(setting, index) in state.news_sync" :key="index"
-                              :name="setting.title"
-                              :subtext="getSettingSubtext(setting)">
-                  <div>
-                    <div class="flex justify-between">
-                      <div class="space-x-2 p-2 rounded">
-                        <strong>ID:</strong>
-                        <span>{{ setting.option_id }}</span>
-                      </div>
-                      <div>
-                        <ShaplaButton size="small" theme="secondary" @click="()=>duplicateSyncSetting(setting)">
-                          Duplicate
-                        </ShaplaButton>
-                      </div>
-                    </div>
-                    <div class="space-x-2 bg-yellow-200 p-2 rounded">
-                      <strong>Note:</strong>
-                      <span>Only choose one value from each setting for best sync result.</span>
-                    </div>
-                  </div>
-                  <NewsSyncSettings
-                      :countries="countries"
-                      :categories="state.primary_categories"
-                      :news_sync_fields="state.news_sync_fields"
-                      :languages="languages"
-                      :setting="setting"
-                      @change:setting="(_setting) => setting = _setting"
-                      @remove="()=>removeSyncSetting(index)"
-                  />
-                </ShaplaToggle>
-              </ShaplaToggles>
-            </ShaplaTab>
-          </ShaplaTabs>
+                  </ShaplaToggle>
+                </ShaplaToggles>
+                <p>
+                  <shapla-button outline theme="primary" size="small"
+                                 @click.prevent="addNewKey">Add
+                    New Key
+                  </shapla-button>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><label>Enable Automatic News Sync</label></th>
+              <td>
+                <ShaplaSwitch
+                    v-model="state.newsapi_auto_sync_enabled"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <label for="">News Sync Interval</label>
+              </th>
+              <td>
+                <input type="number" v-model="state.news_sync_interval" min="15" max="360"
+                       step="5"/>
+                <p class="description">News sync interval in minutes. Minimum value is
+                  15(minutes) and maximum value is 360(minutes).</p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <label for="">News not before (in minutes)</label>
+              </th>
+              <td>
+                <input type="number" v-model="state.news_not_before_in_minutes" min="15"/>
+                <p class="description">If you set 45, it means that news more than 45 minutes ago
+                  should not sync. Minimum value 15.</p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><label>Enable duplicate news checking</label></th>
+              <td>
+                <ShaplaSwitch
+                    v-model="state.news_duplicate_checking_enabled"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><label>Remove news images containing text</label></th>
+              <td>
+                <ShaplaSwitch
+                    v-model="state.should_remove_image_with_text"
+                />
+                <p>Make sure Google Vision key are set properly.</p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><label>Sync image copy setting from source</label></th>
+              <td>
+                <ShaplaSwitch
+                    v-model="state.sync_image_copy_setting_from_source"
+                />
+                <p>Uncheck this to use google vision api to add/remove image.</p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <label for="">Min similarity (in percent)</label>
+              </th>
+              <td>
+                <input type="number" v-model="state.similarity_in_percent" min="30" max="90"/>
+                <p class="description">Set minimum similarity in percentage. Min value is 30,
+                  max value
+                  is 90. Recommended value is 60.</p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <label for="">Days to check similarity</label>
+              </th>
+              <td>
+                <input type="number" v-model="state.num_of_days_for_similarity" min="1"
+                       max="7"/>
+                <p class="description">Number of hours to check similar news. Minimum value is
+                  1,
+                  maximum
+                  value is 168. Recommended value is 72.</p>
+              </td>
+            </tr>
+          </table>
+        </ShaplaTab>
+        <ShaplaTab name="News API Sync settings">
+          <NewsApiSyncSettings/>
         </ShaplaTab>
         <ShaplaTab name="OpenAI API">
           <ShaplaTabs alignment="center" tab-style="rounded">
@@ -451,10 +411,10 @@ import {
   NewsSyncSettingsInterface,
   OpenAiSettingsInterface
 } from "../../../utils/interfaces";
-import NewsSyncSettings from "../components/NewsSyncSettings.vue";
 import OpenAiInstructions from "../components/OpenAiInstructions.vue";
 import PrimaryCategories from "../components/PrimaryCategories.vue";
 import OpenAiBlacklistWords from "../components/OpenAiBlacklistWords.vue";
+import NewsApiSyncSettings from "@/admin/news-api/pages/NewsApiSyncSettings.vue";
 
 interface RemoteSettingInterface {
   api_key: string;

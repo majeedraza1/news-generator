@@ -82,7 +82,6 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 
 		if ( empty( $news->get_title() ) || empty( $news->get_content() ) ) {
 			Logger::log( sprintf( 'News title or content is empty. News %s', $news->get_id() ) );
-			static::init()->push_to_queue( $item );
 
 			return false;
 		}
