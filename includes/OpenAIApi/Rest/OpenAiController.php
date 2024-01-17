@@ -184,6 +184,9 @@ class OpenAiController extends ApiController {
 		if ( 'important_for_tweet' === $filter_by ) {
 			$query->where( 'important_for_tweet', 1 );
 		}
+		if ( 'has_image_id' === $filter_by ) {
+			$query->where( 'image_id', 0, '>' );
+		}
 		if ( ! empty( $search ) ) {
 			if ( is_numeric( $search ) ) {
 				$query->where( array( array( 'id', $search ), array( 'source_id', $search ) ), 'OR' );

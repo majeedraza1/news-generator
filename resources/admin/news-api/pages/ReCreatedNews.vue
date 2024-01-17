@@ -37,6 +37,7 @@
             <option value="">Filter By</option>
             <option value="use_for_instagram">for Instagram</option>
             <option value="important_for_tweet">for Twitter</option>
+            <option value="has_image_id">Has Image</option>
           </select>
           <ShaplaSearchForm
               @search="onSearch"

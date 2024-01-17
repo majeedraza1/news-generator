@@ -19,12 +19,12 @@ class Client extends RestClient {
 	 *
 	 * @return array|WP_Error
 	 */
-	public function get_categories( array $args = [] ) {
+	public function get_categories( array $args = array() ) {
 		$args = wp_parse_args(
 			$args,
-			[
+			array(
 				'count' => 10000, // Get all categories.
-			]
+			)
 		);
 
 		$transient_name = 'news_api_categories_' . md5( wp_json_encode( $args ) );
@@ -44,15 +44,15 @@ class Client extends RestClient {
 	 *
 	 * @return array|WP_Error
 	 */
-	public function get_locations( string $prefix, array $args = [] ) {
+	public function get_locations( string $prefix, array $args = array() ) {
 		$args = wp_parse_args(
 			$args,
-			[
+			array(
 				'lang'   => 'eng', // Required argument.
 				'count'  => 2000, // Get all categories.
-				'source' => [ 'country' ],
+				'source' => array( 'country' ),
 				'prefix' => $prefix,
-			]
+			)
 		);
 
 		$transient_name = 'news_api_locations_' . md5( wp_json_encode( $args ) );
@@ -72,15 +72,15 @@ class Client extends RestClient {
 	 *
 	 * @return array|WP_Error
 	 */
-	public function get_concepts( string $prefix, array $args = [] ) {
+	public function get_concepts( string $prefix, array $args = array() ) {
 		$args = wp_parse_args(
 			$args,
-			[
+			array(
 				'prefix' => $prefix,
 				'lang'   => 'eng',
 				'page'   => 1,
 				'count'  => 2000,
-			]
+			)
 		);
 
 		$transient_name = 'news_api_concepts_' . md5( wp_json_encode( $args ) );
@@ -100,15 +100,15 @@ class Client extends RestClient {
 	 *
 	 * @return array|WP_Error
 	 */
-	public function get_sources( string $prefix, array $args = [] ) {
+	public function get_sources( string $prefix, array $args = array() ) {
 		$args = wp_parse_args(
 			$args,
-			[
+			array(
 				'prefix' => $prefix,
 				'lang'   => 'eng',
 				'page'   => 1,
 				'count'  => 2000,
-			]
+			)
 		);
 
 		$transient_name = 'news_api_sources_' . md5( wp_json_encode( $args ) );
@@ -167,7 +167,7 @@ class Client extends RestClient {
 	 * @return array
 	 */
 	public function get_articles_sanitized_args( array $args, bool $use_advance_query = true ): array {
-		$defaults = [
+		$defaults = array(
 			'dateStart'         => gmdate( 'Y-m-d', strtotime( 'yesterday' ) ),
 			'resultType'        => 'articles',
 			'isDuplicateFilter' => 'skipDuplicates',
@@ -184,10 +184,10 @@ class Client extends RestClient {
 			'lang'              => '',
 			'keyword'           => '',
 			'keywordLoc'        => '', // 'title' or 'body' or 'title-or-body' or 'title-and-body'
-		];
+		);
 		$args     = wp_parse_args( $args, $defaults );
 
-		$sanitized_args = [];
+		$sanitized_args = array();
 		foreach ( $args as $key => $value ) {
 			if ( $key && $value && array_key_exists( $key, $defaults ) ) {
 				if ( is_array( $value ) ) {
@@ -197,19 +197,26 @@ class Client extends RestClient {
 						$value = array_unique( $value );
 					}
 				}
-				$sanitized_args[ $key ] = $value;
+				$sanitized_args[ $key ] = SyncSettings::deep_sanitize_utf8( $value );
 			}
 		}
 
 		if ( $use_advance_query ) {
-			return static::setting_to_args( $sanitized_args );
+			$sanitized_args = static::setting_to_args( $sanitized_args );
 		}
 
 		return $sanitized_args;
 	}
 
+	/**
+	 * Sanitize sattings data to client arguments
+	 *
+	 * @param  array  $setting Settings arguments.
+	 *
+	 * @return array
+	 */
 	public static function setting_to_args( array $setting ): array {
-		$args = [
+		$args = array(
 			'query'               => '',
 			'resultType'          => 'articles',
 			'articlesPage'        => $setting['articlesPage'] ?? 1,
@@ -218,7 +225,7 @@ class Client extends RestClient {
 			'articleBodyLen'      => '-1',
 			'dataType'            => 'news',
 			'includeArticleLinks' => 'true',
-		];
+		);
 
 		if ( ! isset( $setting['dateStart'] ) ) {
 			$setting['dateStart'] = gmdate( 'Y-m-d', strtotime( 'yesterday' ) );
@@ -228,7 +235,7 @@ class Client extends RestClient {
 			$setting['dateEnd'] = gmdate( 'Y-m-d', time() );
 		}
 
-		$query = [];
+		$query = array();
 		self::format_query_args( $query, $setting, 'conceptUri' );
 		self::format_query_args( $query, $setting, 'sourceUri' );
 		self::format_query_args( $query, $setting, 'lang' );
@@ -236,61 +243,61 @@ class Client extends RestClient {
 		self::format_query_args( $query, $setting, 'locationUri' );
 
 		if ( ! empty( $setting['keyword'] ) && ! empty( $setting['keywordLoc'] ) ) {
-			if ( in_array( $setting['keywordLoc'], [ 'title', 'body' ], true ) ) {
-				$query[] = [
+			if ( in_array( $setting['keywordLoc'], array( 'title', 'body' ), true ) ) {
+				$query[] = array(
 					'keyword'    => $setting['keyword'],
 					'keywordLoc' => $setting['keywordLoc'],
-				];
+				);
 			} elseif ( 'title-or-body' === $setting['keywordLoc'] ) {
-				$query[] = [
-					'$or' => [
-						[
+				$query[] = array(
+					'$or' => array(
+						array(
 							'keyword'    => $setting['keyword'],
 							'keywordLoc' => 'title',
-						],
-						[
+						),
+						array(
 							'keyword'    => $setting['keyword'],
 							'keywordLoc' => 'body',
-						],
-					],
-				];
+						),
+					),
+				);
 			} elseif ( 'title-and-body' === $setting['keywordLoc'] ) {
-				$query[] = [
-					'$and' => [
-						[
+				$query[] = array(
+					'$and' => array(
+						array(
 							'keyword'    => $setting['keyword'],
 							'keywordLoc' => 'title',
-						],
-						[
+						),
+						array(
 							'keyword'    => $setting['keyword'],
 							'keywordLoc' => 'body',
-						],
-					],
-				];
+						),
+					),
+				);
 			}
 		}
 
-		$query[] = [
+		$query[] = array(
 			'dateStart' => $setting['dateStart'],
 			'dateEnd'   => $setting['dateEnd'],
-		];
+		);
 
-		$filter = [
+		$filter = array(
 			'isDuplicate' => 'skipDuplicates',
-		];
+		);
 
 		if ( count( $query ) ) {
-			$query_args = [
-				'$query' => [
+			$query_args = array(
+				'$query' => array(
 					'$and' => $query,
-				],
-			];
+				),
+			);
 
 			if ( count( $filter ) ) {
 				$query_args['$filter'] = $filter;
 			}
 
-			$args['query'] = stripslashes( json_encode( $query_args ) );
+			$args['query'] = stripslashes( wp_json_encode( $query_args, \JSON_UNESCAPED_UNICODE ) );
 		}
 
 		return $args;
@@ -300,17 +307,17 @@ class Client extends RestClient {
 		$target_key = $target_key ?? $key;
 		if ( isset( $setting[ $key ] ) ) {
 			if ( is_string( $setting[ $key ] ) && strlen( $setting[ $key ] ) ) {
-				$query[] = [ $target_key => $setting[ $key ] ];
+				$query[] = array( $target_key => $setting[ $key ] );
 			}
 			if ( is_array( $setting[ $key ] ) && count( $setting[ $key ] ) > 0 ) {
 				if ( count( $setting[ $key ] ) === 1 ) {
-					$query[] = [ $target_key => $setting[ $key ][0] ];
+					$query[] = array( $target_key => $setting[ $key ][0] );
 				} else {
-					$nested_query = [];
+					$nested_query = array();
 					foreach ( $setting[ $key ] as $value ) {
-						$nested_query[] = [ $target_key => $value ];
+						$nested_query[] = array( $target_key => $value );
 					}
-					$query[] = [ '$or' => $nested_query ];
+					$query[] = array( '$or' => $nested_query );
 				}
 			}
 		}
