@@ -159,9 +159,6 @@ class OpenAiController extends ApiController {
 		$filter_by = $request->get_param( 'filter_by' );
 		$status    = $request->get_param( 'status' );
 
-		$status_openai_skipped  = 'skipped-openai' === $status;
-		$status_openai_complete = 'openai-complete' === $status;
-
 		$store = new NewsStore();
 
 		$query = $store->get_query_builder();

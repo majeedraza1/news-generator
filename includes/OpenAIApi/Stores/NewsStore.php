@@ -399,26 +399,44 @@ class NewsStore extends DataStoreBase {
 		if ( false === $counts ) {
 			$counts = array();
 
-			$counts['openai-complete'] = $this->get_query_builder()
-			                                  ->where( 'sync_status', 'complete' )
-			                                  ->where( 'openai_skipped', 0 )
-			                                  ->count();
+			$filter_by = $args['filter_by'] ?? '';
 
-			$counts['in-progress'] = $this->get_query_builder()
-			                              ->where( 'sync_status', 'in-progress' )
-			                              ->where( 'openai_skipped', 0 )
-			                              ->count();
+			$query = $this->get_query_builder();
+			$query->where( 'sync_status', 'complete' );
+			$query->where( 'openai_skipped', 0 );
+			if ( 'use_for_instagram' === $filter_by ) {
+				$query->where( 'use_for_instagram', 1 );
+			} elseif ( 'important_for_tweet' === $filter_by ) {
+				$query->where( 'important_for_tweet', 1 );
+			} elseif ( 'has_image_id' === $filter_by ) {
+				$query->where( 'image_id', 0, '>' );
+			}
 
-			$counts['fail'] = $this->get_query_builder()
-			                       ->where( 'sync_status', 'fail' )
-			                       ->where( 'openai_skipped', 0 )
-			                       ->count();
+			$counts['openai-complete'] = $query->count();
 
-			$counts['skipped-openai'] = $this->get_query_builder()
-			                                 ->where( 'sync_status', 'complete' )
-			                                 ->where( 'openai_skipped', 1 )
-			                                 ->count();
-			$counts['complete']       = $counts['openai-complete'] + $counts['skipped-openai'];
+			$query2 = $this->get_query_builder();
+			$query2->where( 'sync_status', 'in-progress' );
+			$query2->where( 'openai_skipped', 0 );
+			$counts['in-progress'] = $query2->count();
+
+			$query3 = $this->get_query_builder();
+			$query3->where( 'sync_status', 'fail' );
+			$query3->where( 'openai_skipped', 0 );
+			$counts['fail'] = $query3->count();
+
+			$query4 = $this->get_query_builder();
+			$query4->where( 'sync_status', 'complete' );
+			$query4->where( 'openai_skipped', 1 );
+			if ( 'use_for_instagram' === $filter_by ) {
+				$query4->where( 'use_for_instagram', 1 );
+			} elseif ( 'important_for_tweet' === $filter_by ) {
+				$query4->where( 'important_for_tweet', 1 );
+			} elseif ( 'has_image_id' === $filter_by ) {
+				$query4->where( 'image_id', 0, '>' );
+			}
+			$counts['skipped-openai'] = $query4->count();
+
+			$counts['complete'] = $counts['openai-complete'] + $counts['skipped-openai'];
 
 			// Set cache for one day.
 			$this->set_cache( $cache_key, $counts, DAY_IN_SECONDS );

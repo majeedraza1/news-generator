@@ -197,7 +197,7 @@ class Client extends RestClient {
 						$value = array_unique( $value );
 					}
 				}
-				$sanitized_args[ $key ] = SyncSettings::deep_sanitize_utf8( $value );
+				$sanitized_args[ $key ] = $value;
 			}
 		}
 
