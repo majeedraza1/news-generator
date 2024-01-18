@@ -69,6 +69,7 @@ interface NewsSyncSettingsInterface {
   query_info?: NewsSyncQueryInfoInterface;
   to_sites?: string[];
   fields?: string[];
+  status?: 'publish' | 'draft';
 }
 
 interface OpenAiSettingsInterface {

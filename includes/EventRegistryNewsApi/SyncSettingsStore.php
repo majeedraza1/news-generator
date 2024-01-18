@@ -315,7 +315,7 @@ class SyncSettingsStore extends DatabaseModel {
 	 *
 	 * @return array|SyncSettingsStore[]
 	 */
-	public static function get_settings_as_model( int $per_page = 100,string $status = 'publish'): array {
+	public static function get_settings_as_model( int $per_page = 100, string $status = 'publish' ): array {
 		return static::find_multiple(
 			array(
 				'status'   => $status,
@@ -616,6 +616,8 @@ class SyncSettingsStore extends DatabaseModel {
 			}
 		}
 
+		$status = in_array( $sync_item['status'], [ 'publish', 'draft' ], true ) ? $sync_item['status'] : 'publish';
+
 		$settings = array(
 			'id'                         => isset( $sync_item['id'] ) ? intval( $sync_item['id'] ) : 0,
 			'option_id'                  => $id,
@@ -632,6 +634,7 @@ class SyncSettingsStore extends DatabaseModel {
 			'sources'                    => $sources,
 			'primary_category'           => Sanitize::text( $sync_item['primary_category'] ),
 			'keyword'                    => Sanitize::text( $sync_item['keyword'] ),
+			'status'                     => $status,
 			'keywordLoc'                 => $keyword_loc,
 			'copy_news_image'            => Sanitize::checked( $sync_item['copy_news_image'] ),
 			'enable_news_filtering'      => Sanitize::checked( $sync_item['enable_news_filtering'] ),

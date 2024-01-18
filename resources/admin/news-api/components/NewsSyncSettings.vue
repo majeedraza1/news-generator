@@ -189,6 +189,19 @@
       </td>
     </tr>
     <tr>
+      <th>Status</th>
+      <td>
+        <label>
+          <input type="radio" v-model="state.setting.status" value="publish">
+          <span>Publish</span>
+        </label>
+        <label>
+          <input type="radio" v-model="state.setting.status" value="draft">
+          <span>Draft</span>
+        </label>
+      </td>
+    </tr>
+    <tr>
       <th>Will be delivered to</th>
       <td>
         <template v-if="setting.to_sites">
@@ -334,7 +347,6 @@ import {
 import LocationBox from "./LocationBox.vue";
 import {
   Dialog,
-  Notify,
   ShaplaButton,
   ShaplaCheckbox,
   ShaplaColumn,
@@ -342,11 +354,10 @@ import {
   ShaplaInput,
   ShaplaModal,
   ShaplaRadio,
-  ShaplaSelect, Spinner
+  ShaplaSelect
 } from "@shapla/vue-components";
 import CategoryBox from "./CategoryBox.vue";
 import http from "../../../utils/axios";
-import axios from "../../../utils/axios";
 import ConceptBox from "./ConceptBox.vue";
 import SourceBox from "./SourceBox.vue";
 

@@ -129,7 +129,7 @@ const getSettings = (status: string = 'publish') => {
   crud.getItems({status}).then((data) => {
     state.settings = data.settings as NewsSyncSettingsInterface[];
     state.pagination = data.pagination as PaginationDataInterface;
-    state.statuses = data.statuses as StatusDataInterface[];
+    state.statuses = (data.statuses as StatusDataInterface[]).filter(status => status.key !== 'all');
     state.categories = data.categories as SelectOptionsInterface[];
     state.languages = data.languages as SelectOptionsInterface[];
     state.countries = data.countries as SelectOptionsInterface[];
@@ -229,9 +229,7 @@ onMounted(() => {
     <ShaplaButton theme="primary" size="small" @click.prevent="addSyncSetting">Add Sync Setting</ShaplaButton>
   </div>
   <div class="flex">
-    <div style="display: none;">
-      <ShaplaTableStatusList :statuses="state.statuses" @change="onStatusChange"/>
-    </div>
+    <ShaplaTableStatusList :statuses="state.statuses" @change="onStatusChange"/>
     <div class="flex-grow"></div>
     <ShaplaTablePagination
         :current-page="state.pagination.current_page"
