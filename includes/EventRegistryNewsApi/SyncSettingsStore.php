@@ -281,26 +281,26 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Get NewsAPI HTTP query info
 	 *
-	 * @param  array $setting
+	 * @param  array  $setting
 	 *
 	 * @return array
 	 */
 	public function get_client_query_info(): array {
 		$client = new Client();
 		$client->add_headers( 'Content-Type', 'application/json' );
-		$sanitized_args       = $client->get_articles_sanitized_args( $this->get_data(), true );
-		list( $url, $args )   = $client->get_url_and_arguments(
+		$sanitized_args = $client->get_articles_sanitized_args( $this->get_data(), true );
+		list( $url, $args ) = $client->get_url_and_arguments(
 			'GET',
 			'/article/getArticles',
 			$sanitized_args
 		);
-		$args                 = array_merge( array( 'url' => $url ), $args );
+		$args = array_merge( array( 'url' => $url ), $args );
 		list( $url2, $args2 ) = $client->get_url_and_arguments(
 			'POST',
 			'/article/getArticles',
 			$sanitized_args
 		);
-		$args2                = array_merge( array( 'url' => $url2 ), $args2 );
+		$args2 = array_merge( array( 'url' => $url2 ), $args2 );
 
 		return array(
 			'get'  => $args,
@@ -311,13 +311,14 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Get settings
 	 *
-	 * @param  int $per_page  Number of items to return.
+	 * @param  int  $per_page  Number of items to return.
 	 *
 	 * @return array|SyncSettingsStore[]
 	 */
-	public static function get_settings_as_model( int $per_page = 100 ): array {
+	public static function get_settings_as_model( int $per_page = 100,string $status = 'publish'): array {
 		return static::find_multiple(
 			array(
+				'status'   => $status,
 				'per_page' => $per_page,
 				'order_by' => array(
 					array(
@@ -360,7 +361,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Create if not exists
 	 *
-	 * @param  array $data  List of data to create.
+	 * @param  array  $data  List of data to create.
 	 *
 	 * @return self|false
 	 */
@@ -388,7 +389,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Find single item by primary key
 	 *
-	 * @param  string $option_id  The uuid.
+	 * @param  string  $option_id  The uuid.
 	 *
 	 * @return false|static
 	 */
@@ -475,13 +476,19 @@ class SyncSettingsStore extends DatabaseModel {
 			update_option( $table . '_version', '1.4.1' );
 		}
 
+		if ( version_compare( $version, '1.5.0', '<' ) ) {
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `status` VARCHAR(20) NOT NULL DEFAULT 'publish' AFTER `news_filtering_instruction`" );
+
+			update_option( $table . '_version', '1.5.0' );
+		}
+
 		static::copy_settings();
 	}
 
 	/**
 	 * Set total new items
 	 *
-	 * @param  int $total_items  Total items.
+	 * @param  int  $total_items  Total items.
 	 *
 	 * @return void
 	 */
@@ -492,7 +499,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Set total existing items
 	 *
-	 * @param  int $total_existing_items  Total items.
+	 * @param  int  $total_existing_items  Total items.
 	 *
 	 * @return void
 	 */
@@ -503,7 +510,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Set total found items
 	 *
-	 * @param  int $total_found_items  Total items.
+	 * @param  int  $total_found_items  Total items.
 	 *
 	 * @return void
 	 */
@@ -514,7 +521,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Set total found items
 	 *
-	 * @param  int $total_omitted_items  Total items.
+	 * @param  int  $total_omitted_items  Total items.
 	 *
 	 * @return void
 	 */
@@ -542,7 +549,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Update multiple records
 	 *
-	 * @param  array[] $data  List of settings.
+	 * @param  array[]  $data  List of settings.
 	 *
 	 * @return array
 	 */
@@ -558,7 +565,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Sanitize multiple value
 	 *
-	 * @param  array $options
+	 * @param  array  $options
 	 *
 	 * @return array
 	 */
@@ -578,7 +585,7 @@ class SyncSettingsStore extends DatabaseModel {
 	/**
 	 * Sanitize settings
 	 *
-	 * @param  array $value
+	 * @param  array  $value
 	 *
 	 * @return array
 	 */

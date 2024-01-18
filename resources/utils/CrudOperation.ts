@@ -8,6 +8,13 @@ interface PaginationDataInterface {
   total_pages: number;
 }
 
+interface StatusDataInterface {
+  active: boolean;
+  count: number;
+  key: string;
+  label: string;
+}
+
 interface CollectionArgumentInterface {
   page?: number;
   per_page?: number;
@@ -21,6 +28,7 @@ interface CollectionArgumentInterface {
 interface ServerCollectionResponseDataInterface {
   items: unknown[];
   pagination: PaginationDataInterface;
+  statuses?: StatusDataInterface[];
 
   [key: string]: unknown;
 }
@@ -298,6 +306,7 @@ class CrudOperation {
 
 export type {
   PaginationDataInterface,
+  StatusDataInterface,
   ServerCollectionResponseDataInterface,
   ServerSuccessResponseInterface,
 };

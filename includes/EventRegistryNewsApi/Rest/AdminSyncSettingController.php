@@ -63,12 +63,18 @@ class AdminSyncSettingController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$items      = SyncSettings::find_multiple( array( 'per_page' => 100 ) );
-		$pagination = static::get_pagination_data( count( $items ), 100, 1 );
+		$per_page   = 100;
+		$page       = (int) $request->get_param( 'page' );
+		$status     = (string) $request->get_param( 'status' );
+		$status     = in_array( $status, array( 'publish', 'draft' ), true ) ? $status : 'publish';
+		$counts     = $this->get_store()->count_records( $request->get_params() );
+		$count      = $counts[ $status ] ?? $counts['all'];
+		$pagination = static::get_pagination_data( $count, $per_page, $page );
 
 		return $this->respondOK(
 			array(
-				'settings'         => $items,
+				'settings'         => SyncSettings::get_settings_as_model( $per_page, $status ),
+				'statuses'         => SyncSettings::get_statuses_count( $status ),
 				'pagination'       => $pagination,
 				'countries'        => Country::countries_for_select_options(),
 				'categories'       => Category::categories_for_select_options(),

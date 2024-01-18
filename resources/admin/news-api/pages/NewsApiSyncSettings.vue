@@ -6,12 +6,13 @@ import {
   ShaplaModal,
   ShaplaTable,
   ShaplaTablePagination,
+  ShaplaTableStatusList,
   Spinner
 } from "@shapla/vue-components";
 import NewsSyncSettings from "../components/NewsSyncSettings.vue";
 import {onMounted, reactive} from "vue";
 import {NewsSyncSettingsInterface, SelectOptionsInterface} from "../../../utils/interfaces";
-import CrudOperation, {PaginationDataInterface} from "../../../utils/CrudOperation";
+import CrudOperation, {PaginationDataInterface, StatusDataInterface} from "../../../utils/CrudOperation";
 import http from "../../../utils/axios";
 import {formatISO8601DateTime} from "../../../utils/humanTimeDiff";
 
@@ -19,6 +20,8 @@ const crud = new CrudOperation('newsapi-sync-settings', http);
 
 interface ServerResponseInterface {
   settings: NewsSyncSettingsInterface[];
+  pagination: PaginationDataInterface;
+  statuses: StatusDataInterface[];
   categories: SelectOptionsInterface[];
   countries: SelectOptionsInterface[];
   languages: SelectOptionsInterface[];
@@ -29,12 +32,14 @@ interface NewsApiSyncSettingsStateInterface extends ServerResponseInterface {
   activeSetting: NewsSyncSettingsInterface | null;
   showEditModal: boolean;
   openQueryInfoModal: boolean;
-  pagination: PaginationDataInterface;
+  status: 'publish' | 'draft' | string;
 }
 
 const state = reactive<NewsApiSyncSettingsStateInterface>({
   settings: [],
   pagination: {per_page: 100, current_page: 1, total_items: 0, total_pages: 1},
+  statuses: [],
+  status: 'publish',
   categories: [],
   countries: [],
   languages: [],
@@ -120,10 +125,11 @@ const duplicateSyncSetting = (settings: NewsSyncSettingsInterface) => {
   })
 }
 
-const getSettings = () => {
-  crud.getItems().then((data) => {
+const getSettings = (status: string = 'publish') => {
+  crud.getItems({status}).then((data) => {
     state.settings = data.settings as NewsSyncSettingsInterface[];
     state.pagination = data.pagination as PaginationDataInterface;
+    state.statuses = data.statuses as StatusDataInterface[];
     state.categories = data.categories as SelectOptionsInterface[];
     state.languages = data.languages as SelectOptionsInterface[];
     state.countries = data.countries as SelectOptionsInterface[];
@@ -205,6 +211,13 @@ const onActionClick = (action: string, setting: NewsSyncSettingsInterface) => {
   }
 }
 
+const onStatusChange = (status: StatusDataInterface) => {
+  if (state.status !== status.key) {
+    state.status = status.key;
+    getSettings(status.key);
+  }
+}
+
 onMounted(() => {
   getSettings();
 })
@@ -215,11 +228,17 @@ onMounted(() => {
     <ShaplaButton theme="primary" size="small" @click.prevent="getSettings" outline>Refresh</ShaplaButton>
     <ShaplaButton theme="primary" size="small" @click.prevent="addSyncSetting">Add Sync Setting</ShaplaButton>
   </div>
-  <ShaplaTablePagination
-      :current-page="state.pagination.current_page"
-      :per-page="state.pagination.per_page"
-      :total-items="state.pagination.total_items"
-  />
+  <div class="flex">
+    <div style="display: none;">
+      <ShaplaTableStatusList :statuses="state.statuses" @change="onStatusChange"/>
+    </div>
+    <div class="flex-grow"></div>
+    <ShaplaTablePagination
+        :current-page="state.pagination.current_page"
+        :per-page="state.pagination.per_page"
+        :total-items="state.pagination.total_items"
+    />
+  </div>
   <div class="my-4">
     <ShaplaTable
         :items="state.settings"
