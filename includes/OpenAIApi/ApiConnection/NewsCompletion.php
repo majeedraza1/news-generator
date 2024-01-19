@@ -106,7 +106,6 @@ class NewsCompletion extends OpenAiRestClient {
 
 		// Update article.
 		$article->update_openai_news_id( $news_id );
-		static::generate_image_id( $news );
 
 		return $news;
 	}

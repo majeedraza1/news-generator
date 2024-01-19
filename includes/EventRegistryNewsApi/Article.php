@@ -204,10 +204,7 @@ class Article extends Data {
 
 		// Sync image if it is enabled.
 		if ( $sync_settings->should_copy_image() ) {
-			CopyNewsImage::init()->push_to_queue( [
-				'news_id'        => $this->get_id(),
-				'openai_news_id' => $news_id,
-			] );
+			CopyNewsImage::add_to_sync( $this->get_id(), $news_id );
 		}
 
 		return $news_id;

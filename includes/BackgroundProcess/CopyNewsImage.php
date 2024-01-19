@@ -3,18 +3,23 @@
 namespace StackonetNewsGenerator\BackgroundProcess;
 
 use finfo;
-use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use StackonetNewsGenerator\EventRegistryNewsApi\Setting;
-use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
-use StackonetNewsGenerator\Providers\GoogleVisionClient;
 use Stackonet\WP\Framework\Media\UploadedFile;
 use Stackonet\WP\Framework\Media\Uploader;
 use Stackonet\WP\Framework\Supports\Filesystem;
+use Stackonet\WP\Framework\Supports\Logger;
 use Stackonet\WP\Framework\Supports\Validate;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\Setting;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\Providers\GoogleVisionClient;
 use WP_Error;
 use const FILEINFO_MIME_TYPE;
 use const PATHINFO_EXTENSION;
 
+/**
+ * CopyNewsImage class
+ */
 class CopyNewsImage extends BackgroundProcessBase {
 	/**
 	 * The instance of the class
@@ -44,20 +49,41 @@ class CopyNewsImage extends BackgroundProcessBase {
 		return self::$instance;
 	}
 
-	protected function task( $item ) {
-		$news_id        = isset( $item['news_id'] ) ? intval( $item['news_id'] ) : 0;
-		$openai_news_id = isset( $item['openai_news_id'] ) ? intval( $item['openai_news_id'] ) : 0;
-		$article        = ( new ArticleStore() )->find_single( $news_id );
-		$news           = ( new NewsStore() )->find_single( $openai_news_id );
-		if ( Validate::url( $article['image'] ) && 0 === $news['image_id'] ) {
-			$image_id = $this->copy_image_as_webp( $article['image'], $news['title'] );
-			if ( is_numeric( $image_id ) ) {
-				static::add_attachment_info(
-					intval( $image_id ),
-					intval( $news['source_id'] ),
-					intval( $news['id'] )
-				);
+	/**
+	 * @param  int  $article_id
+	 * @param  int  $news_id
+	 *
+	 * @return void
+	 */
+	public static function add_to_sync( int $article_id, int $news_id ) {
+		$pending = static::init()->get_pending_items();
+		if ( count( $pending ) ) {
+			$news_ids = wp_list_pluck( $pending, 'openai_news_id' );
+			if ( in_array( $news_id, $news_ids, true ) ) {
+				return;
 			}
+		}
+		static::init()->push_to_queue(
+			array(
+				'news_id'        => $article_id,
+				'openai_news_id' => $news_id,
+			)
+		);
+	}
+
+	protected function task( $item ) {
+		$openai_news_id = isset( $item['openai_news_id'] ) ? intval( $item['openai_news_id'] ) : 0;
+		if ( $this->is_item_running( $openai_news_id, 'thumbnail-image' ) ) {
+			Logger::log( sprintf( 'Another task is already running. News %s; Field: %s', $openai_news_id, 'image' ) );
+
+			return $item;
+		}
+		$this->set_item_running( $openai_news_id, 'thumbnail-image' );
+
+		$news     = NewsStore::find_by_id( $openai_news_id );
+		$image_id = NewsCompletion::generate_image_id( $news );
+		if ( ! $image_id ) {
+			Logger::log( sprintf( 'Failed to copy image for news %s', $news->get_id() ) );
 		}
 
 		return false;
@@ -170,14 +196,14 @@ class CopyNewsImage extends BackgroundProcessBase {
 	 *
 	 * @return int|WP_Error
 	 */
-	protected static function generate_attachment_metadata( string $file_path, string $mime_type, string $title ) {
+	private static function generate_attachment_metadata( string $file_path, string $mime_type, string $title ) {
 		$upload_dir = wp_upload_dir();
-		$data       = [
+		$data       = array(
 			'guid'           => str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $file_path ),
 			'post_title'     => preg_replace( '/\.[^.]+$/', '', sanitize_text_field( $title ) ),
 			'post_status'    => 'inherit',
 			'post_mime_type' => $mime_type,
-		];
+		);
 
 		$attachment_id = wp_insert_attachment( $data, $file_path );
 
