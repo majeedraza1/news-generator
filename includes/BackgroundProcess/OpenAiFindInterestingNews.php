@@ -64,7 +64,6 @@ class OpenAiFindInterestingNews extends BackgroundProcessBase {
 	}
 
 	protected function task( $item ) {
-		$start_time     = microtime( true );
 		$sync_option_id = $item['sync_option_id'] ?? '';
 		if ( ! static::can_send_more_openai_request() ) {
 			return $item;
@@ -114,17 +113,22 @@ class OpenAiFindInterestingNews extends BackgroundProcessBase {
 				if ( ! $article instanceof Article ) {
 					continue;
 				}
-				if ( ! in_array( $id, $pending_tasks, true ) ) {
-					OpenAiReCreateNewsTitle::init()->push_to_queue(
-						array(
-							'news_id'     => $id,
-							'created_via' => 'interesting-news',
-							'batch_id'    => $batch_id,
-							'created_at'  => current_time( 'mysql', true ),
-						)
-					);
+				if ( $sync_options->use_actual_news() ) {
+					$article->copy_to_news();
+				} else {
+					if ( ! in_array( $id, $pending_tasks, true ) ) {
+						OpenAiReCreateNewsTitle::init()->push_to_queue(
+							array(
+								'news_id'     => $id,
+								'created_via' => 'interesting-news',
+								'batch_id'    => $batch_id,
+								'created_at'  => current_time( 'mysql', true ),
+							)
+						);
+					}
 				}
 			}
+
 			if ( $total_suggested ) {
 				foreach ( $new_ids as $new_id ) {
 					if ( in_array( $new_id, $suggested_news, true ) ) {
@@ -139,10 +143,6 @@ class OpenAiFindInterestingNews extends BackgroundProcessBase {
 				}
 			}
 		}
-
-		$total_time = microtime( true ) - $start_time;
-
-		// Logger::log( sprintf( 'Total time to complete is %s seconds for #%s.', $total_time, $sync_option_id ) );
 
 		return false;
 	}

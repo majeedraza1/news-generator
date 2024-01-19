@@ -191,14 +191,18 @@
     <tr>
       <th>Status</th>
       <td>
-        <label>
-          <input type="radio" v-model="state.setting.status" value="publish">
-          <span>Publish</span>
-        </label>
-        <label>
-          <input type="radio" v-model="state.setting.status" value="draft">
-          <span>Draft</span>
-        </label>
+        <div class="flex space-x-2">
+          <label>
+            <input type="radio" v-model="state.setting.status" value="publish">
+            <span>Publish</span>
+          </label>
+          <label>
+            <input type="radio" v-model="state.setting.status" value="draft">
+            <span>Draft</span>
+          </label>
+        </div>
+        <p class="description">Setting 'Draft' won't run automatically for news sync but you can still test all option
+          manually.</p>
       </td>
     </tr>
     <tr>

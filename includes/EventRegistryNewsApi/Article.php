@@ -3,6 +3,7 @@
 namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use Stackonet\WP\Framework\Abstracts\Data;
+use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 
 /**
@@ -200,6 +201,14 @@ class Article extends Data {
 
 		$news_id = ( new NewsStore() )->create( $article_data );
 		$this->update_openai_news_id( $news_id );
+
+		// Sync image if it is enabled.
+		if ( $sync_settings->should_copy_image() ) {
+			CopyNewsImage::init()->push_to_queue( [
+				'news_id'        => $this->get_id(),
+				'openai_news_id' => $news_id,
+			] );
+		}
 
 		return $news_id;
 	}
