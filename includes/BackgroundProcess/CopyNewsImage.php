@@ -37,6 +37,13 @@ class CopyNewsImage extends BackgroundProcessBase {
 	protected $action = 'copy_image_from_remote';
 
 	/**
+	 * Admin notice heading
+	 *
+	 * @var string
+	 */
+	protected $admin_notice_heading = 'A background task is running to copy {{total_items}} news images from remote sites.';
+
+	/**
 	 * Only one instance of the class can be loaded
 	 *
 	 * @return self

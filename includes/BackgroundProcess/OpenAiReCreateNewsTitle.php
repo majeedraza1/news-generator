@@ -158,7 +158,7 @@ class OpenAiReCreateNewsTitle extends BackgroundProcessBase {
 
 		// Check if already news exists.
 		if ( $article->get_openai_news_id() ) {
-			OpenAiReCreateNewsBody::add_to_sync( $article->get_openai_news_id() );
+			OpenAiReCreateFocusKeyphrase::add_to_sync( $article->get_openai_news_id() );
 
 			return false;
 		}
@@ -210,7 +210,7 @@ class OpenAiReCreateNewsTitle extends BackgroundProcessBase {
 		}
 
 		if ( $ai_news instanceof News ) {
-			OpenAiReCreateNewsBody::add_to_sync( $ai_news->get_id() );
+			OpenAiReCreateFocusKeyphrase::add_to_sync( $ai_news->get_id() );
 
 			return false;
 		}

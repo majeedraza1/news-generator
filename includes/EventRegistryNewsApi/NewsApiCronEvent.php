@@ -2,8 +2,10 @@
 
 namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
+use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
 use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateFocusKeyphrase;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsBody;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncInstagramFields;
@@ -246,11 +248,21 @@ class NewsApiCronEvent {
 
 			return;
 		}
+		$step3a = OpenAiReCreateFocusKeyphrase::init();
+		if ( $step3a->has_pending_items() ) {
+			$step3a->dispatch();
+
+			return;
+		}
 		$step3b = OpenAiReCreateNewsBody::init();
 		if ( $step3b->has_pending_items() ) {
 			$step3b->dispatch();
 
 			return;
+		}
+		$step3c = CopyNewsImage::init();
+		if ( $step3c->has_pending_items() ) {
+			$step3c->dispatch();
 		}
 		$step5 = OpenAiSyncNews::init();
 		if ( $step5->has_pending_items() ) {
@@ -279,14 +291,10 @@ class NewsApiCronEvent {
 		$step7 = OpenAiSyncInstagramFields::init();
 		if ( $step7->has_pending_items() ) {
 			$step7->dispatch();
-		} else {
-			// static::send_instagram_news();
 		}
 		$step4 = OpenAiSyncTwitterFields::init();
 		if ( $step4->has_pending_items() ) {
 			$step4->dispatch();
-		} else {
-			// static::send_twitter_news();
 		}
 	}
 

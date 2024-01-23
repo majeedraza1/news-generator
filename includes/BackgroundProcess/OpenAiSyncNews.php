@@ -54,7 +54,7 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 	/**
 	 * Perform task
 	 *
-	 * @param  array  $item  Lists of data to process.
+	 * @param  array $item  Lists of data to process.
 	 *
 	 * @return array|false
 	 */
@@ -112,7 +112,7 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 	/**
 	 * Add to sync
 	 *
-	 * @param  array  $data  Array of data to process.
+	 * @param  array $data  Array of data to process.
 	 *
 	 * @return void
 	 */
@@ -124,7 +124,7 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 		$fields = array_keys( NewsCompletion::fields_to_actions() );
 		foreach ( $fields as $field ) {
 			// News body is being handled with another task.
-			if ( 'body' === $field ) {
+			if ( in_array( $field, array( 'body', 'focus_keyphrase' ), true ) ) {
 				continue;
 			}
 			if ( Setting::should_sync_field( $field ) ) {
@@ -154,7 +154,7 @@ class OpenAiSyncNews extends BackgroundProcessBase {
 	/**
 	 * Do action when sync is complete.
 	 *
-	 * @param  array  $item  The data to sync.
+	 * @param  array $item  The data to sync.
 	 * @param  News  $ai_news  The News object.
 	 *
 	 * @return void

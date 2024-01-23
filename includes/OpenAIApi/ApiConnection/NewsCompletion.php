@@ -231,8 +231,10 @@ class NewsCompletion extends OpenAiRestClient {
 	public static function title_completions( Article $article ) {
 		$response = static::recreate_article(
 			array(
-				'title'   => sanitize_text_field( $article->get_title() ),
-				'content' => sanitize_textarea_field( $article->get_body() ),
+				'title'           => sanitize_text_field( $article->get_title() ),
+				'content'         => sanitize_textarea_field( $article->get_body() ),
+				'newsapi:title'   => sanitize_text_field( $article->get_title() ),
+				'newsapi:content' => sanitize_textarea_field( $article->get_body() ),
 			),
 			Setting::get_title_instruction(),
 			'title',
@@ -898,16 +900,28 @@ class NewsCompletion extends OpenAiRestClient {
 	 * @return array
 	 */
 	public static function get_placeholders( News $news ): array {
+		$article       = new Article( $news->get_source_news() );
+		$article_title = sanitize_text_field( $article->get_title() );
+		$article_body  = sanitize_textarea_field( $article->get_body() );
+
+		$news_title = sanitize_text_field( $news->get_title() );
+		if ( empty( $news_title ) ) {
+			$news_title = $article_title;
+		}
+		$news_body = sanitize_textarea_field( $news->get_content() );
+		if ( empty( $news_body ) ) {
+			$news_body = $article_body;
+		}
+
 		$args = array(
-			'title'      => sanitize_text_field( $news->get_title() ),
-			'content'    => sanitize_textarea_field( $news->get_content() ),
-			'ig_heading' => sanitize_textarea_field( $news->get_instagram_heading() ),
+			'title'           => $news_title,
+			'content'         => $news_body,
+			'focus_keyphrase' => sanitize_text_field( $news->get_focus_keyphrase() ),
+			'ig_heading'      => sanitize_textarea_field( $news->get_instagram_heading() ),
 		);
 
-		$article = new Article( $news->get_source_news() );
-
-		$args['newsapi:title']   = sanitize_text_field( $article->get_title() );
-		$args['newsapi:content'] = sanitize_textarea_field( $article->get_body() );
+		$args['newsapi:title']   = $article_title;
+		$args['newsapi:content'] = $article_body;
 		$args['newsapi:links']   = sanitize_textarea_field( $article->get_links_as_string() );
 
 		return $args;
@@ -921,10 +935,10 @@ class NewsCompletion extends OpenAiRestClient {
 	public static function fields_to_actions(): array {
 		return array(
 			'body'            => array( __CLASS__, 'generate_body' ),
+			'focus_keyphrase' => array( __CLASS__, 'generate_focus_keyphrase' ),
 			'image_id'        => array( __CLASS__, 'generate_image_id' ),
 			'tags'            => array( __CLASS__, 'generate_tags' ),
 			'meta'            => array( __CLASS__, 'generate_meta' ),
-			'focus_keyphrase' => array( __CLASS__, 'generate_focus_keyphrase' ),
 			'facebook'        => array( __CLASS__, 'generate_facebook' ),
 			'tweet'           => array( __CLASS__, 'generate_tweet' ),
 			'news_faqs'       => array( __CLASS__, 'generate_news_faqs' ),
