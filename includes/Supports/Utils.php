@@ -2,7 +2,43 @@
 
 namespace StackonetNewsGenerator\Supports;
 
+use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateFocusKeyphrase;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsBody;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiSyncNews;
+
+/**
+ * Utils
+ */
 class Utils {
+	/**
+	 * Is the news is in queue.
+	 *
+	 * @param  int  $openai_news_id  OpenAi news id.
+	 *
+	 * @return bool
+	 */
+	public static function is_in_sync_queue( int $openai_news_id ): bool {
+		$pending_focus_keyphrase = OpenAiReCreateFocusKeyphrase::init()->get_pending_background_tasks();
+		if ( in_array( $openai_news_id, $pending_focus_keyphrase, true ) ) {
+			return true;
+		}
+		$pending_tasks = OpenAiReCreateNewsBody::init()->get_pending_background_tasks();
+		if ( in_array( $openai_news_id, $pending_tasks, true ) ) {
+			return true;
+		}
+		$pending_tasks = CopyNewsImage::init()->get_pending_background_tasks();
+		if ( in_array( $openai_news_id, $pending_tasks, true ) ) {
+			return true;
+		}
+		$pending_tasks = OpenAiSyncNews::init()->get_pending_background_tasks();
+		if ( in_array( $openai_news_id, $pending_tasks, true ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * Max allowed time
 	 *
@@ -14,10 +50,20 @@ class Utils {
 		return min( ( $max_exe_time - 15 ), intval( $max_exe_time * .9 ) );
 	}
 
+	/**
+	 * Max execution time
+	 *
+	 * @return int
+	 */
 	public static function max_execution_time(): int {
 		return (int) ini_get( 'max_execution_time' );
 	}
 
+	/**
+	 * Get memory limit
+	 *
+	 * @return int
+	 */
 	public static function get_memory_limit(): int {
 		if ( function_exists( 'ini_get' ) ) {
 			$memory_limit = ini_get( 'memory_limit' );
@@ -36,7 +82,7 @@ class Utils {
 	/**
 	 * Str word count for UTF-8
 	 *
-	 * @param string $str Get word count in a string.
+	 * @param  string  $str  Get word count in a string.
 	 *
 	 * @return int
 	 */
@@ -46,14 +92,22 @@ class Utils {
 		return count( $a );
 	}
 
+	/**
+	 * Convert bytes to human size
+	 *
+	 * @param $size
+	 * @param $unit
+	 *
+	 * @return string
+	 */
 	public static function bytes_to_human_size( $size, $unit = '' ) {
-		if ( ( ! $unit && $size >= 1 << 30 ) || 'GB' == $unit ) {
+		if ( ( ! $unit && $size >= 1 << 30 ) || 'GB' === $unit ) {
 			return number_format( $size / ( 1 << 30 ), 0 ) . 'GB';
 		}
-		if ( ( ! $unit && $size >= 1 << 20 ) || 'MB' == $unit ) {
+		if ( ( ! $unit && $size >= 1 << 20 ) || 'MB' === $unit ) {
 			return number_format( $size / ( 1 << 20 ), 0 ) . 'MB';
 		}
-		if ( ( ! $unit && $size >= 1 << 10 ) || 'KB' == $unit ) {
+		if ( ( ! $unit && $size >= 1 << 10 ) || 'KB' === $unit ) {
 			return number_format( $size / ( 1 << 10 ), 0 ) . 'KB';
 		}
 

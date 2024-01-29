@@ -204,7 +204,7 @@ class Article extends Data {
 
 		// Sync image if it is enabled.
 		if ( $sync_settings->should_copy_image() ) {
-			CopyNewsImage::add_to_sync( $this->get_id(), $news_id );
+			CopyNewsImage::add_to_sync( $this->get_id(), $news_id, true );
 		}
 
 		return $news_id;

@@ -103,14 +103,29 @@ class OpenAiReCreateNewsBody extends BackgroundProcessBase {
 	 * @return void
 	 */
 	public static function add_to_sync( int $news_id ) {
-		$pending = static::init()->get_pending_items();
-		if ( count( $pending ) > 0 ) {
-			$pending_news_ids = wp_list_pluck( $pending, 'news_id' );
-			if ( in_array( $news_id, $pending_news_ids, true ) ) {
-				return;
-			}
+		$pending_tasks = static::init()->get_pending_background_tasks();
+		if ( ! in_array( $news_id, $pending_tasks, true ) ) {
+			static::init()->push_to_queue( array( 'news_id' => $news_id ) );
+		}
+	}
+
+	/**
+	 * Get pending background tasks
+	 *
+	 * @return array
+	 */
+	public function get_pending_background_tasks(): array {
+		$items = $this->get_pending_items();
+
+		$data = array();
+		foreach ( $items as $value ) {
+			$data[] = $value['news_id'];
 		}
 
-		static::init()->push_to_queue( array( 'news_id' => $news_id ) );
+		if ( count( $data ) > 1 ) {
+			return array_values( array_unique( $data ) );
+		}
+
+		return $data;
 	}
 }

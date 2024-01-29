@@ -5,6 +5,7 @@ namespace StackonetNewsGenerator\Modules\Site;
 use StackonetNewsGenerator\BackgroundProcess\BackgroundProcessBase;
 use StackonetNewsGenerator\OpenAIApi\News;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
+use StackonetNewsGenerator\Supports\Utils;
 
 /**
  * BackgroundSendNewsToSite class
@@ -25,7 +26,7 @@ class BackgroundSendNewsToSite extends BackgroundProcessBase {
 	 */
 	protected $action = 'sync_send_news_to_site';
 
-	protected $admin_notice_heading = "A background task is running to send {{total_items}} news to remote sites.";
+	protected $admin_notice_heading = 'A background task is running to send {{total_items}} news to remote sites.';
 
 	/**
 	 * Only one instance of the class can be loaded
@@ -59,6 +60,13 @@ class BackgroundSendNewsToSite extends BackgroundProcessBase {
 		}
 		$this->set_item_running( $item_id, 'send_news_to_site', MINUTE_IN_SECONDS );
 
+		// News is in queue, so push it in queue.
+		if ( Utils::is_in_sync_queue( $news_id ) ) {
+			static::init()->push_to_queue( $item );
+
+			return false;
+		}
+
 		$site_data = ( new SiteStore() )->find_single( $site_id );
 		/** @var News $news */
 		$news = ( new NewsStore() )->find_single( $news_id );
@@ -77,8 +85,8 @@ class BackgroundSendNewsToSite extends BackgroundProcessBase {
 	/**
 	 * Add to queue if it not exists already
 	 *
-	 * @param int $site_id The site id.
-	 * @param int $news_id The news id.
+	 * @param  int $site_id  The site id.
+	 * @param  int $news_id  The news id.
 	 *
 	 * @return void
 	 */
@@ -94,10 +102,10 @@ class BackgroundSendNewsToSite extends BackgroundProcessBase {
 		}
 		if ( false === $exists ) {
 			static::init()->push_to_queue(
-				[
+				array(
 					'site_id' => $site_id,
 					'news_id' => $news_id,
-				]
+				)
 			);
 		}
 	}

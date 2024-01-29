@@ -57,25 +57,45 @@ class CopyNewsImage extends BackgroundProcessBase {
 	}
 
 	/**
-	 * @param  int  $article_id
-	 * @param  int  $news_id
+	 * Get pending background tasks
+	 *
+	 * @return array
+	 */
+	public function get_pending_background_tasks(): array {
+		$items = $this->get_pending_items();
+
+		$data = array();
+		foreach ( $items as $value ) {
+			$data[] = $value['openai_news_id'];
+		}
+
+		if ( count( $data ) > 1 ) {
+			return array_values( array_unique( $data ) );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Add to Sync
+	 *
+	 * @param  int  $article_id  Article id.
+	 * @param  int  $news_id  News id.
+	 * @param  bool  $send_to_sites  Should send to sites.
 	 *
 	 * @return void
 	 */
-	public static function add_to_sync( int $article_id, int $news_id ) {
-		$pending = static::init()->get_pending_items();
-		if ( count( $pending ) ) {
-			$news_ids = wp_list_pluck( $pending, 'openai_news_id' );
-			if ( in_array( $news_id, $news_ids, true ) ) {
-				return;
-			}
+	public static function add_to_sync( int $article_id, int $news_id, bool $send_to_sites = false ) {
+		$pending_tasks = static::init()->get_pending_background_tasks();
+		if ( ! in_array( $news_id, $pending_tasks, true ) ) {
+			static::init()->push_to_queue(
+				array(
+					'news_id'        => $article_id,
+					'openai_news_id' => $news_id,
+					'send_to_sites'  => $send_to_sites ? 'yes' : 'no',
+				)
+			);
 		}
-		static::init()->push_to_queue(
-			array(
-				'news_id'        => $article_id,
-				'openai_news_id' => $news_id,
-			)
-		);
 	}
 
 	protected function task( $item ) {
@@ -91,6 +111,10 @@ class CopyNewsImage extends BackgroundProcessBase {
 		$image_id = NewsCompletion::generate_image_id( $news );
 		if ( ! $image_id ) {
 			Logger::log( sprintf( 'Failed to copy image for news %s', $news->get_id() ) );
+		}
+
+		if ( isset( $item['send_to_sites'] ) && 'yes' === $item['send_to_sites'] ) {
+			$news->send_to_sites();
 		}
 
 		return false;
