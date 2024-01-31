@@ -9,6 +9,7 @@ use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Setting as EventRegistryNewsApiSettings;
+use StackonetNewsGenerator\Modules\NaverDotComNews\NaverApiClient;
 use StackonetNewsGenerator\Supports\Utils;
 use WP_Error;
 
@@ -287,12 +288,15 @@ class ArticleStore extends DataStoreBase {
 	/**
 	 * Sync news
 	 *
-	 * @param  array  $options  Api settings.
+	 * @param  array  $settings  Api settings.
 	 * @param  bool  $force  Load from api.
 	 *
 	 * @return array|WP_Error
 	 */
 	public static function sync_news( SyncSettingsStore $settings, bool $force = true ) {
+		if ( $settings->is_service_provider_naver() ) {
+			return NaverApiClient::sync_news( $settings, $force );
+		}
 		$news = ( new Client() )->get_articles( $settings, $force );
 		if ( is_wp_error( $news ) ) {
 			return $news;
@@ -307,7 +311,7 @@ class ArticleStore extends DataStoreBase {
 		$new_ids                = array();
 		$articles               = array();
 		$total_omitted_articles = 0;
-		foreach ( $news['results'] as $index => $result ) {
+		foreach ( $news['results'] as $result ) {
 			$slug = sanitize_title_with_dashes( $result['title'], '', 'save' );
 			$slug = mb_substr( $slug, 0, 250 );
 
@@ -415,7 +419,7 @@ class ArticleStore extends DataStoreBase {
 	 *
 	 * @return array|false
 	 */
-	public static function find_by_slug_or_uri( string $slug, string $uri ) {
+	public static function find_by_slug_or_uri( string $slug, ?string $uri = '' ) {
 		global $wpdb;
 		$self  = new static();
 		$table = $self->get_table_name();

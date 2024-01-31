@@ -20,6 +20,15 @@
       </td>
     </tr>
     <tr>
+      <th scope="row"><label :for="`service_provider-${index}`">Service Provider</label></th>
+      <td>
+        <div class="flex space-x-2">
+          <ShaplaRadio label="newsapi.ai" value="newsapi.ai" v-model="state.setting.service_provider"/>
+          <ShaplaRadio label="naver.com" value="naver.com" v-model="state.setting.service_provider"/>
+        </div>
+      </td>
+    </tr>
+    <tr v-if="state.setting.service_provider === 'newsapi.ai'">
       <th scope="row"><label :for="`primary-category-${index}`">Copy News Image</label></th>
       <td>
         <ShaplaCheckbox
@@ -50,144 +59,174 @@
         <p class="description">All news from this setting will be used as live news update.</p>
       </td>
     </tr>
-    <tr>
-      <th scope="row"><label :for="`sync-fields-${index}`">Sync Fields</label></th>
-      <td>
-        <div class="flex flex-wrap space-x-2">
-          <ShaplaCheckbox
-              v-for="_field in news_sync_fields"
-              :key="_field.value"
-              :value="_field.value"
-              :label="_field.label"
-              v-model="state.setting.fields"
-          />
-        </div>
-      </td>
-    </tr>
-    <tr v-show="state.setting.fields.includes('keyword')">
-      <th scope="row"><label :for="`keyword-${index}`">Keyword</label></th>
-      <td>
-        <div class="mb-2">
+    <template v-if="state.setting.service_provider === 'naver.com'">
+      <tr>
+        <th scope="row"><label :for="`keyword-${index}`">Keyword</label></th>
+        <td>
           <ShaplaInput
               label="Keyword"
               v-model="state.setting.keyword"
           />
-
-          <div>
-            <label for="">Keyword Location</label>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row"><label :for="`primary-category-${index}`">News Filtering</label></th>
+        <td>
+          <ShaplaCheckbox
+              v-model="state.setting.enable_news_filtering"
+              label="Enable news filtering"
+          />
+          <div class="mt-4" v-show="state.setting.enable_news_filtering">
+            <ShaplaInput
+                type="textarea"
+                label="Instruction for OpenAI"
+                v-model="state.setting.news_filtering_instruction"
+                rows="4"
+            />
+            <p class="description">Leave it empty to use global instruction.</p>
+          </div>
+        </td>
+      </tr>
+    </template>
+    <template v-if="state.setting.service_provider === 'newsapi.ai'">
+      <tr>
+        <th scope="row"><label :for="`sync-fields-${index}`">Sync Fields</label></th>
+        <td>
+          <div class="flex flex-wrap space-x-2">
+            <ShaplaCheckbox
+                v-for="_field in news_sync_fields"
+                :key="_field.value"
+                :value="_field.value"
+                :label="_field.label"
+                v-model="state.setting.fields"
+            />
+          </div>
+        </td>
+      </tr>
+      <tr v-show="state.setting.fields.includes('keyword')">
+        <th scope="row"><label :for="`keyword-${index}`">Keyword</label></th>
+        <td>
+          <div class="mb-2">
+            <ShaplaInput
+                label="Keyword"
+                v-model="state.setting.keyword"
+            />
             <div>
-              <ShaplaRadio v-model="state.setting.keywordLoc" value="title">Title</ShaplaRadio>
-              <ShaplaRadio v-model="state.setting.keywordLoc" value="body">Body</ShaplaRadio>
-              <ShaplaRadio v-model="state.setting.keywordLoc" value="title-or-body">Title or Body
-              </ShaplaRadio>
-              <ShaplaRadio v-model="state.setting.keywordLoc" value="title-and-body">Both Title and Body
-              </ShaplaRadio>
+              <label for="">Keyword Location</label>
+              <div>
+                <ShaplaRadio v-model="state.setting.keywordLoc" value="title">Title</ShaplaRadio>
+                <ShaplaRadio v-model="state.setting.keywordLoc" value="body">Body</ShaplaRadio>
+                <ShaplaRadio v-model="state.setting.keywordLoc" value="title-or-body">Title or Body
+                </ShaplaRadio>
+                <ShaplaRadio v-model="state.setting.keywordLoc" value="title-and-body">Both Title and Body
+                </ShaplaRadio>
+              </div>
             </div>
           </div>
-        </div>
-      </td>
-    </tr>
-    <tr v-show="state.setting.fields.includes('locationUri')">
-      <th scope="row"><label :for="`location-${index}`">Location</label></th>
-      <td>
-        <div class="mb-2">
-          <LocationBox
-              v-for="(_location, index) in state.setting.locations"
-              :key="_location.wikiUri"
-              :location="_location"
-              :deletable="true"
-              @delete="() => onLocationDelete(index)"
+        </td>
+      </tr>
+      <tr v-show="state.setting.fields.includes('locationUri')">
+        <th scope="row"><label :for="`location-${index}`">Location</label></th>
+        <td>
+          <div class="mb-2">
+            <LocationBox
+                v-for="(_location, index) in state.setting.locations"
+                :key="_location.wikiUri"
+                :location="_location"
+                :deletable="true"
+                @delete="() => onLocationDelete(index)"
+            />
+          </div>
+          <ShaplaButton @click="state.openLocationModal = true" size="small" theme="primary">
+            {{ state.setting.locations.length ? 'Change Location' : 'Select Location' }}
+          </ShaplaButton>
+        </td>
+      </tr>
+      <tr v-show="state.setting.fields.includes('categoryUri')">
+        <th scope="row"><label :for="`category-${index}`">Category</label>
+        </th>
+        <td>
+          <div class="mb-2">
+            <CategoryBox
+                v-for="(_category, index) in state.setting.categories"
+                :key="_category.uri"
+                :category="_category"
+                :deletable="true"
+                @delete="() => onCategoryDelete(index)"
+            />
+          </div>
+          <ShaplaButton @click="state.openCategoryModal = true" size="small" theme="primary">
+            {{ state.setting.categories.length ? 'Change Category' : 'Select Category' }}
+          </ShaplaButton>
+        </td>
+      </tr>
+      <tr v-show="state.setting.fields.includes('conceptUri')">
+        <th scope="row"><label :for="`concept-${index}`">Concept</label>
+        </th>
+        <td>
+          <div class="mb-2">
+            <ConceptBox
+                v-for="(_concept, index) in state.setting.concepts"
+                :key="_concept.uri"
+                :concept="_concept"
+                :deletable="true"
+                @delete="() => onConceptDelete(index)"
+            />
+          </div>
+          <ShaplaButton @click="state.openConceptModal = true" size="small" theme="primary">
+            {{ state.setting.concepts.length ? 'Change Concept' : 'Select Concept' }}
+          </ShaplaButton>
+        </td>
+      </tr>
+      <tr v-show="state.setting.fields.includes('sourceUri')">
+        <th scope="row"><label :for="`source-${index}`">Source</label>
+        </th>
+        <td>
+          <div class="mb-2">
+            <SourceBox
+                v-for="(_source,index) in state.setting.sources"
+                :key="_source.uri"
+                :source="_source"
+                :deletable="true"
+                @delete="() => onSourceDelete(index)"
+            />
+          </div>
+          <ShaplaButton @click="state.openSourceModal = true" size="small" theme="primary">
+            Select Source
+          </ShaplaButton>
+        </td>
+      </tr>
+      <tr v-show="state.setting.fields.includes('lang')">
+        <th scope="row"><label :for="`languages-${index}`">Languages</label></th>
+        <td>
+          <ShaplaSelect
+              :options="languages"
+              v-model="state.setting.lang"
+              :searchable="true"
+              :clearable="false"
+              :multiple="true"
           />
-        </div>
-        <ShaplaButton @click="state.openLocationModal = true" size="small" theme="primary">
-          {{ state.setting.locations.length ? 'Change Location' : 'Select Location' }}
-        </ShaplaButton>
-      </td>
-    </tr>
-    <tr v-show="state.setting.fields.includes('categoryUri')">
-      <th scope="row"><label :for="`category-${index}`">Category</label>
-      </th>
-      <td>
-        <div class="mb-2">
-          <CategoryBox
-              v-for="(_category, index) in state.setting.categories"
-              :key="_category.uri"
-              :category="_category"
-              :deletable="true"
-              @delete="() => onCategoryDelete(index)"
+        </td>
+      </tr>
+      <tr v-show="state.setting.fields.includes('enable_news_filtering')">
+        <th scope="row"><label :for="`primary-category-${index}`">Enable News Filtering</label></th>
+        <td>
+          <ShaplaCheckbox
+              v-model="state.setting.enable_news_filtering"
+              label="Enable news filtering"
           />
-        </div>
-        <ShaplaButton @click="state.openCategoryModal = true" size="small" theme="primary">
-          {{ state.setting.categories.length ? 'Change Category' : 'Select Category' }}
-        </ShaplaButton>
-      </td>
-    </tr>
-    <tr v-show="state.setting.fields.includes('conceptUri')">
-      <th scope="row"><label :for="`concept-${index}`">Concept</label>
-      </th>
-      <td>
-        <div class="mb-2">
-          <ConceptBox
-              v-for="(_concept, index) in state.setting.concepts"
-              :key="_concept.uri"
-              :concept="_concept"
-              :deletable="true"
-              @delete="() => onConceptDelete(index)"
-          />
-        </div>
-        <ShaplaButton @click="state.openConceptModal = true" size="small" theme="primary">
-          {{ state.setting.concepts.length ? 'Change Concept' : 'Select Concept' }}
-        </ShaplaButton>
-      </td>
-    </tr>
-    <tr v-show="state.setting.fields.includes('sourceUri')">
-      <th scope="row"><label :for="`source-${index}`">Source</label>
-      </th>
-      <td>
-        <div class="mb-2">
-          <SourceBox
-              v-for="(_source,index) in state.setting.sources"
-              :key="_source.uri"
-              :source="_source"
-              :deletable="true"
-              @delete="() => onSourceDelete(index)"
-          />
-        </div>
-        <ShaplaButton @click="state.openSourceModal = true" size="small" theme="primary">
-          Select Source
-        </ShaplaButton>
-      </td>
-    </tr>
-    <tr v-show="state.setting.fields.includes('lang')">
-      <th scope="row"><label :for="`languages-${index}`">Languages</label></th>
-      <td>
-        <ShaplaSelect
-            :options="languages"
-            v-model="state.setting.lang"
-            :searchable="true"
-            :clearable="false"
-            :multiple="true"
-        />
-      </td>
-    </tr>
-    <tr v-show="state.setting.fields.includes('enable_news_filtering')">
-      <th scope="row"><label :for="`primary-category-${index}`">Enable News Filtering</label></th>
-      <td>
-        <ShaplaCheckbox
-            v-model="state.setting.enable_news_filtering"
-            label="Enable news filtering"
-        />
-        <div class="mt-4" v-show="state.setting.enable_news_filtering">
-          <ShaplaInput
-              type="textarea"
-              label="Instruction for OpenAI"
-              v-model="state.setting.news_filtering_instruction"
-              rows="4"
-          />
-          <p class="description">Leave it empty to use global instruction.</p>
-        </div>
-      </td>
-    </tr>
+          <div class="mt-4" v-show="state.setting.enable_news_filtering">
+            <ShaplaInput
+                type="textarea"
+                label="Instruction for OpenAI"
+                v-model="state.setting.news_filtering_instruction"
+                rows="4"
+            />
+            <p class="description">Leave it empty to use global instruction.</p>
+          </div>
+        </td>
+      </tr>
+    </template>
     <tr>
       <th>Status</th>
       <td>

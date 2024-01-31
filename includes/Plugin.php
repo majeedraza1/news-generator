@@ -26,6 +26,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\ExternalLink\ExternalLinkManager;
 use StackonetNewsGenerator\Modules\ImportExport\ImportExportManager;
 use StackonetNewsGenerator\Modules\Keyword\KeywordManager;
+use StackonetNewsGenerator\Modules\NaverDotComNews\NaverDotComNewsManager;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
 use StackonetNewsGenerator\Modules\Site\REST\AdminNewsToSiteLogController;
@@ -278,6 +279,7 @@ class Plugin {
 		$this->container['module_external_link']    = ExternalLinkManager::init();
 		$this->container['module_keyword']          = KeywordManager::init();
 		$this->container['module_import_export']    = ImportExportManager::init();
+		$this->container['module_naver']            = NaverDotComNewsManager::init();
 	}
 
 	/**

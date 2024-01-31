@@ -82,6 +82,7 @@ const addSyncSetting = () => {
     enable_live_news: false,
     news_filtering_instruction: '',
     query_info: null,
+    service_provider: 'newsapi.ai'
   }
   state.settings.unshift(newSettings);
   state.activeSetting = newSettings;
@@ -243,6 +244,7 @@ onMounted(() => {
         :columns="[
           {label:'Title',key:'title'},
           {label:'Category',key:'primary_category'},
+          {label:'Service Provider',key:'service_provider'},
           {label:'Usage',key:'usage'},
           {label:'Fields',key:'fields'},
           {label:'Deliver to',key:'to_sites'},

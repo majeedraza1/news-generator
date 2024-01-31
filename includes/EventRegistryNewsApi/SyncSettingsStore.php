@@ -41,6 +41,9 @@ class SyncSettingsStore extends DatabaseModel {
 		'lang',
 	);
 
+	const SERVICE_PROVIDERS = array( 'newsapi.ai', 'naver.com' );
+	const DEFAULT_SERVICE_PROVIDER = 'newsapi.ai';
+
 	/**
 	 * The table name
 	 *
@@ -74,6 +77,7 @@ class SyncSettingsStore extends DatabaseModel {
 		$data['to_sites']               = $this->to_sites();
 		$data['query_info']             = $this->get_client_query_info();
 		$data['synced_at']              = $this->get_sync_datetime();
+		$data['service_provider']       = $this->get_service_provider();
 
 		return $data;
 	}
@@ -255,6 +259,47 @@ class SyncSettingsStore extends DatabaseModel {
 		$instruction = $this->get_prop( 'news_filtering_instruction' );
 
 		return (string) $instruction;
+	}
+
+	/**
+	 * Get keyword
+	 *
+	 * @return string
+	 */
+	public function get_keyword(): string {
+		return (string) $this->get_prop( 'keyword' );
+	}
+
+	/**
+	 * If it has keyword
+	 *
+	 * @return bool
+	 */
+	public function has_keyword(): bool {
+		return ! empty( $this->get_keyword() );
+	}
+
+	/**
+	 * Get service provider
+	 *
+	 * @return string
+	 */
+	public function get_service_provider(): string {
+		$provider = $this->get_prop( 'service_provider' );
+		if ( in_array( $provider, static::SERVICE_PROVIDERS, true ) ) {
+			return $provider;
+		}
+
+		return static::DEFAULT_SERVICE_PROVIDER;
+	}
+
+	/**
+	 * If the service provider is naver.com
+	 *
+	 * @return bool
+	 */
+	public function is_service_provider_naver(): bool {
+		return 'naver.com' === $this->get_service_provider();
 	}
 
 	/**
@@ -482,6 +527,12 @@ class SyncSettingsStore extends DatabaseModel {
 			update_option( $table . '_version', '1.5.0' );
 		}
 
+		if ( version_compare( $version, '1.6.0', '<' ) ) {
+			$wpdb->query( "ALTER TABLE $table ADD COLUMN `service_provider` VARCHAR(50) NOT NULL DEFAULT 'newsapi.ai' AFTER `status`" );
+
+			update_option( $table . '_version', '1.6.0' );
+		}
+
 		static::copy_settings();
 	}
 
@@ -616,12 +667,20 @@ class SyncSettingsStore extends DatabaseModel {
 			}
 		}
 
-		$status = in_array( $sync_item['status'], [ 'publish', 'draft' ], true ) ? $sync_item['status'] : 'publish';
+		$status = in_array( $sync_item['status'], array( 'publish', 'draft' ), true ) ?
+			$sync_item['status'] : 'publish';
+
+		$service_provider = in_array( $sync_item['service_provider'], static::SERVICE_PROVIDERS, true ) ?
+			$sync_item['service_provider'] : static::DEFAULT_SERVICE_PROVIDER;
+		if ( 'naver.com' === $service_provider ) {
+			$fields[] = 'keyword';
+		}
 
 		$settings = array(
 			'id'                         => isset( $sync_item['id'] ) ? intval( $sync_item['id'] ) : 0,
 			'option_id'                  => $id,
 			'title'                      => Sanitize::text( $sync_item['title'] ),
+			'service_provider'           => $service_provider,
 			'fields'                     => $fields,
 			'categoryUri'                => Sanitize::deep( $sync_item['categoryUri'] ),
 			'locationUri'                => Sanitize::deep( $sync_item['locationUri'] ),

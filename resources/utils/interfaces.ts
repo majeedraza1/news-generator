@@ -70,6 +70,7 @@ interface NewsSyncSettingsInterface {
   to_sites?: string[];
   fields?: string[];
   status?: 'publish' | 'draft';
+  service_provider?: 'newsapi.ai' | 'naver.com';
 }
 
 interface OpenAiSettingsInterface {

@@ -5,6 +5,7 @@ namespace StackonetNewsGenerator\BackgroundProcess;
 use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
+use StackonetNewsGenerator\Modules\NaverDotComNews\NaverApiClient;
 
 /**
  * Class BackgroundSync
@@ -85,10 +86,14 @@ class SyncEventRegistryNews extends BackgroundProcessBase {
 
 			return false;
 		}
-		$response = ArticleStore::sync_news( $option );
+		if ( $option->is_service_provider_naver() ) {
+			$response = NaverApiClient::sync_news( $option );
+		} else {
+			$response = ArticleStore::sync_news( $option );
+		}
 		if ( is_wp_error( $response ) ) {
 			$log = array(
-				'from'      => 'Event Registry News API',
+				'from'      => $option->is_service_provider_naver() ? 'Naver API' : 'Event Registry News API',
 				'option_id' => $option_id,
 				'code'      => $response->get_error_code(),
 				'message'   => $response->get_error_message(),
