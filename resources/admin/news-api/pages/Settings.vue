@@ -72,6 +72,25 @@
               </td>
             </tr>
             <tr>
+              <th>naver.com Api settings</th>
+              <td>
+                <div class="bg-white p-4">
+                  <table class="form-table">
+                    <tr>
+                      <th scope="row"><label for="naver_client_id">Client Id</label></th>
+                      <td><input type="text" id="naver_client_id" class="regular-text"
+                                 v-model="state.naver_api_settings.client_id"></td>
+                    </tr>
+                    <tr>
+                      <th scope="row"><label for="naver_client_secret">Client Secret</label></th>
+                      <td><input type="text" id="naver_client_secret" class="regular-text"
+                                 v-model="state.naver_api_settings.client_secret"></td>
+                    </tr>
+                  </table>
+                </div>
+              </td>
+            </tr>
+            <tr>
               <th scope="row"><label>Enable Automatic News Sync</label></th>
               <td>
                 <ShaplaSwitch
@@ -476,6 +495,10 @@ const state = reactive<{
   google_vision_test_url: string;
   important_news_for_instagram: string;
   instagram_new_news_interval: number;
+  naver_api_settings: {
+    client_id: string;
+    client_secret: string;
+  };
   fields_to_sync: string[];
   sync_fields: { label: string; value: string }[];
 }>({
@@ -523,6 +546,7 @@ const state = reactive<{
   keyword_instruction_for_title: '',
   fields_to_sync: [],
   sync_fields: [],
+  naver_api_settings: {client_id: '', client_secret: ''}
 })
 
 const openai_news_sync_methods = [
@@ -699,6 +723,7 @@ function getSettings() {
     state.keyword_instruction_for_body = settings.keyword_instruction_for_body;
     state.keyword_instruction_for_title = settings.keyword_instruction_for_title;
     state.fields_to_sync = settings.fields_to_sync;
+    state.naver_api_settings = settings.naver_api_settings;
     state.primary_categories = _categories;
   })
 }
@@ -734,6 +759,7 @@ function saveSettings() {
     keyword_instruction_for_body: state.keyword_instruction_for_body,
     keyword_instruction_for_title: state.keyword_instruction_for_title,
     fields_to_sync: state.fields_to_sync,
+    naver_api_settings: state.naver_api_settings,
   };
   crud.createItem(data).then(() => {
     getSettings();

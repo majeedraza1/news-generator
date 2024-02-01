@@ -3,6 +3,7 @@
 namespace StackonetNewsGenerator\Modules\NaverDotComNews;
 
 use Stackonet\WP\Framework\Supports\RestClient;
+use Stackonet\WP\Framework\Supports\Sanitize;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
@@ -25,7 +26,6 @@ class NaverApiClient extends RestClient {
 	 */
 	public static function defaults(): array {
 		return array(
-			// 'api_key' => 'df5e09b42c6bff5fd5622fb00d3313bdec90fe11dcd68c001aec6062ae21cdd2',
 			'client_id'     => 'b6n3CU61_0B9TP36mb2u',
 			'client_secret' => 'Ndu4ARJSd6',
 		);
@@ -64,6 +64,39 @@ class NaverApiClient extends RestClient {
 	}
 
 	/**
+	 * Update settings
+	 *
+	 * @param  mixed $value  Raw value to be updated.
+	 *
+	 * @return array
+	 */
+	public static function update_settings( $value ): array {
+		$current = static::get_settings();
+		if ( ! is_array( $value ) ) {
+			return $current;
+		}
+
+		// If settings are defined via wp-config.php file, it cannot be changed.
+		if ( static::is_in_config_file() ) {
+			return $current;
+		}
+		$sanitized = [];
+		foreach ( static::defaults() as $key => $default ) {
+			if ( isset( $value[ $key ] ) ) {
+				$sanitized[ $key ] = Sanitize::deep( $value[ $key ] );
+			} elseif ( isset( $current[ $key ] ) ) {
+				$sanitized[ $key ] = $current[ $key ];
+			} else {
+				$sanitized[ $key ] = $default;
+			}
+		}
+
+		update_option( self::OPTION_NAME, $sanitized, true );
+
+		return $sanitized;
+	}
+
+	/**
 	 * Get setting
 	 *
 	 * @param  string  $key  The setting key.
@@ -78,22 +111,11 @@ class NaverApiClient extends RestClient {
 	}
 
 	/**
-	 * Get api key
-	 *
-	 * @return string
-	 */
-	public static function get_api_key(): string {
-		return (string) static::get_setting( 'api_key' );
-	}
-
-	/**
 	 * Class constructor
 	 */
 	public function __construct() {
 		$this->add_headers( 'X-Naver-Client-Id', static::get_setting( 'client_id' ) );
 		$this->add_headers( 'X-Naver-Client-Secret', static::get_setting( 'client_secret' ) );
-		// $this->set_global_parameter( 'engine', 'naver' );
-		// $this->set_global_parameter( 'where', 'news' );
 		parent::__construct( 'https://openapi.naver.com/v1/search' );
 	}
 
@@ -183,7 +205,7 @@ class NaverApiClient extends RestClient {
 				$article_id          = $existing_news['id'] ?? 0;
 				$existing_news_ids[] = $article_id;
 				$articles[]          = array_merge(
-					$item,
+					$article_data,
 					array(
 						'id'   => $article_id,
 						'type' => 'existing',
@@ -192,11 +214,11 @@ class NaverApiClient extends RestClient {
 				continue;
 			}
 
-			$id = $store->create( $item );
+			$id = $store->create( $article_data );
 			if ( $id ) {
 				$new_ids[]  = $id;
 				$articles[] = array_merge(
-					$item,
+					$article_data,
 					array(
 						'id'   => $id,
 						'type' => 'new',

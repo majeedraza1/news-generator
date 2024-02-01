@@ -13,6 +13,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\Setting;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\Modules\Keyword\Setting as KeywordSetting;
+use StackonetNewsGenerator\Modules\NaverDotComNews\NaverApiClient;
 use StackonetNewsGenerator\Modules\Site\SiteStore;
 use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
 use StackonetNewsGenerator\OpenAIApi\Setting as OpenAIApiSetting;
@@ -176,6 +177,7 @@ class AdminSettingController extends ApiController {
 			'keyword_instruction_for_body'        => KeywordSetting::get_keyword_instruction_for_body(),
 			'keyword_instruction_for_title'       => KeywordSetting::get_keyword_instruction_for_title(),
 			'fields_to_sync'                      => OpenAIApiSetting::get_fields_to_sync(),
+			'naver_api_settings'                  => NaverApiClient::get_settings(),
 		);
 
 		$news_sync_query_info = array();
@@ -411,6 +413,9 @@ class AdminSettingController extends ApiController {
 
 		$keyword_instruction_for_title             = $request->get_param( 'keyword_instruction_for_title' );
 		$settings['keyword_instruction_for_title'] = KeywordSetting::update_keyword_instruction_for_title( $keyword_instruction_for_title );
+
+		$naver_api_settings             = $request->get_param( 'naver_api_settings' );
+		$settings['naver_api_settings'] = NaverApiClient::update_settings( $naver_api_settings );
 
 		// @TODO make it background
 		SiteStore::send_general_data_to_sites();
