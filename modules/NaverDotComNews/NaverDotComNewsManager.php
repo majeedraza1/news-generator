@@ -2,7 +2,9 @@
 
 namespace StackonetNewsGenerator\Modules\NaverDotComNews;
 
-use StackonetNewsGenerator\EventRegistryNewsApi\Client;
+use StackonetNewsGenerator\OpenAIApi\Client;
+use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
+use StackonetNewsGenerator\Supports\Utils;
 
 /**
  * NaverDotComNewsManager class
@@ -45,14 +47,31 @@ class NaverDotComNewsManager {
 			);
 		}
 
-		$api  = NaverApiClient::search_news( '무신사' );
-		$data = [];
-		foreach ( $api['items'] as $item ) {
-			$data[] = NaverApiClient::format_api_data_for_database( $item );
+		$interesting = InterestingNews::find_single( 2 );
+		$instruction = $interesting->get_openai_api_instruction();
+		$response    = ( new Client() )->_chat_completions( $instruction );
+
+		if ( $response instanceof \WP_Error ) {
+			preg_match( '/resulted in (?P<token>\d+) tokens/', $response->get_error_message(), $matches );
+			$total_words = Utils::str_word_count_utf8( $instruction );
+			$token       = ! empty( $matches['token'] ) ? intval( $matches['token'] ) : 0;
+			if ( $token > 0 ) {
+				set_transient( 'words_to_token_multiplier', round( $token / $total_words, 1 ) );
+			}
 		}
-		$first_news = $data[0];
-		$details    = Client::extract_article_information( $first_news['news_source_url'] );
-		var_dump( [ 'news' => $first_news, 'details' => $details ] );
+		var_dump(
+			array(
+				'strlen'             => strlen( 'Sayful' ),
+				'mb_strlen'          => mb_strlen( 'Sayful' ),
+				'strlen2'            => strlen( 'আমি তোমাকে ভালোবাসি' ),
+				'mb_strlen2'         => mb_strlen( 'আমি তোমাকে ভালোবাসি' ),
+				'Total Characters'   => mb_strlen( $instruction, 'UTF-8' ),
+				'Total Words'        => Utils::str_word_count_utf8( $instruction ),
+				'Approximate Tokens' => ceil( mb_strlen( $instruction, 'UTF-8' ) / 4 ),
+				'Total Bytes'        => strlen( $instruction ),
+				'OpenAi Response'    => $response->get_error_message(),
+			)
+		);
 		wp_die();
 	}
 }

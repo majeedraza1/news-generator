@@ -229,20 +229,7 @@ class OpenAiRestClient extends RestClient {
 			'source_id'        => $args['source_id'],
 		);
 
-		$response = $this->post(
-			'chat/completions',
-			wp_json_encode(
-				array(
-					'model'    => static::DEFAULT_MODEL,
-					'messages' => array(
-						array(
-							'role'    => 'user',
-							'content' => $instruction,
-						),
-					),
-				)
-			)
-		);
+		$response = $this->_chat_completions( $instruction );
 
 		static::increase_request_count();
 
@@ -324,7 +311,11 @@ class OpenAiRestClient extends RestClient {
 		 * 1 token ~= ¾ words
 		 * 100 tokens ~= 75 words
 		 */
-		$words_to_token = ceil( $total_words * 1.33 );
+		$words_to_token_multiplier = get_transient( 'words_to_token_multiplier' );
+		if ( ! is_numeric( $words_to_token_multiplier ) ) {
+			$words_to_token_multiplier = 1.33;
+		}
+		$words_to_token = ceil( $total_words * max( 1.33, $words_to_token_multiplier ) );
 
 		/**
 		 * Maximum allowed tokens are shared between prompt and completion
@@ -405,5 +396,41 @@ class OpenAiRestClient extends RestClient {
 		$string = str_replace( array( '[', ']' ), '', $string );
 
 		return trim( $string );
+	}
+
+	/**
+	 * @param  string  $instruction
+	 *
+	 * @return array|WP_Error
+	 */
+	public function _chat_completions( string $instruction ) {
+		$response = $this->post(
+			'chat/completions',
+			wp_json_encode(
+				array(
+					'model'    => static::DEFAULT_MODEL,
+					'messages' => array(
+						array(
+							'role'    => 'user',
+							'content' => $instruction,
+						),
+					),
+				),
+				\JSON_UNESCAPED_UNICODE
+			)
+		);
+		if ( is_wp_error( $response ) ) {
+			$error_data = $response->get_error_data();
+			$error      = $error_data['error'] ?? array();
+			if ( 'context_length_exceeded' === ( $error['code'] ?? '' ) ) {
+				return new WP_Error(
+					( $error['code'] ?? '' ),
+					$error['message'] ?? '',
+					$response->get_error_data( 'debug_info' )
+				);
+			}
+		}
+
+		return $response;
 	}
 }

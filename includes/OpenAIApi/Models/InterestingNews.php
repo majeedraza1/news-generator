@@ -7,6 +7,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\OpenAIApi\Client;
 use StackonetNewsGenerator\OpenAIApi\Setting;
+use StackonetNewsGenerator\Supports\Utils;
 use WP_Error;
 
 /**
@@ -33,6 +34,15 @@ class InterestingNews extends DatabaseModel {
 	 * @var array
 	 */
 	protected static $settings_array = array();
+
+	/**
+	 * Get OpenAi api instruction
+	 *
+	 * @return string
+	 */
+	public function get_openai_api_instruction(): string {
+		return (string) $this->get_prop( 'openai_api_instruction' );
+	}
 
 	/**
 	 * Find by setting id.
@@ -113,6 +123,15 @@ class InterestingNews extends DatabaseModel {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			if ( $response->get_error_code() === 'context_length_exceeded' ) {
+				preg_match( '/resulted in (?P<token>\d+) tokens/', $response->get_error_message(), $matches );
+				$total_words = Utils::str_word_count_utf8( $instruction );
+				$token       = ! empty( $matches['token'] ) ? intval( $matches['token'] ) : 0;
+				if ( $token > 0 ) {
+					set_transient( 'words_to_token_multiplier', round( $token / $total_words, 1 ) );
+				}
+			}
+
 			static::update(
 				array(
 					'id'                  => $log_data['id'],

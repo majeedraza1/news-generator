@@ -6,6 +6,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
 use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
+use StackonetNewsGenerator\Supports\Utils;
 
 /**
  * OpenAiFindInterestingNews class
