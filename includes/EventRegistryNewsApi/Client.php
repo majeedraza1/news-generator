@@ -9,6 +9,10 @@ use WP_Error;
  * Get client
  */
 class Client extends RestClient {
+
+	/**
+	 * Class constructor
+	 */
 	public function __construct() {
 		$this->set_global_parameter( 'apiKey', Setting::get_news_api_key() );
 		parent::__construct( 'https://newsapi.ai/api/v1/' );
@@ -159,6 +163,30 @@ class Client extends RestClient {
 	}
 
 	/**
+	 * Extract article info
+	 *
+	 * @param  string  $url  The news article url.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function extract_article_information( string $url ) {
+		$self               = new self();
+		$self->api_base_url = 'http://analytics.eventregistry.org/api/v1';
+
+		$news_url    = rawurlencode( $url );
+		$cache_key   = 'eventregistry_analytics_' . md5( $news_url );
+		$information = get_transient( $cache_key );
+		if ( false === $information ) {
+			$information = $self->get( 'extractArticleInfo', array( 'url' => rawurlencode( $url ) ) );
+			if ( ! is_wp_error( $information ) ) {
+				set_transient( $cache_key, $information, HOUR_IN_SECONDS );
+			}
+		}
+
+		return $information;
+	}
+
+	/**
 	 * Get article sanitized args
 	 *
 	 * @param  array  $args  The arguments.
@@ -211,7 +239,7 @@ class Client extends RestClient {
 	/**
 	 * Sanitize sattings data to client arguments
 	 *
-	 * @param  array  $setting Settings arguments.
+	 * @param  array  $setting  Settings arguments.
 	 *
 	 * @return array
 	 */

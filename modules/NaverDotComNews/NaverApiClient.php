@@ -4,6 +4,7 @@ namespace StackonetNewsGenerator\Modules\NaverDotComNews;
 
 use Stackonet\WP\Framework\Supports\RestClient;
 use Stackonet\WP\Framework\Supports\Sanitize;
+use StackonetNewsGenerator\BackgroundProcess\ExtractArticleInformation;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
@@ -66,7 +67,7 @@ class NaverApiClient extends RestClient {
 	/**
 	 * Update settings
 	 *
-	 * @param  mixed $value  Raw value to be updated.
+	 * @param  mixed  $value  Raw value to be updated.
 	 *
 	 * @return array
 	 */
@@ -233,17 +234,29 @@ class NaverApiClient extends RestClient {
 			}
 		} elseif ( $settings->is_live_news_enabled() ) {
 			foreach ( $new_ids as $id ) {
+				// Re-generate body from newsApi.
+				if ( $settings->is_service_provider_naver() ) {
+					ExtractArticleInformation::add_to_sync( $id );
+				}
 				OpenAiReCreateNewsTitle::add_to_sync( $id );
 			}
 		} elseif ( $settings->use_actual_news() ) {
 			foreach ( $new_ids as $id ) {
 				$article = ArticleStore::find_by_id( $id );
 				if ( $article instanceof Article ) {
+					// Re-generate body from newsApi.
+					if ( $settings->is_service_provider_naver() ) {
+						ExtractArticleInformation::add_to_sync( $article->get_id() );
+					}
 					$article->copy_to_news();
 				}
 			}
 		} else {
 			foreach ( $new_ids as $id ) {
+				// Re-generate body from newsApi.
+				if ( $settings->is_service_provider_naver() ) {
+					ExtractArticleInformation::add_to_sync( $id );
+				}
 				OpenAiReCreateNewsTitle::add_to_sync( $id );
 			}
 		}

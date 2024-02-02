@@ -5,6 +5,7 @@ namespace StackonetNewsGenerator;
 use StackonetNewsGenerator\Admin\Admin;
 use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
 use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
+use StackonetNewsGenerator\BackgroundProcess\ExtractArticleInformation;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateFocusKeyphrase;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsBody;
@@ -290,6 +291,7 @@ class Plugin {
 	public function background_tasks() {
 		$this->container['bg_step1']  = SyncEventRegistryNews::init();
 		$this->container['bg_step2']  = OpenAiFindInterestingNews::init();
+		$this->container['bg_step2b'] = ExtractArticleInformation::init();
 		$this->container['bg_step3']  = OpenAiReCreateNewsTitle::init();
 		$this->container['bg_step3a'] = OpenAiReCreateFocusKeyphrase::init();
 		$this->container['bg_step3b'] = OpenAiReCreateNewsBody::init();

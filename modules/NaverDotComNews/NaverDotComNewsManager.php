@@ -2,7 +2,7 @@
 
 namespace StackonetNewsGenerator\Modules\NaverDotComNews;
 
-use Symfony\Component\DomCrawler\Crawler;
+use StackonetNewsGenerator\EventRegistryNewsApi\Client;
 
 /**
  * NaverDotComNewsManager class
@@ -50,7 +50,9 @@ class NaverDotComNewsManager {
 		foreach ( $api['items'] as $item ) {
 			$data[] = NaverApiClient::format_api_data_for_database( $item );
 		}
-		var_dump( $data );
+		$first_news = $data[0];
+		$details    = Client::extract_article_information( $first_news['news_source_url'] );
+		var_dump( [ 'news' => $first_news, 'details' => $details ] );
 		wp_die();
 	}
 }

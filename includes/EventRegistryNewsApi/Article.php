@@ -4,6 +4,7 @@ namespace StackonetNewsGenerator\EventRegistryNewsApi;
 
 use Stackonet\WP\Framework\Abstracts\Data;
 use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
+use StackonetNewsGenerator\BackgroundProcess\ExtractArticleInformation;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 
 /**
@@ -85,6 +86,15 @@ class Article extends Data {
 	 */
 	public function get_image_id(): int {
 		return (int) $this->get_prop( 'image_id' );
+	}
+
+	/**
+	 * Get news source url
+	 *
+	 * @return string
+	 */
+	public function get_news_source_url(): string {
+		return (string) $this->get_prop( 'news_source_url' );
 	}
 
 	/**
@@ -201,6 +211,11 @@ class Article extends Data {
 
 		$news_id = ( new NewsStore() )->create( $article_data );
 		$this->update_openai_news_id( $news_id );
+
+		// Re-generate body from newsApi.
+		if ( $sync_settings->is_service_provider_naver() ) {
+			ExtractArticleInformation::add_to_sync( $this->get_id() );
+		}
 
 		// Sync image if it is enabled.
 		if ( $sync_settings->should_copy_image() ) {

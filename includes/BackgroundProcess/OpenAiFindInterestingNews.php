@@ -117,6 +117,9 @@ class OpenAiFindInterestingNews extends BackgroundProcessBase {
 					$article->copy_to_news();
 				} else {
 					if ( ! in_array( $id, $pending_tasks, true ) ) {
+						if ( $sync_options->is_service_provider_naver() ) {
+							ExtractArticleInformation::add_to_sync( $article->get_id() );
+						}
 						OpenAiReCreateNewsTitle::init()->push_to_queue(
 							array(
 								'news_id'     => $id,
