@@ -156,12 +156,12 @@ class NaverApiClient extends RestClient {
 	public static function format_api_data_for_database( array $item, ?SyncSettingsStore $settings = null ): array {
 		$title         = sanitize_text_field( $item['title'] ?? '' );
 		$slug          = sanitize_title_with_dashes( $title, '', 'save' );
-		$slug          = mb_substr( $slug, 0, 250 );
 		$news_datetime = gmdate( 'Y-m-d H:i:s', strtotime( $item['pubDate'] ) );
 
 		$data = array(
 			'title'             => $title,
-			'slug'              => $slug,
+			'slug'              => md5( $title ),
+			'uri'               => bin2hex( random_bytes( 10 ) ),
 			'body'              => $item['description'] ?? '',
 			'news_source_url'   => esc_url( $item['originallink'] ?? '' ),
 			'news_datetime'     => $news_datetime,

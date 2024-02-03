@@ -6,6 +6,7 @@ use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Client;
+use StackonetNewsGenerator\Supports\Utils;
 
 /**
  * ExtractArticleInformation class
@@ -138,7 +139,9 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 			return false;
 		}
 
-		$article->update_field( 'body', $details['body'] );
+		if ( Utils::str_word_count_utf8( $details['body'] ) > 50 ) {
+			$article->update_field( 'body', $details['body'] );
+		}
 
 		return false;
 	}
