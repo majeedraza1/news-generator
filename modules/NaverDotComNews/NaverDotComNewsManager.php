@@ -61,15 +61,9 @@ class NaverDotComNewsManager {
 		}
 		var_dump(
 			array(
-				'strlen'             => strlen( 'Sayful' ),
-				'mb_strlen'          => mb_strlen( 'Sayful' ),
-				'strlen2'            => strlen( 'আমি তোমাকে ভালোবাসি' ),
-				'mb_strlen2'         => mb_strlen( 'আমি তোমাকে ভালোবাসি' ),
-				'Total Characters'   => mb_strlen( $instruction, 'UTF-8' ),
-				'Total Words'        => Utils::str_word_count_utf8( $instruction ),
-				'Approximate Tokens' => ceil( mb_strlen( $instruction, 'UTF-8' ) / 4 ),
-				'Total Bytes'        => strlen( $instruction ),
-				'OpenAi Response'    => $response->get_error_message(),
+				'factor'          => get_transient( 'words_to_token_multiplier' ),
+				'instruction'     => $instruction,
+				'OpenAi Response' => $response->get_error_message(),
 			)
 		);
 		wp_die();

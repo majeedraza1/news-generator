@@ -17,7 +17,12 @@ class OpenAiRestClient extends RestClient {
 	/**
 	 * Default model
 	 */
-	const DEFAULT_MODEL = 'gpt-3.5-turbo';
+	const DEFAULT_MODEL = 'gpt-3.5-turbo-0125';
+
+	/**
+	 * Supported models
+	 */
+	const MODELS = array( 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125' );
 
 	/**
 	 * Maximum allowed token
@@ -47,6 +52,20 @@ class OpenAiRestClient extends RestClient {
 	 * for Pay-as-you-go users (after 48 hours), TPM 90,000
 	 */
 	const GPT_35_TURBO_MAX_TPM = 90000;
+
+	/**
+	 * Get openAI chat model
+	 *
+	 * @return string
+	 */
+	public static function get_model(): string {
+		$model = get_option( 'openai_chat_model' );
+		if ( ! empty( $model ) && in_array( $model, static::MODELS, true ) ) {
+			return $model;
+		}
+
+		return static::DEFAULT_MODEL;
+	}
 
 	/**
 	 * Class constructor
@@ -80,7 +99,7 @@ class OpenAiRestClient extends RestClient {
 	 * @return int
 	 */
 	public static function get_rpm_count(): int {
-		$name = sprintf( '_chat_gpt_rpm_count_%s_%s', static::DEFAULT_MODEL, gmdate( 'Ymd-Hi', time() ) );
+		$name = sprintf( '_chat_gpt_rpm_count_%s_%s', static::get_model(), gmdate( 'Ymd-Hi', time() ) );
 		$rpm  = get_transient( $name );
 
 		return is_numeric( $rpm ) ? (int) $rpm : 0;
@@ -92,7 +111,7 @@ class OpenAiRestClient extends RestClient {
 	 * @return int
 	 */
 	public static function get_tpm_count(): int {
-		$name = sprintf( '_chat_gpt_tpm_count_%s_%s', static::DEFAULT_MODEL, gmdate( 'Ymd-Hi', time() ) );
+		$name = sprintf( '_chat_gpt_tpm_count_%s_%s', static::get_model(), gmdate( 'Ymd-Hi', time() ) );
 		$rpm  = get_transient( $name );
 
 		return is_numeric( $rpm ) ? (int) $rpm : 0;
@@ -223,7 +242,7 @@ class OpenAiRestClient extends RestClient {
 
 		$log_data = array(
 			'belongs_to_group' => $args['group'],
-			'model'            => static::DEFAULT_MODEL,
+			'model'            => static::get_model(),
 			'instruction'      => $instruction,
 			'source_type'      => $args['source_type'],
 			'source_id'        => $args['source_id'],
@@ -333,7 +352,7 @@ class OpenAiRestClient extends RestClient {
 	 */
 	public static function increase_request_count() {
 		$current_value = static::get_rpm_count();
-		$name          = sprintf( '_chat_gpt_rpm_count_%s_%s', static::DEFAULT_MODEL, gmdate( 'Ymd-Hi', time() ) );
+		$name          = sprintf( '_chat_gpt_rpm_count_%s_%s', static::get_model(), gmdate( 'Ymd-Hi', time() ) );
 		set_transient( $name, ( $current_value + 1 ), MINUTE_IN_SECONDS * 5 );
 
 		$current_value = static::get_rpd_count();
@@ -350,7 +369,7 @@ class OpenAiRestClient extends RestClient {
 	 */
 	public static function increase_token_count( int $token_used ) {
 		$current_value = static::get_tpm_count();
-		$name          = sprintf( '_chat_gpt_tpm_count_%s_%s', static::DEFAULT_MODEL, gmdate( 'Ymd-Hi', time() ) );
+		$name          = sprintf( '_chat_gpt_tpm_count_%s_%s', static::get_model(), gmdate( 'Ymd-Hi', time() ) );
 		set_transient( $name, ( $current_value + $token_used ), MINUTE_IN_SECONDS * 5 );
 
 		$daily_token = static::get_tpd_count();
@@ -408,7 +427,7 @@ class OpenAiRestClient extends RestClient {
 			'chat/completions',
 			wp_json_encode(
 				array(
-					'model'    => static::DEFAULT_MODEL,
+					'model'    => static::get_model(),
 					'messages' => array(
 						array(
 							'role'    => 'user',
