@@ -44,14 +44,14 @@ class AdminSettingController extends ApiController {
 			'/settings',
 			array(
 				array(
-					'methods'  => WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_items' ),
-//					'permission_callback' => array( $this, 'create_item_permissions_check' ),
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_items' ),
+					'permission_callback' => array( $this, 'create_item_permissions_check' ),
 				),
 				array(
-					'methods'  => WP_REST_Server::CREATABLE,
-					'callback' => array( $this, 'create_item' ),
-//					'permission_callback' => array( $this, 'create_item_permissions_check' ),
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_item' ),
+					'permission_callback' => array( $this, 'create_item_permissions_check' ),
 				),
 			)
 		);

@@ -200,7 +200,7 @@ class NaverApiClient extends RestClient {
 		$articles               = array();
 		$total_omitted_articles = 0;
 		foreach ( $api_response['items'] as $item ) {
-			$article_data  = NaverApiClient::format_api_data_for_database( $item );
+			$article_data  = static::format_api_data_for_database( $item, $settings );
 			$existing_news = ArticleStore::find_by_slug_or_uri( $article_data['slug'] );
 			if ( $existing_news ) {
 				$article_id          = $existing_news['id'] ?? 0;

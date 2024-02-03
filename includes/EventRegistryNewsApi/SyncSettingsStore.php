@@ -5,6 +5,7 @@ namespace StackonetNewsGenerator\EventRegistryNewsApi;
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 use Stackonet\WP\Framework\Supports\Sanitize;
 use Stackonet\WP\Framework\Supports\Validate;
+use StackonetNewsGenerator\Modules\NaverDotComNews\NaverApiClient;
 use StackonetNewsGenerator\Modules\Site\SiteStore;
 
 /**
@@ -331,6 +332,25 @@ class SyncSettingsStore extends DatabaseModel {
 	 * @return array
 	 */
 	public function get_client_query_info(): array {
+		if ( $this->is_service_provider_naver() ) {
+			$client = new NaverApiClient();
+			list( $url, $args ) = $client->get_url_and_arguments(
+				'GET',
+				'/news.json',
+				array(
+					'query'   => rawurlencode( $this->get_keyword() ),
+					'display' => 100,
+					'start'   => 1,
+					'sort'    => 'date',
+				)
+			);
+			$args = array_merge( array( 'url' => $url ), $args );
+
+			return array(
+				'get'  => $args,
+				'post' => $args,
+			);
+		}
 		$client = new Client();
 		$client->add_headers( 'Content-Type', 'application/json' );
 		$sanitized_args = $client->get_articles_sanitized_args( $this->get_data(), true );
@@ -675,6 +695,7 @@ class SyncSettingsStore extends DatabaseModel {
 		if ( 'naver.com' === $service_provider ) {
 			$fields[] = 'keyword';
 		}
+		$fields = array_unique( $fields );
 
 		$settings = array(
 			'id'                         => isset( $sync_item['id'] ) ? intval( $sync_item['id'] ) : 0,

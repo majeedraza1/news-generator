@@ -3,7 +3,6 @@
 namespace StackonetNewsGenerator;
 
 use Stackonet\WP\Framework\Media\UploadedFile;
-use Stackonet\WP\Framework\Supports\RestClient;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Category;
 use StackonetNewsGenerator\EventRegistryNewsApi\Setting;
@@ -60,18 +59,12 @@ class ImportExportSettings {
 					$content = json_decode( $content, true );
 				}
 
-				if ( is_array( $content ) ) {
-					$rest_client = new class() extends RestClient {
-						public function __construct() {
-//							$this->add_headers( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
-							$this->add_headers( 'Content-Type', 'application/json' );
-							parent::__construct( rest_url( 'stackonet-news-generator/v1' ) );
-						}
-					};
-					$response    = $rest_client->post( 'settings', wp_json_encode( $content ) );
-					if ( is_array( $response ) && isset( $response['success'] ) ) {
-						echo 'Settings has been updated.';
+				if ( is_array( $content ) && isset( $content['news_sync'] ) && is_array( $content['news_sync'] ) ) {
+					foreach ( $content['news_sync'] as $setting ) {
+						SyncSettingsStore::create_or_update( $setting );
 					}
+
+					echo 'Settings has been updated.';
 				}
 			}
 			wp_redirect( admin_url( 'admin.php?import=stackonet_news_generator-import-settings' ) );
