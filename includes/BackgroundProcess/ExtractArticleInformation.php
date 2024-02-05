@@ -6,6 +6,7 @@ use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Client;
+use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use StackonetNewsGenerator\Supports\Utils;
 
 /**
@@ -139,8 +140,19 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 			return false;
 		}
 
-		if ( Utils::str_word_count_utf8( $details['body'] ) > 50 ) {
-			$article->update_field( 'body', $details['body'] );
+		$sync_settings = $article->get_sync_settings();
+
+		if ( is_string( $details['body'] ) && Utils::str_word_count_utf8( $details['body'] ) > 50 ) {
+			$body = stripslashes( wp_filter_post_kses( $details['body'] ) );
+			$article->update_field( 'body', $body );
+			if ( $sync_settings->use_actual_news() && $article->get_openai_news_id() ) {
+				( new NewsStore() )->update(
+					array(
+						'id'   => $article->get_openai_news_id(),
+						'body' => $body,
+					)
+				);
+			}
 		}
 
 		return false;

@@ -3,10 +3,12 @@
 namespace StackonetNewsGenerator;
 
 use Stackonet\WP\Framework\Supports\Filesystem;
+use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\Client;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
 use StackonetNewsGenerator\Modules\Keyword\OpenAiClient;
 use StackonetNewsGenerator\OpenAIApi\Client as OpenAIApiClient;
@@ -55,6 +57,7 @@ class Ajax {
 			);
 			add_action( 'wp_ajax_import_test_settings', array( self::$instance, 'import_test_settings' ) );
 			add_action( 'wp_ajax_debug_openai_logs', array( self::$instance, 'debug_openai_logs' ) );
+			add_action( 'wp_ajax_debug_extract_article_info', array( self::$instance, 'debug_extract_article_info' ) );
 		}
 
 		return self::$instance;
@@ -65,13 +68,17 @@ class Ajax {
 	 */
 	public function do_ajax_testing() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Sorry. This link only for developer to do some testing.',
-				'stackonet-news-generator' ) );
+			wp_die(
+				esc_html__(
+					'Sorry. This link only for developer to do some testing.',
+					'stackonet-news-generator'
+				)
+			);
 		}
 
 		var_dump(
 			array(
-				Setting::get_fields_to_sync()
+				Setting::get_fields_to_sync(),
 			)
 		);
 
@@ -128,6 +135,41 @@ class Ajax {
 				SyncSettings::update_multiple( $content );
 			}
 		}
+
+		wp_die();
+	}
+
+	public function debug_extract_article_info() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die(
+				esc_html__(
+					'Sorry. This link only for developer to do some testing.',
+					'stackonet-news-generator'
+				)
+			);
+		}
+		$should_update = isset( $_REQUEST['update'] ) && Validate::checked( $_REQUEST['update'] );
+		$article_id    = isset( $_REQUEST['article_id'] ) ? intval( $_REQUEST['article_id'] ) : 0;
+		$article       = ArticleStore::find_by_id( $article_id );
+		if ( ! $article instanceof Article ) {
+			wp_die(
+				sprintf(
+					esc_html__( 'Sorry. no article found for the id %s.', 'stackonet-news-generator' ),
+					intval( $article_id )
+				)
+			);
+		}
+
+		$details = Client::extract_article_information( $article->get_news_source_url() );
+		if ( $should_update && ! empty( $details['body'] ) ) {
+			( new ArticleStore() )->update(
+				array(
+					'id'   => $article_id,
+					'body' => $details['body'],
+				)
+			);
+		}
+		var_dump( $details );
 
 		wp_die();
 	}
