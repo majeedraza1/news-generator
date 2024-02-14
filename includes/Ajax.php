@@ -11,12 +11,13 @@ use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Client;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
 use StackonetNewsGenerator\Modules\Keyword\OpenAiClient;
+use StackonetNewsGenerator\Modules\NewsCrawler\NewsParser;
+use StackonetNewsGenerator\Modules\NewsCrawler\SiteSetting;
 use StackonetNewsGenerator\OpenAIApi\Client as OpenAIApiClient;
 use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
 use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
 use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
 use StackonetNewsGenerator\OpenAIApi\News;
-use StackonetNewsGenerator\OpenAIApi\Setting;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use StackonetNewsGenerator\Providers\GoogleVisionClient;
 use StackonetNewsGenerator\Supports\Utils;
@@ -76,9 +77,15 @@ class Ajax {
 			);
 		}
 
+		$settings = new SiteSetting();
+		var_dump( $settings );
+
+		$url  = 'https://www.thebell.co.kr/free/content/ArticleView.asp?key=202401260749236200107516';
+		$body = NewsParser::parse_url( $url );
 		var_dump(
 			array(
-				Setting::get_fields_to_sync(),
+				'url'  => $url,
+				'body' => $body,
 			)
 		);
 

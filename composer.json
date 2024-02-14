@@ -29,7 +29,9 @@
     "ext-fileinfo": "*",
     "stackonet/wp-helpers": "^1.10.0",
     "abraham/twitteroauth": "^4.0",
-    "ext-imagick": "*"
+    "ext-imagick": "*",
+    "symfony/dom-crawler": "^5.4",
+    "symfony/css-selector": "^5.4"
   },
   "require-dev": {
     "wp-cli/wp-cli-bundle": "*",
