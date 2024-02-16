@@ -6,6 +6,7 @@ use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Client;
+use StackonetNewsGenerator\Modules\NewsCrawler\NewsParser;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use StackonetNewsGenerator\Supports\Utils;
 
@@ -146,6 +147,17 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 			$body = stripslashes( wp_filter_post_kses( $details['body'] ) );
 			$article->update_field( 'body', $body );
 			if ( $sync_settings->use_actual_news() && $article->get_openai_news_id() ) {
+				( new NewsStore() )->update(
+					array(
+						'id'   => $article->get_openai_news_id(),
+						'body' => $body,
+					)
+				);
+			}
+		} else {
+			$crawl_news = NewsParser::parse_news_from_url( $news_source_url );
+			$body       = $crawl_news->get_article();
+			if ( Utils::str_word_count_utf8( $body ) > 50 ) {
 				( new NewsStore() )->update(
 					array(
 						'id'   => $article->get_openai_news_id(),

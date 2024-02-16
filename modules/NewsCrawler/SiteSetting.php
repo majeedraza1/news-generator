@@ -20,7 +20,8 @@ class SiteSetting {
 	 * @var string[]
 	 */
 	protected static $default = array(
-		'bodySelector' => '',
+		'titleSelector' => '',
+		'bodySelector'  => '',
 	);
 
 	/**
@@ -55,5 +56,14 @@ class SiteSetting {
 	 */
 	public function get_body_selector(): string {
 		return (string) $this->get_setting( 'bodySelector' );
+	}
+
+	/**
+	 * Get body selector
+	 *
+	 * @return string
+	 */
+	public function get_title_selector(): string {
+		return (string) $this->get_setting( 'titleSelector' );
 	}
 }

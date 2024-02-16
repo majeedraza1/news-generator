@@ -9,40 +9,65 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 class NewsParser {
 	/**
-	 * Get content from URL
+	 * Get remote content
 	 *
-	 * @param  string  $url  The URL to be parsed.
+	 * @param  string  $url  The URL content.
 	 *
 	 * @return string
 	 */
-	public static function get_content( string $url ): string {
+	protected static function _get_remote_content( string $url ) {
+		$response = wp_remote_get( $url );
+		$body     = wp_remote_retrieve_body( $response );
+
+		return $body;
+	}
+
+	/**
+	 * Get content from URL
+	 *
+	 * @param  string  $url  The URL to be parsed.
+	 * @param  bool  $force  If it should read content force fully.
+	 *
+	 * @return string
+	 */
+	public static function get_remote_content( string $url, bool $force = false ): string {
 		$cache_key = sprintf( 'get_url_content_%s', md5( $url ) );
 		$body      = get_transient( $cache_key );
-		if ( false === $body ) {
-			$response = wp_remote_get( $url );
-			$body     = wp_remote_retrieve_body( $response );
+		if ( false === $body || true === $force ) {
+			$body = static::_get_remote_content( $url );
 
-			set_transient( $cache_key, $body, HOUR_IN_SECONDS );
+			if ( ! empty( $body ) ) {
+				set_transient( $cache_key, $body, HOUR_IN_SECONDS );
+			}
 		}
 
 		return $body;
 	}
 
-	public static function parse_url( string $url ) {
-		$html    = static::get_content( $url );
-		$crawler = new Crawler( $html );
-		$crawler = $crawler->filter( 'body' );
+	/**
+	 * Parse news from URL
+	 *
+	 * @param  string  $url
+	 * @param  bool  $force
+	 *
+	 * @return News|\WP_Error
+	 */
+	public static function parse_news_from_url( string $url, bool $force = false ) {
+		$html = static::get_remote_content( $url, $force );
+		if ( empty( $html ) ) {
+			return new \WP_Error(
+				'no_content',
+				sprintf( 'No content is recovered from that url: %s', $url )
+			);
+		}
+		$news = new News( new Crawler( $html ) );
 
 		$settings = static::get_site_setting( $url );
 		if ( $settings instanceof SiteSetting ) {
-			$article = $crawler->filter( $settings->get_body_selector() );
-
-			return trim( $article->text( null, false ) );
+			$news->set_site_setting( $settings );
 		}
 
-//		$article = $crawler->filter( '#article_main' );
-//
-//		return trim( $article->text( null, false ) );
+		return $news;
 	}
 
 	public static function get_site_setting( string $url ) {
@@ -64,8 +89,13 @@ class NewsParser {
 	 */
 	public static function get_sites_list(): array {
 		return array(
-			'thebell.co.kr' => array(
-				'bodySelector' => '#article_main',
+			'thebell.co.kr'    => array(
+				'titleSelector' => '.viewHead > .tit',
+				'bodySelector'  => '#article_main',
+			),
+			'fashionbiz.co.kr' => array(
+				'titleSelector' => '.content .tit03',
+				'bodySelector'  => '.content .view_cont',
 			),
 		);
 	}

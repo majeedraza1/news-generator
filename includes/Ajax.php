@@ -12,7 +12,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\Client;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
 use StackonetNewsGenerator\Modules\Keyword\OpenAiClient;
 use StackonetNewsGenerator\Modules\NewsCrawler\NewsParser;
-use StackonetNewsGenerator\Modules\NewsCrawler\SiteSetting;
+use StackonetNewsGenerator\Modules\NewsCrawler\TestUrls;
 use StackonetNewsGenerator\OpenAIApi\Client as OpenAIApiClient;
 use StackonetNewsGenerator\OpenAIApi\Models\ApiResponseLog;
 use StackonetNewsGenerator\OpenAIApi\Models\BlackListWords;
@@ -77,15 +77,27 @@ class Ajax {
 			);
 		}
 
-		$settings = new SiteSetting();
-		var_dump( $settings );
+		$html       = "<div id='main-content' class='example'>Hello, 你好 Add some more text</div>";
+		$utf8String = '你好';
 
-		$url  = 'https://www.thebell.co.kr/free/content/ArticleView.asp?key=202401260749236200107516';
-		$body = NewsParser::parse_url( $url );
+		$regex = '/<([a-z0-9]+)(?:\s+([a-z0-9]+=\'[^\']*\')*)*\s*>([^<]*' . preg_quote( $utf8String ) . '[^<]*)<\/\1>/iu';
+
+		if ( preg_match( $regex, $html, $matches ) ) {
+			// echo $matches[0]; // Full parent element
+			// echo $matches[1]; // Tag name
+			// echo $matches[2]; // Attributes
+			// echo $matches[3]; // Value
+//			var_dump( $matches );
+		} else {
+			echo 'String not found in HTML content';
+		}
+
+		$url  = TestUrls::get_news_url( 0 );
+		$news = NewsParser::parse_news_from_url( $url, true );
 		var_dump(
 			array(
 				'url'  => $url,
-				'body' => $body,
+				'body' => $news->to_array(),
 			)
 		);
 
