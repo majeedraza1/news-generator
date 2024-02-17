@@ -534,8 +534,7 @@ class OpenAiController extends ApiController {
 			return $this->respondNotFound();
 		}
 
-		$source_uri  = $news->get_source_uri();
-		$crawler_log = NewsCrawlerLog::find_by_source_url( $source_uri );
+		$crawler_log = NewsCrawlerLog::find_by_article_id( $news->get_source_id() );
 
 		$logs = NewsToSiteLogStore::find_by_news_id( $news->get_id() );
 

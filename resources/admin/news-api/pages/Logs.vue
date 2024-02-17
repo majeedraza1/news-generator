@@ -9,6 +9,9 @@
       <ShaplaTab name="News Filtering">
         <NewsFiltering/>
       </ShaplaTab>
+      <ShaplaTab name="NewsApi Extract Article">
+        <ExtractArticleLogs/>
+      </ShaplaTab>
       <ShaplaTab name="OpenAI Logs">
         <OpenAiLogs/>
       </ShaplaTab>
@@ -34,4 +37,5 @@ import InstagramAttemptLog from "@/admin/news-api/components/InstagramAttemptLog
 import LinkeditLog from "@/admin/news-api/components/LinkeditLog.vue";
 import TwitterLog from "@/admin/news-api/components/TwitterLog.vue";
 import NewsApiLogs from "@/admin/news-api/components/NewsApiLogs.vue";
+import ExtractArticleLogs from "@/admin/news-api/components/ExtractArticleLogs.vue";
 </script>

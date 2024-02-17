@@ -29,6 +29,7 @@ use StackonetNewsGenerator\Modules\ImportExport\ImportExportManager;
 use StackonetNewsGenerator\Modules\Keyword\KeywordManager;
 use StackonetNewsGenerator\Modules\NaverDotComNews\NaverDotComNewsManager;
 use StackonetNewsGenerator\Modules\NewsCrawler\NewsCrawlerLog;
+use StackonetNewsGenerator\Modules\NewsCrawler\NewsCrawlerManager;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
 use StackonetNewsGenerator\Modules\Site\REST\AdminNewsToSiteLogController;
@@ -283,6 +284,7 @@ class Plugin {
 		$this->container['module_keyword']          = KeywordManager::init();
 		$this->container['module_import_export']    = ImportExportManager::init();
 		$this->container['module_naver']            = NaverDotComNewsManager::init();
+		$this->container['module_news_crawler']     = NewsCrawlerManager::init();
 	}
 
 	/**

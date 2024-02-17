@@ -89,7 +89,12 @@ class NewsParser {
 			$news->set_site_setting( $settings );
 		}
 
-		NewsCrawlerLog::first_or_create( $news );
+		$body = $news->get_article();
+		if ( empty( $body ) ) {
+			$article->update_field( 'body', $body );
+		}
+
+		NewsCrawlerLog::first_or_create( $news, $article );
 
 		return $news;
 	}

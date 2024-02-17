@@ -137,6 +137,9 @@
       <ShaplaTab name="Original News">
         <ArticleDetails v-if="state.originalNews" :article="state.originalNews"/>
       </ShaplaTab>
+      <ShaplaTab name="News Crawler">
+        <NewsCrawlerLog v-if="state.crawler_log" :crawler-log="state.crawler_log"/>
+      </ShaplaTab>
       <ShaplaTab name="OpenAI Logs">
         <OpenAiLogs v-if="state.openAiLogs" :logs="state.openAiLogs"/>
       </ShaplaTab>
@@ -215,6 +218,7 @@ import NewsDetails from "../components/NewsDetails.vue";
 import ArticleDetails from "../components/ArticleDetails.vue";
 import OpenAiLogs from "../components/OpenAiLogs.vue";
 import AddNewNewsModal from "@/admin/news-api/components/AddNewNewsModal.vue";
+import NewsCrawlerLog from "@/admin/news-api/components/NewsCrawlerLog.vue";
 
 const crud = new CrudOperation('openai/news', http);
 
@@ -240,6 +244,7 @@ const state = reactive<{
   default_category: string;
   openAiLogs: Record<string, any>[];
   newsToSitesLogs: Record<string, any>[];
+  crawler_log: false | Record<string, any>;
   important_news_for_tweets_enabled: boolean;
 }>({
   items: [],
@@ -266,16 +271,8 @@ const state = reactive<{
   sitesToSend: [],
   categories: null,
   default_category: '',
+  crawler_log: false,
 })
-const openAiLogsColumns = [
-  {label: 'Group', key: 'group'},
-  {label: 'Error/Success', key: 'response_type'},
-  {label: 'Source', key: 'source_type'},
-  {label: 'Source ID', key: 'source_id'},
-  {label: 'Response Time (seconds)', key: 'total_time'},
-  {label: 'Token used', key: 'total_tokens'},
-  {label: 'Datetime', key: 'created_at'},
-];
 
 const showSyncSetting = (news: OpenAiNewsInterface) => {
   state.item = news;
@@ -292,6 +289,7 @@ const getSingleArticle = (newsId: number) => {
         state.originalNews = data.source_news;
         state.openAiLogs = data.logs;
         state.newsToSitesLogs = data.news_to_sites;
+        state.crawler_log = data.crawler_log;
       })
       .finally(() => {
         Spinner.hide();

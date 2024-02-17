@@ -135,6 +135,20 @@ class News {
 	}
 
 	/**
+	 * Get site url
+	 *
+	 * @return string
+	 */
+	public function get_site_url(): string {
+		$host = wp_parse_url( $this->get_source_url() );
+		if ( isset( $host['host'] ) ) {
+			return str_replace( 'www.', '', $host['host'] );
+		}
+
+		return $this->get_source_url();
+	}
+
+	/**
 	 * Get news source url
 	 *
 	 * @return string
@@ -229,8 +243,14 @@ class News {
 	 * @return string
 	 */
 	public function find_news_content(): string {
+		$setting = $this->get_site_setting();
+		if ( $setting instanceof SiteSetting ) {
+			$selector = $setting->get_body_selector();
+		} else {
+			$selector = 'body';
+		}
 		try {
-			$body = $this->crawler->filter( 'body' )->html();
+			$body = $this->crawler->filter( $selector )->html();
 
 			return $this->sanitize_article( wp_strip_all_tags( $body ) );
 		} catch ( Exception $exception ) {
@@ -299,8 +319,14 @@ class News {
 		if ( ! empty( $heading ) ) {
 			return $heading;
 		}
+		$setting = $this->get_site_setting();
+		if ( $setting instanceof SiteSetting ) {
+			$selector = $setting->get_title_selector();
+		} else {
+			$selector = 'body h1';
+		}
 		try {
-			return $this->crawler->filter( 'body h1' )->text();
+			return $this->crawler->filter( $selector )->text();
 		} catch ( Exception $exception ) {
 			return '';
 		}
