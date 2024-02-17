@@ -12,6 +12,7 @@ use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
 use StackonetNewsGenerator\EventRegistryNewsApi\Category;
 use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettingsStore;
+use StackonetNewsGenerator\Modules\NewsCrawler\NewsCrawlerLog;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
 use StackonetNewsGenerator\Modules\Site\SiteStore;
 use StackonetNewsGenerator\Modules\Site\Stores\NewsToSiteLogStore;
@@ -533,6 +534,9 @@ class OpenAiController extends ApiController {
 			return $this->respondNotFound();
 		}
 
+		$source_uri  = $news->get_source_uri();
+		$crawler_log = NewsCrawlerLog::find_by_source_url( $source_uri );
+
 		$logs = NewsToSiteLogStore::find_by_news_id( $news->get_id() );
 
 		return $this->respondOK(
@@ -542,6 +546,7 @@ class OpenAiController extends ApiController {
 				'source_news'   => $news->get_source_news(),
 				'sites'         => $news->get_sites_list(),
 				'news_to_sites' => $logs,
+				'crawler_log'   => $crawler_log,
 			)
 		);
 	}

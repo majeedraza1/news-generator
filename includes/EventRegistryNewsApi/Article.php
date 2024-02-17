@@ -5,12 +5,20 @@ namespace StackonetNewsGenerator\EventRegistryNewsApi;
 use Stackonet\WP\Framework\Abstracts\Data;
 use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
 use StackonetNewsGenerator\BackgroundProcess\ExtractArticleInformation;
+use StackonetNewsGenerator\Modules\NewsCrawler\NewsCrawlerLog;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 
 /**
  * Article model
  */
 class Article extends Data {
+	/**
+	 * News crawler log
+	 *
+	 * @var null
+	 */
+	protected $news_crawler_log = null;
+
 	/**
 	 * Get title
 	 *
@@ -179,6 +187,19 @@ class Article extends Data {
 	 */
 	public function update_openai_news_id( int $openai_news_id ) {
 		$this->update_field( 'openai_news_id', $openai_news_id );
+	}
+
+	/**
+	 * Get news crawler log
+	 *
+	 * @return false|NewsCrawlerLog
+	 */
+	public function get_news_crawler_log() {
+		if ( is_null( $this->news_crawler_log ) ) {
+			$this->news_crawler_log = NewsCrawlerLog::find_by_source_url( $this->get_news_source_url() );
+		}
+
+		return $this->news_crawler_log;
 	}
 
 	/**

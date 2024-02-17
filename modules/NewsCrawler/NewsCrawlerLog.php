@@ -6,6 +6,7 @@ use DateTime;
 use Exception;
 use Stackonet\WP\Framework\Abstracts\DatabaseModel;
 use Stackonet\WP\Framework\Supports\Logger;
+use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 
 /**
  * NewsCrawlerLog class
@@ -21,7 +22,7 @@ class NewsCrawlerLog extends DatabaseModel {
 	/**
 	 * Find by source url
 	 *
-	 * @param  string  $source_url  News source url.
+	 * @param  string $source_url  News source url.
 	 *
 	 * @return false|static
 	 */
@@ -37,11 +38,12 @@ class NewsCrawlerLog extends DatabaseModel {
 	/**
 	 * Find a news in log or create if not exists
 	 *
-	 * @param  News  $news  News Object.
+	 * @param  News         $news  News Object.
+	 * @param  Article|null $article The Article object.
 	 *
 	 * @return static|false
 	 */
-	public static function first_or_create( News $news ) {
+	public static function first_or_create( News $news, ?Article $article = null ) {
 		$item = static::find_by_source_url( $news->get_source_url() );
 		if ( $item instanceof static ) {
 			return $item;
@@ -75,6 +77,11 @@ class NewsCrawlerLog extends DatabaseModel {
 			'date_modified'         => $date_modified,
 		);
 
+		if ( $article instanceof Article ) {
+			$data['article_id']     = $article->get_id();
+			$data['openai_news_id'] = $article->get_openai_news_id();
+		}
+
 		$id = static::create( $data );
 		if ( $id ) {
 			return static::find_single( $id );
@@ -99,6 +106,8 @@ class NewsCrawlerLog extends DatabaseModel {
 
 		$sql = "CREATE TABLE IF NOT EXISTS {$table} (
 				`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				`article_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
+				`openai_news_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
                 `source_url` varchar(200) NULL DEFAULT NULL COMMENT 'News unique id. Can be used to get details.',
                 `title` text NULL DEFAULT NULL COMMENT 'Headline of the article',
                 `summery` text NULL DEFAULT NULL COMMENT 'Summery of the article',
