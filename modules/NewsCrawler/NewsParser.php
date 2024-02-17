@@ -2,6 +2,7 @@
 
 namespace StackonetNewsGenerator\Modules\NewsCrawler;
 
+use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -60,12 +61,35 @@ class NewsParser {
 				sprintf( 'No content is recovered from that url: %s', $url )
 			);
 		}
-		$news = new News( new Crawler( $html ) );
+		$news = new News( new Crawler( $html ), $url );
 
 		$settings = static::get_site_setting( $url );
 		if ( $settings instanceof SiteSetting ) {
 			$news->set_site_setting( $settings );
 		}
+
+		NewsCrawlerLog::first_or_create( $news );
+
+		return $news;
+	}
+
+	public static function parse_news_from_article( Article $article, bool $force = false ) {
+		$url  = $article->get_news_source_url();
+		$html = static::get_remote_content( $article->get_news_source_url(), $force );
+		if ( empty( $html ) ) {
+			return new \WP_Error(
+				'no_content',
+				sprintf( 'No content is recovered from that url: %s', $url )
+			);
+		}
+		$news = new News( new Crawler( $html ), $url );
+
+		$settings = static::get_site_setting( $url );
+		if ( $settings instanceof SiteSetting ) {
+			$news->set_site_setting( $settings );
+		}
+
+		NewsCrawlerLog::first_or_create( $news );
 
 		return $news;
 	}

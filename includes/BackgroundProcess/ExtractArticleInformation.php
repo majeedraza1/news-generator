@@ -158,12 +158,15 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 			$crawl_news = NewsParser::parse_news_from_url( $news_source_url );
 			$body       = $crawl_news->get_article();
 			if ( Utils::str_word_count_utf8( $body ) > 50 ) {
-				( new NewsStore() )->update(
-					array(
-						'id'   => $article->get_openai_news_id(),
-						'body' => $body,
-					)
-				);
+				$article->update_field( 'body', $body );
+				if ( $sync_settings->use_actual_news() && $article->get_openai_news_id() ) {
+					( new NewsStore() )->update(
+						array(
+							'id'   => $article->get_openai_news_id(),
+							'body' => $body,
+						)
+					);
+				}
 			}
 		}
 

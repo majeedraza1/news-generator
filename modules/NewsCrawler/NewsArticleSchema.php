@@ -28,6 +28,24 @@ class NewsArticleSchema extends Data {
 	}
 
 	/**
+	 * Get publish datetime
+	 *
+	 * @return string
+	 */
+	public function get_published_datetime(): string {
+		return $this->get_prop( 'datePublished' );
+	}
+
+	/**
+	 * Get modified datetime
+	 *
+	 * @return string
+	 */
+	public function get_modified_datetime(): string {
+		return $this->get_prop( 'dateModified' );
+	}
+
+	/**
 	 * Get description first 5 words
 	 *
 	 * @return string

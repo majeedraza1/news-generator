@@ -11,6 +11,13 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 class News {
 	/**
+	 * News source url
+	 *
+	 * @var string
+	 */
+	protected $source_url;
+
+	/**
 	 * Symfony Crawler class
 	 *
 	 * @var Crawler
@@ -44,7 +51,8 @@ class News {
 	 * @return array
 	 */
 	public function to_array(): array {
-		return array(
+		$data = array(
+			'uuid'               => $this->get_source_url(),
 			'heading'            => $this->get_heading(),
 			'summery'            => $this->get_summery(),
 			'meta_title'         => $this->get_meta_title(),
@@ -55,7 +63,15 @@ class News {
 			'search_keywords'    => $this->get_search_keywords(),
 			'article'            => $this->get_article(),
 			'schema'             => $this->get_news_article_schema(),
+			'published_datetime' => '',
+			'modified_datetime'  => '',
 		);
+		if ( $this->has_news_article_schema() ) {
+			$data['published_datetime'] = $this->get_news_article_schema()->get_published_datetime();
+			$data['modified_datetime']  = $this->get_news_article_schema()->get_modified_datetime();
+		}
+
+		return $data;
 	}
 
 	/**
@@ -64,9 +80,9 @@ class News {
 	 * @param  Crawler  $crawler  Symfony Crawler component.
 	 * @param  SiteSetting|null  $site_setting  Site settings.
 	 */
-	public function __construct( Crawler $crawler, ?SiteSetting $site_setting = null ) {
+	public function __construct( Crawler $crawler, string $source_url ) {
 		$this->set_crawler( $crawler );
-		$this->site_setting = $site_setting;
+		$this->set_source_url( $source_url );
 	}
 
 	/**
@@ -116,6 +132,26 @@ class News {
 	 */
 	public function has_json_ld_schema_markup(): bool {
 		return false !== strpos( $this->crawler->text(), 'schema.org' );
+	}
+
+	/**
+	 * Get news source url
+	 *
+	 * @return string
+	 */
+	public function get_source_url(): string {
+		return $this->source_url;
+	}
+
+	/**
+	 * Set news source url
+	 *
+	 * @param  string  $source_url  News source url.
+	 *
+	 * @return void
+	 */
+	public function set_source_url( string $source_url ): void {
+		$this->source_url = $source_url;
 	}
 
 	/**
@@ -170,7 +206,7 @@ class News {
 	 * @return bool
 	 */
 	public function has_news_article_schema(): bool {
-		return is_array( $this->get_news_article_schema() );
+		return $this->get_news_article_schema() instanceof NewsArticleSchema;
 	}
 
 	/**

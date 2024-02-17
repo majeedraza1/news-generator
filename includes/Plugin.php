@@ -28,6 +28,7 @@ use StackonetNewsGenerator\Modules\ExternalLink\ExternalLinkManager;
 use StackonetNewsGenerator\Modules\ImportExport\ImportExportManager;
 use StackonetNewsGenerator\Modules\Keyword\KeywordManager;
 use StackonetNewsGenerator\Modules\NaverDotComNews\NaverDotComNewsManager;
+use StackonetNewsGenerator\Modules\NewsCrawler\NewsCrawlerLog;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendNewsToSite;
 use StackonetNewsGenerator\Modules\Site\BackgroundSendTagsToSite;
 use StackonetNewsGenerator\Modules\Site\REST\AdminNewsToSiteLogController;
@@ -235,6 +236,7 @@ class Plugin {
 		add_action( 'admin_init', array( InstagramAttemptLog::class, 'create_table' ) );
 		add_action( 'admin_init', array( ClientResponseLog::class, 'create_table' ) );
 		add_action( 'admin_init', array( SyncSettingsStore::class, 'create_table' ) );
+		add_action( 'admin_init', array( NewsCrawlerLog::class, 'create_table' ) );
 
 		$this->container['admin']                  = Admin::init();
 		$this->container['import_export_settings'] = ImportExportSettings::init();
