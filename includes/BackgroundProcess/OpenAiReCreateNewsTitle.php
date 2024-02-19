@@ -136,6 +136,15 @@ class OpenAiReCreateNewsTitle extends BackgroundProcessBase {
 			return false;
 		}
 
+		// Article need to extract body wait.
+		if ( ExtractArticleInformation::is_in_queue( $article->get_id() ) ) {
+			// Push item to the end of current queue.
+			static::init()->push_to_queue( $item );
+
+			// Remove item from current queue.
+			return false;
+		}
+
 		// Check if content length within approve limit.
 		if ( ! OpenAiRestClient::is_valid_for_max_token( $article->title_and_body_words_count() ) ) {
 			$error_message = sprintf(

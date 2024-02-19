@@ -3,6 +3,7 @@
 namespace StackonetNewsGenerator\Modules\Site;
 
 use StackonetNewsGenerator\BackgroundProcess\BackgroundProcessBase;
+use StackonetNewsGenerator\BackgroundProcess\ExtractArticleInformation;
 use StackonetNewsGenerator\OpenAIApi\News;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
 use StackonetNewsGenerator\Supports\Utils;
@@ -68,9 +69,21 @@ class BackgroundSendNewsToSite extends BackgroundProcessBase {
 		}
 
 		$site_data = ( new SiteStore() )->find_single( $site_id );
-		/** @var News $news */
-		$news = ( new NewsStore() )->find_single( $news_id );
-		if ( $site_data && $news instanceof News ) {
+		$news      = NewsStore::find_by_id( $news_id );
+		if ( ! $news instanceof News ) {
+			return false;
+		}
+
+		// Article need to extract body wait.
+		if ( ExtractArticleInformation::is_in_queue( $news->get_source_id() ) ) {
+			// Push item to the end of current queue.
+			static::init()->push_to_queue( $item );
+
+			// Remove item from current queue.
+			return false;
+		}
+
+		if ( $site_data ) {
 			if ( ! $news->is_sync_complete() ) {
 				return $item;
 			}
@@ -85,8 +98,8 @@ class BackgroundSendNewsToSite extends BackgroundProcessBase {
 	/**
 	 * Add to queue if it not exists already
 	 *
-	 * @param  int $site_id  The site id.
-	 * @param  int $news_id  The news id.
+	 * @param  int  $site_id  The site id.
+	 * @param  int  $news_id  The news id.
 	 *
 	 * @return void
 	 */

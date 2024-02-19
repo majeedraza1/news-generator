@@ -53,7 +53,7 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 	/**
 	 * Add to sync
 	 *
-	 * @param  int  $article_id  News id.
+	 * @param  int $article_id  News id.
 	 *
 	 * @return void
 	 */
@@ -62,6 +62,19 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 		if ( ! in_array( $article_id, $pending_tasks, true ) ) {
 			static::init()->push_to_queue( array( 'article_id' => $article_id ) );
 		}
+	}
+
+	/**
+	 * Is Article id in queue
+	 *
+	 * @param  int $article_id  Article id.
+	 *
+	 * @return bool
+	 */
+	public static function is_in_queue( int $article_id ): bool {
+		$pending_tasks = static::init()->get_pending_background_tasks();
+
+		return in_array( $article_id, $pending_tasks, true );
 	}
 
 	/**
@@ -87,7 +100,7 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 	/**
 	 * Perform task
 	 *
-	 * @param  array  $item  Lists of data to process.
+	 * @param  array $item  Lists of data to process.
 	 *
 	 * @return array|false
 	 */
