@@ -344,7 +344,19 @@ class SyncSettingsStore extends DatabaseModel {
 					'sort'    => 'date',
 				)
 			);
-			$args = array_merge( array( 'url' => $url ), $args );
+
+			$url  = wp_nonce_url(
+				add_query_arg(
+					array(
+						'action' => 'naver_api_response',
+						'id'     => $this->get_id(),
+					),
+					admin_url( 'admin-ajax.php' )
+				),
+				'naver_api_response',
+				'token'
+			);
+			$args = array_merge( array( 'url' => str_replace( '&amp;', '&', $url ) ), $args );
 
 			return array(
 				'get'  => $args,

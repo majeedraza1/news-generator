@@ -5,6 +5,7 @@ namespace StackonetNewsGenerator\EventRegistryNewsApi;
 use StackonetNewsGenerator\BackgroundProcess\CopyNewsImage;
 use StackonetNewsGenerator\BackgroundProcess\DeleteDuplicateImages;
 use StackonetNewsGenerator\BackgroundProcess\ExtractArticleInformation;
+use StackonetNewsGenerator\BackgroundProcess\OpenAiBeautifyNewsBody;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateFocusKeyphrase;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsBody;
@@ -246,6 +247,12 @@ class NewsApiCronEvent {
 		$step2b = ExtractArticleInformation::init();
 		if ( $step2b->has_pending_items() ) {
 			$step2b->dispatch();
+
+			return;
+		}
+		$step2c = OpenAiBeautifyNewsBody::init();
+		if ( $step2c->has_pending_items() ) {
+			$step2c->dispatch();
 
 			return;
 		}

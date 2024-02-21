@@ -209,7 +209,7 @@
         </td>
       </tr>
       <tr>
-        <th><label>Instruction to beautify news article</label></th>
+        <th><label>Instruction to pretty news article</label></th>
         <td>
           <textarea rows="10" class="w-full" v-model="state.instructions.beautify_article"></textarea>
           <p class="description" v-html="'Remember to user placeholder {{content}}'"></p>
