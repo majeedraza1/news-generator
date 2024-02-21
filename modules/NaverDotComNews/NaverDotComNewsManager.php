@@ -2,7 +2,9 @@
 
 namespace StackonetNewsGenerator\Modules\NaverDotComNews;
 
-use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
+use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
+use StackonetNewsGenerator\EventRegistryNewsApi\Client;
+use StackonetNewsGenerator\Modules\NewsCrawler\NewsParser;
 
 /**
  * NaverDotComNewsManager class
@@ -45,9 +47,17 @@ class NaverDotComNewsManager {
 			);
 		}
 
-		$settings     = SyncSettings::find_single( 20 );
-		$api_response = NaverApiClient::search_news( $settings->get_keyword() );
-		var_dump( $api_response );
+		$url = 'https://www.stardailynews.co.kr/news/articleView.html?idxno=436755';
+		$url = 'http://www.newsis.com/view/?id=NISX20240221_0002633905&cID=10810&pID=10800';
+
+		$article = ArticleStore::find_by_id( 1481 );
+		$news    = NewsParser::parse_news_from_article( $article );
+
+//		$settings     = SyncSettings::find_single( 20 );
+//		$api_response = NaverApiClient::search_news( $settings->get_keyword() );
+		$api_response = Client::extract_article_information( $url );
+		$api_response = '';
+		var_dump( $news->get_image_url() );
 		wp_die();
 	}
 }

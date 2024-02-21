@@ -159,6 +159,9 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 		if ( is_string( $details['body'] ) && Utils::str_word_count_utf8( $details['body'] ) > 50 ) {
 			$body = stripslashes( wp_filter_post_kses( $details['body'] ) );
 			$article->update_field( 'body', $body );
+			if ( $sync_settings->should_copy_image() && ! empty( $details['image'] ) ) {
+				$article->update_field( 'image', $body );
+			}
 			if ( $sync_settings->use_actual_news() && $article->get_openai_news_id() ) {
 				( new NewsStore() )->update(
 					array(
@@ -170,7 +173,10 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 			OpenAiBeautifyNewsBody::add_to_sync( $article_id );
 		} else {
 			$crawl_news = NewsParser::parse_news_from_url( $news_source_url );
-			$body       = $crawl_news->get_article();
+			if ( $sync_settings->should_copy_image() && ! empty( $crawl_news->get_image_url() ) ) {
+				$article->update_field( 'image', $crawl_news->get_image_url() );
+			}
+			$body = $crawl_news->get_article();
 			if ( Utils::str_word_count_utf8( $body ) > 50 ) {
 				$article->set_prop( 'body', $body );
 				$article->apply_changes();

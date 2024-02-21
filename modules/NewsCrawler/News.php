@@ -55,6 +55,7 @@ class News {
 			'uuid'               => $this->get_source_url(),
 			'heading'            => $this->get_heading(),
 			'summery'            => $this->get_summery(),
+			'image_url'          => $this->get_image_url(),
 			'meta_title'         => $this->get_meta_title(),
 			'has_json_ld_schema' => $this->has_json_ld_schema_markup(),
 			'og:title'           => $this->get_opengraph_title(),
@@ -393,6 +394,23 @@ class News {
 	 */
 	public function get_opengraph_description(): string {
 		return $this->get_meta_property( 'og:description' );
+	}
+
+	/**
+	 * Get image url
+	 *
+	 * @return string
+	 */
+	public function get_image_url(): string {
+		if ( $this->has_news_article_schema() ) {
+			return $this->get_news_article_schema()->get_image_url();
+		}
+		$og_image = $this->get_opengraph_image();
+		if ( ! empty( $og_image ) ) {
+			return $og_image;
+		}
+
+		return '';
 	}
 
 	/**

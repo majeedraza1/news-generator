@@ -28,13 +28,17 @@
         </div>
       </td>
     </tr>
-    <tr v-if="state.setting.service_provider === 'newsapi.ai'">
+    <tr>
       <th scope="row"><label :for="`primary-category-${index}`">Copy News Image</label></th>
       <td>
         <ShaplaCheckbox
             v-model="state.setting.copy_news_image"
             label="Copy image from news site"
         />
+        <p class="description" v-if="state.setting.service_provider === 'naver.com'">
+          <strong>naver.com</strong> does not provide image directly. Image will be copied if it is available on
+          <strong>newsapi.com extract article information</strong> or on <strong>News Crawl</strong> functionality.
+        </p>
       </td>
     </tr>
     <tr>

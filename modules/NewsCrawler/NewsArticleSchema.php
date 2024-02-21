@@ -46,6 +46,35 @@ class NewsArticleSchema extends Data {
 	}
 
 	/**
+	 * Get image object
+	 *
+	 * @return array
+	 */
+	public function get_image_object(): array {
+		$image = $this->get_prop( 'image' );
+		if ( is_array( $image ) && isset( $image['url'] ) ) {
+			return $image;
+		}
+
+		return array(
+			'url'    => '',
+			'width'  => 0,
+			'height' => 0,
+		);
+	}
+
+	/**
+	 * Get image url
+	 *
+	 * @return string
+	 */
+	public function get_image_url(): string {
+		$image = $this->get_image_object();
+
+		return $image['url'];
+	}
+
+	/**
 	 * Get description first 5 words
 	 *
 	 * @return string
