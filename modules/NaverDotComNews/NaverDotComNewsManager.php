@@ -2,9 +2,7 @@
 
 namespace StackonetNewsGenerator\Modules\NaverDotComNews;
 
-use StackonetNewsGenerator\OpenAIApi\Client;
-use StackonetNewsGenerator\OpenAIApi\Models\InterestingNews;
-use StackonetNewsGenerator\Supports\Utils;
+use StackonetNewsGenerator\EventRegistryNewsApi\SyncSettings;
 
 /**
  * NaverDotComNewsManager class
@@ -47,25 +45,9 @@ class NaverDotComNewsManager {
 			);
 		}
 
-		$interesting = InterestingNews::find_single( 2 );
-		$instruction = $interesting->get_openai_api_instruction();
-		$response    = ( new Client() )->_chat_completions( $instruction );
-
-		if ( $response instanceof \WP_Error ) {
-			preg_match( '/resulted in (?P<token>\d+) tokens/', $response->get_error_message(), $matches );
-			$total_words = Utils::str_word_count_utf8( $instruction );
-			$token       = ! empty( $matches['token'] ) ? intval( $matches['token'] ) : 0;
-			if ( $token > 0 ) {
-				set_transient( 'words_to_token_multiplier', round( $token / $total_words, 1 ) );
-			}
-		}
-		var_dump(
-			array(
-				'factor'          => get_transient( 'words_to_token_multiplier' ),
-				'instruction'     => $instruction,
-				'OpenAi Response' => $response->get_error_message(),
-			)
-		);
+		$settings     = SyncSettings::find_single( 20 );
+		$api_response = NaverApiClient::search_news( $settings->get_keyword() );
+		var_dump( $api_response );
 		wp_die();
 	}
 }

@@ -340,6 +340,7 @@ class Setting {
 			'important_news_for_instagram' => '',
 			'remove_blacklist_phrase'      => '',
 			'custom_keyword'               => '',
+			'beautify_article'             => '',
 		);
 	}
 
@@ -374,6 +375,7 @@ class Setting {
 			'important_news_for_instagram' => static::get_important_news_for_instagram_instruction(),
 			'remove_blacklist_phrase'      => static::get_remove_blacklist_phrase_instruction(),
 			'custom_keyword'               => static::get_custom_keyword_instruction(),
+			'beautify_article'             => static::get_beautify_article_instruction(),
 		);
 	}
 
@@ -722,6 +724,20 @@ class Setting {
 		$instruction .= 'Please insert this keyword more than 5 times in the article with 2000 words.';
 
 		return static::get_instruction_options( 'custom_keyword', $instruction );
+	}
+
+	/**
+	 * Get instruction to beautify ugly news content
+	 *
+	 * @return string
+	 */
+	public static function get_beautify_article_instruction(): string {
+		$instruction = 'Can you please beautify the article.' . PHP_EOL . PHP_EOL;
+		$instruction .= '{{content}}' . PHP_EOL . PHP_EOL;
+		$instruction .= 'The article may contain unnecessary words or phrase and may not be punctuated properly. ';
+		$instruction .= 'It may not use line break properly.' . PHP_EOL;
+
+		return static::get_instruction_options( 'beautify_article', $instruction );
 	}
 
 	/**

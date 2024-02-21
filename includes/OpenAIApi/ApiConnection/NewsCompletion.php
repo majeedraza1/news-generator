@@ -259,6 +259,38 @@ class NewsCompletion extends OpenAiRestClient {
 		return $title;
 	}
 
+
+	/**
+	 * Recreate from OpenAI Api
+	 *
+	 * @param  Article  $article  The Article object.
+	 *
+	 * @return string|WP_Error
+	 */
+	public static function beautify_article( Article $article ) {
+		$response = static::recreate_article(
+			array(
+				'title'           => sanitize_text_field( $article->get_title() ),
+				'content'         => sanitize_textarea_field( $article->get_body() ),
+				'newsapi:title'   => sanitize_text_field( $article->get_title() ),
+				'newsapi:content' => sanitize_textarea_field( $article->get_body() ),
+			),
+			Setting::get_beautify_article_instruction(),
+			'beautify_article',
+			$article->get_id()
+		);
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$content = stripslashes( $response );
+		if ( mb_strlen( $content ) < 100 ) {
+			return new WP_Error( 'rest_content_strlen_error', 'Generated content is too short.' );
+		}
+
+		return $content;
+	}
+
 	/**
 	 * Recreate article data
 	 *

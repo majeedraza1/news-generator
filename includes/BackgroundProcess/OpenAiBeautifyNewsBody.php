@@ -5,15 +5,13 @@ namespace StackonetNewsGenerator\BackgroundProcess;
 use Stackonet\WP\Framework\Supports\Logger;
 use StackonetNewsGenerator\EventRegistryNewsApi\Article;
 use StackonetNewsGenerator\EventRegistryNewsApi\ArticleStore;
-use StackonetNewsGenerator\EventRegistryNewsApi\Client;
-use StackonetNewsGenerator\Modules\NewsCrawler\NewsParser;
+use StackonetNewsGenerator\OpenAIApi\ApiConnection\NewsCompletion;
 use StackonetNewsGenerator\OpenAIApi\Stores\NewsStore;
-use StackonetNewsGenerator\Supports\Utils;
 
 /**
- * ExtractArticleInformation class
+ * OpenAiBeautifyNewsBody class
  */
-class ExtractArticleInformation extends BackgroundProcessBase {
+class OpenAiBeautifyNewsBody extends BackgroundProcessBase {
 	/**
 	 * The instance of the class
 	 *
@@ -27,14 +25,14 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 	 * @var string
 	 * @access protected
 	 */
-	protected $action = 'extract_article_information';
+	protected $action = 'beautify_news_body';
 
 	/**
 	 * Admin notice heading
 	 *
 	 * @var string
 	 */
-	protected $admin_notice_heading = 'A background task is running to sync news content for {{total_items}}  news with News api.';
+	protected $admin_notice_heading = 'A background task is running to beautify news body for {{total_items}} news with News api.';
 
 
 	/**
@@ -109,10 +107,10 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 		if ( ! $this->can_send_more_openai_request() ) {
 			return $item;
 		}
-		if ( $this->is_item_running( $article_id, 'extract_article_information' ) ) {
+		if ( $this->is_item_running( $article_id, 'beautify_news_body' ) ) {
 			return $item;
 		}
-		$this->set_item_running( $article_id, 'extract_article_information' );
+		$this->set_item_running( $article_id, 'beautify_news_body' );
 
 		$article = ArticleStore::find_by_id( $article_id );
 		if ( ! $article instanceof Article ) {
@@ -120,71 +118,30 @@ class ExtractArticleInformation extends BackgroundProcessBase {
 				sprintf(
 					'No article found for the id #%s; Field: %s',
 					$article_id,
-					'extract_article_information'
+					'beautify_news_body'
 				)
 			);
 
 			return false;
 		}
 
-		$news_source_url = $article->get_news_source_url();
-		if ( empty( $news_source_url ) ) {
-			Logger::log(
-				sprintf(
-					'No source url found for the id #%s; Field: %s',
-					$article_id,
-					'extract_article_information'
-				)
-			);
-
+		$body = NewsCompletion::beautify_article( $article );
+		if ( ! is_string( $body ) ) {
 			return false;
 		}
 
-		$details = Client::extract_article_information( $article->get_news_source_url() );
-		if ( is_wp_error( $details ) ) {
-			Logger::log(
-				sprintf(
-					'Api error for the id #%s; Field: %s; Error: %s',
-					$article_id,
-					'extract_article_information',
-					$details->get_error_message()
-				)
-			);
-
-			return false;
-		}
+		$article->update_field( 'body', $body );
+		$article->set_prop( 'body', $body );
+		$article->apply_changes();
 
 		$sync_settings = $article->get_sync_settings();
-
-		if ( is_string( $details['body'] ) && Utils::str_word_count_utf8( $details['body'] ) > 50 ) {
-			$body = stripslashes( wp_filter_post_kses( $details['body'] ) );
-			$article->update_field( 'body', $body );
-			if ( $sync_settings->use_actual_news() && $article->get_openai_news_id() ) {
-				( new NewsStore() )->update(
-					array(
-						'id'   => $article->get_openai_news_id(),
-						'body' => $body,
-					)
-				);
-			}
-			OpenAiBeautifyNewsBody::add_to_sync( $article_id );
-		} else {
-			$crawl_news = NewsParser::parse_news_from_url( $news_source_url );
-			$body       = $crawl_news->get_article();
-			if ( Utils::str_word_count_utf8( $body ) > 50 ) {
-				$article->set_prop( 'body', $body );
-				$article->apply_changes();
-				$article->update_field( 'body', $body );
-				if ( $sync_settings->use_actual_news() && $article->get_openai_news_id() ) {
-					( new NewsStore() )->update(
-						array(
-							'id'   => $article->get_openai_news_id(),
-							'body' => $body,
-						)
-					);
-				}
-				OpenAiBeautifyNewsBody::add_to_sync( $article_id );
-			}
+		if ( $sync_settings->use_actual_news() && $article->get_openai_news_id() ) {
+			( new NewsStore() )->update(
+				array(
+					'id'   => $article->get_openai_news_id(),
+					'body' => $body,
+				)
+			);
 		}
 
 		return false;

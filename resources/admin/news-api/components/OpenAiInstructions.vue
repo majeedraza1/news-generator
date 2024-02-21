@@ -208,6 +208,13 @@
           <p class="description" v-html="'Remember to user placeholder {{news_titles_list}}'"></p>
         </td>
       </tr>
+      <tr>
+        <th><label>Instruction to beautify news article</label></th>
+        <td>
+          <textarea rows="10" class="w-full" v-model="state.instructions.beautify_article"></textarea>
+          <p class="description" v-html="'Remember to user placeholder {{content}}'"></p>
+        </td>
+      </tr>
     </table>
   </div>
 </template>
@@ -245,6 +252,7 @@ const state = reactive<{
     instagram_body: string;
     important_news_for_instagram: string;
     instagram_hashtag: string;
+    beautify_article: string;
   }
 }>({
   instructions: {
@@ -268,6 +276,7 @@ const state = reactive<{
     instagram_subheading: '',
     instagram_body: '',
     instagram_hashtag: '',
+    beautify_article: '',
   }
 })
 
