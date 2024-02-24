@@ -82,24 +82,57 @@ class NaverDotComNewsManager {
 			$id           = isset( $_REQUEST['id'] ) ? intval( $_REQUEST['id'] ) : 0;
 			$setting      = SyncSettings::find_single( $id );
 			$api_response = NaverApiClient::search_news( $setting->get_keyword() );
+			$location     = $setting->get_keyword_location();
+			$total_found  = 0;
+
+			$item_html = '<div class="items">';
+			if ( is_array( $api_response ) && isset( $api_response['items'] ) ) {
+				foreach ( $api_response['items'] as $item ) {
+					$title       = static::esc_html( $item['title'] );
+					$description = static::esc_html( $item['description'] );
+
+					$selected = false;
+					if ( 'title-or-body' === $location ) {
+						$selected = true;
+					} elseif ( 'title' === $location && false !== mb_strpos( $title, $setting->get_keyword() ) ) {
+						$selected = true;
+					} elseif ( 'body' === $location && false !== mb_strpos( $description, $setting->get_keyword() ) ) {
+						$selected = true;
+					} elseif (
+						'title-and-body' === $location &&
+						false !== mb_strpos( $title, $setting->get_keyword() ) &&
+						false !== mb_strpos( $description, $setting->get_keyword() )
+					) {
+						$selected = true;
+					}
+
+					$item_classes = array( 'item' );
+					if ( $selected ) {
+						$item_classes[] = 'is-selected';
+						++ $total_found;
+					}
+
+					$item_html .= '<div class="' . esc_attr( join( ' ', $item_classes ) ) . '">';
+					$item_html .= '<div><div class="item-label">Title: </div><div class="item-content">' . $title . '</div></div>';
+					$item_html .= '<div><div class="item-label">originallink: </div><div class="item-content">' . esc_html( $item['originallink'] ) . '</div></div>';
+					$item_html .= '<div><div class="item-label">link: </div><div class="item-content">' . esc_html( $item['link'] ) . '</div></div>';
+					$item_html .= '<div><div class="item-label">description: </div><div class="item-content">' . $description . '</div></div>';
+					$item_html .= '<div><div class="item-label">pubDate: </div><div class="item-content">' . esc_html( $item['pubDate'] ) . '</div></div>';
+					$item_html .= '</div>';
+				}
+			}
+			$item_html .= '</div>';
 
 			$html = '<div>';
 
+			$html .= '<div class="heading">';
 			$html .= '<h1>Naver.com result for Keyword: ' . $setting->get_keyword() . '</h1>';
-
-			$html .= '<div>';
-			if ( is_array( $api_response ) && isset( $api_response['items'] ) ) {
-				foreach ( $api_response['items'] as $item ) {
-					$html .= '<div class="item">';
-					$html .= '<div><div class="item-label">Title: </div>' . esc_html( $item['title'] ) . '</div>';
-					$html .= '<div><div class="item-label">originallink: </div>' . esc_html( $item['originallink'] ) . '</div>';
-					$html .= '<div><div class="item-label">link: </div>' . esc_html( $item['link'] ) . '</div>';
-					$html .= '<div><div class="item-label">description: </div>' . esc_html( $item['description'] ) . '</div>';
-					$html .= '<div><div class="item-label">pubDate: </div>' . esc_html( $item['pubDate'] ) . '</div>';
-					$html .= '</div>';
-				}
-			}
+			$html .= '<div>Keyword Location: ' . $location . '</div>';
+			$html .= '<div>Total Match: ' . $total_found . '</div>';
 			$html .= '</div>';
+
+			$html .= $item_html;
+
 			$html .= '</div>';
 
 			ob_start();
@@ -113,21 +146,44 @@ class NaverDotComNewsManager {
                     border-radius: 4px;
                 }
 
+                .item.is-selected {
+                    border-color: green;
+                }
+
+                .item:not(.is-selected) {
+                    opacity: .38;
+                }
+
                 .item > div {
                     display: flex;
+                }
+
+                .item > div:not(:last-child) {
+                    border-bottom: 1px dashed rgba(0, 0, 0, .12);
+                    margin-bottom: 0.5rem;
+                    padding-bottom: 0.5rem;
                 }
 
                 .item-label {
                     min-width: 96px;
                     font-weight: bold;
                 }
+
+                .item-content b {
+                    color: #ff0000;
+                    font-weight: bold;
+                }
             </style>
 			<?php
 			$html .= ob_get_clean();
 
-			_default_wp_die_handler( $html, esc_html( $setting->get_keyword() ), array( 'back_link' => true ) );
+			_default_wp_die_handler( $html, esc_html( $setting->get_keyword() ) );
 		}
 
 		wp_die();
+	}
+
+	public static function esc_html( $data ) {
+		return wp_kses( stripslashes( $data ), 'post' );
 	}
 }

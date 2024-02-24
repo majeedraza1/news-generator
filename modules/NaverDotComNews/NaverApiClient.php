@@ -193,6 +193,7 @@ class NaverApiClient extends RestClient {
 		if ( is_wp_error( $api_response ) ) {
 			return $api_response;
 		}
+		$location               = $settings->get_keyword_location();
 		$total_pages            = ceil( $api_response['total'] / $api_response['display'] );
 		$store                  = new ArticleStore();
 		$existing_news_ids      = array();
@@ -200,7 +201,27 @@ class NaverApiClient extends RestClient {
 		$articles               = array();
 		$total_omitted_articles = 0;
 		foreach ( $api_response['items'] as $item ) {
-			$article_data  = static::format_api_data_for_database( $item, $settings );
+			$article_data = static::format_api_data_for_database( $item, $settings );
+			$title        = $article_data['title'];
+			$description  = $article_data['body'];
+			$selected     = false;
+			if ( 'title-or-body' === $location ) {
+				$selected = true;
+			} elseif ( 'title' === $location && false !== mb_strpos( $title, $settings->get_keyword() ) ) {
+				$selected = true;
+			} elseif ( 'body' === $location && false !== mb_strpos( $description, $settings->get_keyword() ) ) {
+				$selected = true;
+			} elseif (
+				'title-and-body' === $location &&
+				false !== mb_strpos( $title, $settings->get_keyword() ) &&
+				false !== mb_strpos( $description, $settings->get_keyword() )
+			) {
+				$selected = true;
+			}
+
+			if ( false === $selected ) {
+				continue;
+			}
 			$existing_news = ArticleStore::find_by_slug_or_uri( $article_data['slug'] );
 			if ( $existing_news ) {
 				$article_id          = $existing_news['id'] ?? 0;

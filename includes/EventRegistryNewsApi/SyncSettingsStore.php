@@ -79,6 +79,7 @@ class SyncSettingsStore extends DatabaseModel {
 		$data['query_info']             = $this->get_client_query_info();
 		$data['synced_at']              = $this->get_sync_datetime();
 		$data['service_provider']       = $this->get_service_provider();
+		$data['keywordLoc']             = $this->get_keyword_location();
 
 		return $data;
 	}
@@ -278,6 +279,20 @@ class SyncSettingsStore extends DatabaseModel {
 	 */
 	public function has_keyword(): bool {
 		return ! empty( $this->get_keyword() );
+	}
+
+	/**
+	 * Get keyword location
+	 *
+	 * @return string
+	 */
+	public function get_keyword_location(): string {
+		$location = $this->get_prop( 'keywordLoc' );
+		if ( in_array( $location, static::KEYWORD_LOCATION, true ) ) {
+			return $location;
+		}
+
+		return 'title-or-body';
 	}
 
 	/**

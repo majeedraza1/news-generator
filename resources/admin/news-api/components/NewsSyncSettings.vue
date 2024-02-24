@@ -71,6 +71,15 @@
               label="Keyword"
               v-model="state.setting.keyword"
           />
+          <div>
+            <label for="">Keyword Location</label>
+            <div>
+              <ShaplaRadio v-model="state.setting.keywordLoc" value="title">Title</ShaplaRadio>
+              <ShaplaRadio v-model="state.setting.keywordLoc" value="body">Body</ShaplaRadio>
+              <ShaplaRadio v-model="state.setting.keywordLoc" value="title-or-body">Title or Body</ShaplaRadio>
+              <ShaplaRadio v-model="state.setting.keywordLoc" value="title-and-body">Both Title and Body</ShaplaRadio>
+            </div>
+          </div>
         </td>
       </tr>
       <tr>
