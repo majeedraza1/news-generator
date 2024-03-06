@@ -5,7 +5,6 @@ namespace StackonetNewsGenerator\EventRegistryNewsApi;
 use DateTime;
 use DateTimeZone;
 use Stackonet\WP\Framework\Abstracts\DataStoreBase;
-use Stackonet\WP\Framework\Supports\Validate;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiFindInterestingNews;
 use StackonetNewsGenerator\BackgroundProcess\OpenAiReCreateNewsTitle;
 use StackonetNewsGenerator\EventRegistryNewsApi\Setting as EventRegistryNewsApiSettings;
@@ -196,95 +195,6 @@ class ArticleStore extends DataStoreBase {
 		return $query->count();
 	}
 
-	public static function find_articles(
-		string $country_code,
-		string $date,
-		?string $primary_category = null,
-		array $search_keywords = array()
-	): array {
-		if ( Validate::date( $date ) ) {
-			$dateTime  = new DateTime( $date );
-			$date_from = $dateTime->format( 'Y-m-d H:i:s' );
-			$date_to   = $dateTime->modify( 'tomorrow -1 second' )->format( 'Y-m-d H:i:s' );
-		} else {
-			$date_from = date( 'Y-m-d H:i:s', strtotime( '24 hours ago' ) );
-			$date_to   = date( 'Y-m-d H:i:s', time() );
-		}
-
-		$search_items = array();
-		if ( count( $search_keywords ) ) {
-			$search_items = static::search_articles(
-				$search_keywords,
-				array(
-					'country'   => $country_code,
-					'date_from' => $date_from,
-					'date_to'   => $date_to,
-					'category'  => $primary_category,
-				)
-			);
-		}
-
-		$self  = new static();
-		$query = $self->get_query_builder();
-		$query->where( 'country', $country_code );
-		$query->where( 'news_datetime', array( $date_from, $date_to ), 'BETWEEN' );
-		if ( $primary_category && Category::exists( $primary_category ) ) {
-			$query->where( 'primary_category', $primary_category );
-		}
-		$items = $query->get();
-
-		$articles = array();
-		foreach ( array_merge( $search_items, $items ) as $item ) {
-			$articles[ $item[ $self->primary_key ] ] = new Article( $item );
-		}
-
-		return array_values( $articles );
-	}
-
-	/**
-	 * Search article
-	 *
-	 * @param  array  $keys
-	 * @param  array  $args
-	 *
-	 * @return array
-	 */
-	public static function search_articles( array $keys, array $args = array() ): array {
-		$params = wp_parse_args(
-			$args,
-			array(
-				'country'   => '',
-				'date_from' => '',
-				'date_to'   => '',
-				'category'  => '',
-			)
-		);
-
-		global $wpdb;
-		$self  = new self();
-		$table = $self->get_table_name();
-
-		$query = "SELECT * FROM {$table} WHERE 1=1";
-		$query .= $wpdb->prepare( ' AND country = %s', strtolower( $params['country'] ) );
-		if ( Category::exists( $params['category'] ) ) {
-			$query .= $wpdb->prepare( ' AND primary_category = %s', $params['category'] );
-		}
-		$query .= $wpdb->prepare( ' AND news_datetime BETWEEN %s AND %s', $params['date_from'], $params['date_to'] );
-		$query .= ' AND (';
-		foreach ( $keys as $index => $key ) {
-			if ( 0 !== $index ) {
-				$query .= ' OR';
-			}
-
-			$query .= " title LIKE '%" . esc_sql( $key ) . "%'";
-			$query .= " OR body LIKE '%" . esc_sql( $key ) . "%'";
-		}
-		$query .= ' )';
-		$query .= ' ORDER BY news_datetime DESC';
-
-		return $wpdb->get_results( $query, ARRAY_A );
-	}
-
 	/**
 	 * Sync news
 	 *
@@ -316,8 +226,8 @@ class ArticleStore extends DataStoreBase {
 			$slug = mb_substr( $slug, 0, 250 );
 
 			$existing_news = static::find_by_slug_or_uri( $slug, $result['uri'] );
-			if ( $existing_news ) {
-				$article_id          = $existing_news['id'] ?? 0;
+			if ( $existing_news instanceof Article ) {
+				$article_id          = $existing_news->get_id();
 				$existing_news_ids[] = $article_id;
 				$articles[]          = array_merge(
 					$result,
@@ -417,7 +327,7 @@ class ArticleStore extends DataStoreBase {
 	 * @param  string  $slug  News slug.
 	 * @param  string  $uri  News uri.
 	 *
-	 * @return array|false
+	 * @return Article|false
 	 */
 	public static function find_by_slug_or_uri( string $slug, ?string $uri = '' ) {
 		global $wpdb;
@@ -428,8 +338,31 @@ class ArticleStore extends DataStoreBase {
 			$sql .= $wpdb->prepare( ' OR uri = %s', $uri );
 		}
 		$result = $wpdb->get_row( $sql, ARRAY_A );
+		if ( $result ) {
+			return new Article( $result );
+		}
 
-		return is_array( $result ) ? $result : false;
+		return false;
+	}
+
+	/**
+	 * Find news by slug
+	 *
+	 * @param  string  $title  News title.
+	 *
+	 * @return Article|false
+	 */
+	public static function find_by_title( string $title ) {
+		global $wpdb;
+		$self   = new static();
+		$table  = $self->get_table_name();
+		$sql    = $wpdb->prepare( "SELECT * FROM $table WHERE title = %s", $title );
+		$result = $wpdb->get_row( $sql, ARRAY_A );
+		if ( $result ) {
+			return new Article( $result );
+		}
+
+		return false;
 	}
 
 	/**

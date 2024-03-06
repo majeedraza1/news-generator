@@ -157,13 +157,14 @@ class NaverApiClient extends RestClient {
 		$title         = sanitize_text_field( $item['title'] ?? '' );
 		$slug          = sanitize_title_with_dashes( $title, '', 'save' );
 		$news_datetime = gmdate( 'Y-m-d H:i:s', strtotime( $item['pubDate'] ) );
+		$original_link = esc_url( $item['originallink'] ?? '' );
 
 		$data = array(
 			'title'             => $title,
-			'slug'              => md5( $title ),
+			'slug'              => md5( $original_link ),
 			'uri'               => bin2hex( random_bytes( 10 ) ),
-			'body'              => $item['description'] ?? '',
-			'news_source_url'   => esc_url( $item['originallink'] ?? '' ),
+			'body'              => static::esc_html( $item['description'] ?? '' ),
+			'news_source_url'   => $original_link,
 			'news_datetime'     => $news_datetime,
 			'title_words_count' => Utils::str_word_count_utf8( $item['title'] ),
 			'body_words_count'  => Utils::str_word_count_utf8( $item['description'] ),
@@ -175,6 +176,17 @@ class NaverApiClient extends RestClient {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Esc html data
+	 *
+	 * @param  string  $data
+	 *
+	 * @return string
+	 */
+	public static function esc_html( string $data ): string {
+		return wp_kses( stripslashes( $data ), 'post' );
 	}
 
 	/**
@@ -223,8 +235,8 @@ class NaverApiClient extends RestClient {
 				continue;
 			}
 			$existing_news = ArticleStore::find_by_slug_or_uri( $article_data['slug'] );
-			if ( $existing_news ) {
-				$article_id          = $existing_news['id'] ?? 0;
+			if ( $existing_news instanceof Article ) {
+				$article_id          = $existing_news->get_id();
 				$existing_news_ids[] = $article_id;
 				$articles[]          = array_merge(
 					$article_data,

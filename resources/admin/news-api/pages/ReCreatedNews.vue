@@ -5,6 +5,12 @@
     <div>
       <div class="mb-2 flex space-x-2">
         <div class="flex-grow"></div>
+        <ShaplaIcon size="medium" hoverable @click="state.openScreenOptionsModal = true">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+            <path
+                d="M440-280h80l12-60q12-5 22.5-10.5T576-364l58 18 40-68-46-40q2-14 2-26t-2-26l46-40-40-68-58 18q-11-8-21.5-13.5T532-620l-12-60h-80l-12 60q-12 5-22.5 10.5T384-596l-58-18-40 68 46 40q-2 14-2 26t2 26l-46 40 40 68 58-18q11 8 21.5 13.5T428-340l12 60Zm40-120q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/>
+          </svg>
+        </ShaplaIcon>
         <ShaplaButton v-if=" state.status === 'in-progress' && state.selectedItems.length" size="small"
                       @click="markAsFail" theme="primary" outline>
           Mark as Fail
@@ -56,7 +62,7 @@
           />
         </div>
         <ShaplaTable
-            :columns="columns"
+            :columns="state.excludedColumns.length? columns.filter(column => !state.excludedColumns.includes(column.key)):columns"
             :items="state.items"
             :selected-items="state.selectedItems"
             @select:item="onSelectItem"
@@ -192,6 +198,15 @@
       </div>
     </template>
   </ShaplaModal>
+  <ModalScreenOption
+      :active="state.openScreenOptionsModal"
+      :columns="columns"
+      :excluded-columns="state.excludedColumns"
+      :per-page="state.userPerPage"
+      @close="state.openScreenOptionsModal = false"
+      @change:excludedColumns="onChangeExcludedColumns"
+      @update="updateUserOption"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -202,6 +217,7 @@ import {
   Dialog,
   Notify,
   ShaplaButton,
+  ShaplaIcon,
   ShaplaImage,
   ShaplaModal,
   ShaplaSearchForm,
@@ -219,6 +235,7 @@ import ArticleDetails from "../components/ArticleDetails.vue";
 import OpenAiLogs from "../components/OpenAiLogs.vue";
 import AddNewNewsModal from "@/admin/news-api/components/AddNewNewsModal.vue";
 import NewsCrawlerLog from "@/admin/news-api/components/NewsCrawlerLog.vue";
+import ModalScreenOption from "@/admin/news-api/components/ModalScreenOption.vue";
 
 const crud = new CrudOperation('openai/news', http);
 
@@ -246,6 +263,9 @@ const state = reactive<{
   newsToSitesLogs: Record<string, any>[];
   crawler_log: false | Record<string, any>;
   important_news_for_tweets_enabled: boolean;
+  openScreenOptionsModal: boolean;
+  excludedColumns: string[];
+  userPerPage: number;
 }>({
   items: [],
   syncSettingsOptions: null,
@@ -272,7 +292,29 @@ const state = reactive<{
   categories: null,
   default_category: '',
   crawler_log: false,
+  openScreenOptionsModal: false,
+  excludedColumns: [],
+  userPerPage: 20,
 })
+
+const onChangeExcludedColumns = (value: string[]) => {
+  state.excludedColumns = value;
+}
+
+const updateUserOption = (value: Record<string, any>) => {
+  Spinner.show();
+  http
+      .post(`openai/news/screen-options`, value)
+      .then(response => {
+        const data = response.data.data;
+        state.excludedColumns = data.excluded_columns as string[];
+        state.userPerPage = data.user_per_page as number;
+        state.openScreenOptionsModal = false;
+      })
+      .finally(() => {
+        Spinner.hide();
+      })
+}
 
 const showSyncSetting = (news: OpenAiNewsInterface) => {
   state.item = news;
@@ -311,6 +353,8 @@ const getNews = () => {
     state.syncSettingsOptions = data.sync_settings_options as Record<string, string>;
     state.default_category = data.default_category as string;
     state.important_news_for_tweets_enabled = data.important_news_for_tweets_enabled as boolean;
+    state.excludedColumns = data.excluded_columns as string[];
+    state.userPerPage = data.user_per_page as number;
   })
 }
 

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Stackonet News Generator
  * Description: A WordPress plugin to get news from NewsApi(newsapi.ai) and rewrite with OpenAi(openai.com) and distribute via webhook.
- * Version: 2024.02.21
+ * Version: 2024.03.06
  * Author: Stackonet Services (Pvt.) Ltd.
  * Author URI: https://stackonet.com
  * Requires at least: 5.3

@@ -57,6 +57,16 @@ class OpenAiController extends ApiController {
 		);
 		register_rest_route(
 			$this->namespace,
+			'/openai/news/screen-options',
+			array(
+				array(
+					'methods'  => WP_REST_Server::CREATABLE,
+					'callback' => array( $this, 'update_screen_options' ),
+				),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
 			'/openai/news-tags',
 			array(
 				array(
@@ -149,6 +159,43 @@ class OpenAiController extends ApiController {
 					'callback'            => array( $this, 'batch_operation' ),
 					'permission_callback' => array( $this, 'is_editor' ),
 				),
+			)
+		);
+	}
+
+	/**
+	 * Update screen options
+	 *
+	 * @param  WP_REST_Request  $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function update_screen_options( WP_REST_Request $request ) {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return $this->respondUnauthorized();
+		}
+		$user_per_page    = (int) $request->get_param( 'per_page' );
+		$columns          = $request->get_param( 'excluded_columns' );
+		$excluded_columns = array();
+		if ( is_array( $columns ) ) {
+			foreach ( $columns as $column ) {
+				$excluded_columns[] = sanitize_text_field( $column );
+			}
+		}
+		$table_name                   = ( new NewsStore() )->get_table_name();
+		$excluded_columns_option_name = sprintf( '_user_list_table_%s_excluded_columns', $table_name );
+		$excluded_columns_option_name = substr( $excluded_columns_option_name, 0, 190 );
+		update_user_meta( $user_id, $excluded_columns_option_name, $excluded_columns );
+
+		$user_per_page_option_name = sprintf( '_user_list_table_%s_per_page', $table_name );
+		$user_per_page_option_name = substr( $user_per_page_option_name, 0, 190 );
+		update_user_meta( $user_id, $user_per_page_option_name, $user_per_page );
+
+		return $this->respondOK(
+			array(
+				'excluded_columns' => $excluded_columns,
+				'user_per_page'    => $user_per_page,
 			)
 		);
 	}
@@ -247,6 +294,19 @@ class OpenAiController extends ApiController {
 			),
 		);
 
+		$user_id       = get_current_user_id();
+		$user_columns  = array();
+		$user_per_page = $per_page;
+		if ( $user_id ) {
+			$table_name                   = $store->get_table_name();
+			$excluded_columns_option_name = sprintf( '_user_list_table_%s_excluded_columns', $table_name );
+			$excluded_columns_option_name = substr( $excluded_columns_option_name, 0, 190 );
+			$columns                      = get_user_meta( $user_id, $excluded_columns_option_name, true );
+			$user_columns                 = is_array( $columns ) ? $columns : array();
+			$option_name                  = sprintf( '_user_list_table_%s_per_page', $table_name );
+			$user_per_page                = (int) get_user_meta( $user_id, $option_name, true );
+		}
+
 		// All = OpenAI complete & OpenAI skipped
 
 		return $this->respondOK(
@@ -262,6 +322,8 @@ class OpenAiController extends ApiController {
 				'default_category'                  => Category::get_default_category(),
 				'important_news_for_tweets_enabled' => Setting::is_important_news_for_tweets_enabled(),
 				'sync_settings_options'             => SyncSettingsStore::get_settings_as_select_options(),
+				'excluded_columns'                  => $user_columns,
+				'user_per_page'                     => $user_per_page,
 			)
 		);
 	}
