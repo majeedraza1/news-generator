@@ -62,7 +62,7 @@
           />
         </div>
         <ShaplaTable
-            :columns="state.excludedColumns.length? columns.filter(column => !state.excludedColumns.includes(column.key)):columns"
+            :columns="columns.filter(column => !state.excludedColumns.includes(column.key))"
             :items="state.items"
             :selected-items="state.selectedItems"
             @select:item="onSelectItem"
@@ -199,20 +199,20 @@
     </template>
   </ShaplaModal>
   <ModalScreenOption
+      v-if="state.openScreenOptionsModal"
       :active="state.openScreenOptionsModal"
       :columns="columns"
       :excluded-columns="state.excludedColumns"
       :per-page="state.userPerPage"
       @close="state.openScreenOptionsModal = false"
-      @change:excludedColumns="onChangeExcludedColumns"
       @update="updateUserOption"
   />
 </template>
 
 <script lang="ts" setup>
-import CrudOperation, {PaginationDataInterface} from "../../../utils/CrudOperation";
+import CrudOperation, {PaginationDataInterface, ScreenOptionDataInterface} from "../../../utils/CrudOperation";
 import http from "../../../utils/axios";
-import {computed, onMounted, reactive, watch} from "vue";
+import {onMounted, reactive, ref, watch} from "vue";
 import {
   Dialog,
   Notify,
@@ -297,6 +297,9 @@ const state = reactive<{
   userPerPage: 20,
 })
 
+const columns = ref([{label: 'Title', key: 'title'}]);
+const actions = ref([{label: 'View', key: 'view'}]);
+
 const onChangeExcludedColumns = (value: string[]) => {
   state.excludedColumns = value;
 }
@@ -304,11 +307,14 @@ const onChangeExcludedColumns = (value: string[]) => {
 const updateUserOption = (value: Record<string, any>) => {
   Spinner.show();
   http
-      .post(`openai/news/screen-options`, value)
+      .post(`openai/news/screen-options`, {
+        status: state.status,
+        ...value
+      })
       .then(response => {
-        const data = response.data.data;
+        const data = response.data.data as ScreenOptionDataInterface;
         state.excludedColumns = data.excluded_columns as string[];
-        state.userPerPage = data.user_per_page as number;
+        state.userPerPage = data.per_page as number;
         state.openScreenOptionsModal = false;
       })
       .finally(() => {
@@ -353,8 +359,10 @@ const getNews = () => {
     state.syncSettingsOptions = data.sync_settings_options as Record<string, string>;
     state.default_category = data.default_category as string;
     state.important_news_for_tweets_enabled = data.important_news_for_tweets_enabled as boolean;
-    state.excludedColumns = data.excluded_columns as string[];
-    state.userPerPage = data.user_per_page as number;
+    state.excludedColumns = data.screen_options.excluded_columns;
+    state.userPerPage = data.screen_options.per_page;
+    columns.value = data.screen_options.columns;
+    actions.value = data.screen_options.actions;
   })
 }
 
@@ -421,45 +429,6 @@ const deleteFailNews = () => {
     }
   })
 }
-
-const columns = computed(() => {
-  const columns = [{label: 'Title', key: 'title'}];
-
-  if (state.status === 'in-progress' || state.status === 'fail') {
-    columns.push({label: 'Sync status', key: 'sync_status'});
-  } else {
-    columns.push({label: 'on Remote', key: 'remote_log'});
-  }
-
-  columns.push({label: 'For Instagram', key: 'important_for_instagram'});
-  columns.push({label: 'For Twitter', key: 'important_for_tweet'});
-  columns.push({label: 'Category', key: 'category'});
-  columns.push({label: 'Concept', key: 'primary_concept'});
-  columns.push({label: 'Country', key: 'country'});
-  columns.push({label: 'Source', key: 'created_via'});
-  columns.push({label: 'Updated', key: 'updated'});
-
-  return columns;
-});
-
-const actions = computed(() => {
-  const actions = [{label: 'View', key: 'view'}];
-
-  if (state.status === 'in-progress') {
-    actions.push({label: 'Sync Now', key: 'sync-now'});
-    actions.push({label: 'Copy Image', key: 'copy-image'});
-  }
-
-  if (state.status === 'fail') {
-    actions.push({label: 'Try to Sync Again', key: 'sync-now'});
-  }
-
-  if (state.status === 'complete') {
-    actions.push({label: 'Send to Sites', key: 'send-to-sites'});
-    actions.push({label: 'Instagram Use', key: 'mark-for-ig'});
-  }
-  return actions;
-});
 
 const closeOpenAiLogModal = () => {
   state.openAiLogs = [];

@@ -39,8 +39,8 @@ const getUserColumns = (excludedColumns: string[]) => {
       .map(column => column.key);
 }
 
-watch(() => props.columns, newValue => state.columns = newValue);
-watch(() => props.excludedColumns, newValue => state.userColumns = getUserColumns(newValue));
+// watch(() => props.columns, newValue => state.columns = newValue);
+// watch(() => props.excludedColumns, newValue => state.userColumns = getUserColumns(newValue));
 watch(() => state.userColumns, newValue => {
   const excludedColumns = getUserColumns(newValue)
   state.excludedColumns = excludedColumns;

@@ -15,6 +15,13 @@ interface StatusDataInterface {
   label: string;
 }
 
+interface ScreenOptionDataInterface {
+  excluded_columns: string[];
+  per_page: number;
+  columns: { key: string; label: string; }[];
+  actions: { key: string; label: string; }[];
+}
+
 interface CollectionArgumentInterface {
   page?: number;
   per_page?: number;
@@ -29,6 +36,7 @@ interface ServerCollectionResponseDataInterface {
   items: unknown[];
   pagination: PaginationDataInterface;
   statuses?: StatusDataInterface[];
+  screen_options?: ScreenOptionDataInterface;
 
   [key: string]: unknown;
 }
@@ -309,5 +317,6 @@ export type {
   StatusDataInterface,
   ServerCollectionResponseDataInterface,
   ServerSuccessResponseInterface,
+  ScreenOptionDataInterface
 };
 export default CrudOperation;
